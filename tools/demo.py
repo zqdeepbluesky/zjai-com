@@ -58,7 +58,7 @@ def vis_detections(im, class_name, dets, thresh=0.5):
                           bbox[2] - bbox[0],
                           bbox[3] - bbox[1], fill=False,
                           edgecolor='red', linewidth=3.5)
-            )
+        )
         ax.text(bbox[0], bbox[1] - 2,
                 '{:s} {:.3f}'.format(class_name, score),
                 bbox=dict(facecolor='blue', alpha=0.5),
@@ -67,7 +67,7 @@ def vis_detections(im, class_name, dets, thresh=0.5):
     ax.set_title(('{} detections with '
                   'p({} | box) >= {:.1f}').format(class_name, class_name,
                                                   thresh),
-                  fontsize=14)
+                 fontsize=14)
     plt.axis('off')
     plt.tight_layout()
     plt.draw()
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     demonet = args.demo_net
     dataset = args.dataset
     tfmodel = os.path.join('output', demonet, DATASETS[dataset][0], 'default',
-                              NETS[demonet][0])
+                           NETS[demonet][0])
 
 
     if not os.path.isfile(tfmodel + '.meta'):
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     else:
         raise NotImplementedError
     net.create_architecture("TEST", 21,
-                          tag='default', anchor_scales=[8, 16, 32])
+                            tag='default', anchor_scales=[8, 16, 32])
     saver = tf.train.Saver()
     saver.restore(sess, tfmodel)
 
