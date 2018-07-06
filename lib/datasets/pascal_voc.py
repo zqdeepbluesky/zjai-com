@@ -33,12 +33,15 @@ class pascal_voc(imdb):
         self._image_set = image_set
         self._devkit_path = self._get_default_path()
         self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
+        # self._classes = ('__background__',  # always index 0
+        #                  'aeroplane', 'bicycle', 'bird', 'boat',
+        #                  'bottle', 'bus', 'car', 'cat', 'chair',
+        #                  'cow', 'diningtable', 'dog', 'horse',
+        #                  'motorbike', 'person', 'pottedplant',
+        #                  'sheep', 'sofa', 'train', 'tvmonitor')
+
         self._classes = ('__background__',  # always index 0
-                         'aeroplane', 'bicycle', 'bird', 'boat',
-                         'bottle', 'bus', 'car', 'cat', 'chair',
-                         'cow', 'diningtable', 'dog', 'horse',
-                         'motorbike', 'person', 'pottedplant',
-                         'sheep', 'sofa', 'train', 'tvmonitor')
+                         "Tesco-sdp-dz-nyw-100g","aebs-aebsntbbt-dz-hhkw-120g","aebs-aebsytbbt-dz-hhkw-120g","ala-alabg-hz-ywjx-116g","ala-alajxbg-hz-cmwjx-116g","ala-alajxbg-hz-qtjx-116g","asm-asmnc-pz-yw-500ml","bej-bejbbt-dz-qsx-50g","bej-bejnnbbt-dz-xcnnjrsnnw-46g","bl-blht-dz-yw-6.7g","bs-bskl-gz-yw-330ml","bskl-bskl-pz-yw-600ml","ch-chgzt-dz-sjw-45g","ch-chgzt-dz-ygw-45g","ch-cht-pz-ygw-30g","cxm-cxmqkl-dz-cmxnnqkl-120g","cxm-cxmqkl-dz-cmxnxbqkl-24g","dbt-dbtnt-dz-nttg-114g","df-dfhfb-dz-nyw-168g","df-dfqkl-dz-cxhqkl-43g","df-dfqkl-dz-nxbqkl-43g","df-dfqkl-dz-shnnqkl-43g","df-dfqkl-dz-zrbdmjptgqkl-43g","df-dfqkl-dz-zrqkl-43g","dly-dlyfsrmb-dz-xcw-360g","dly-dlyfsrmb-dz-xnw-360g","dly-dlyrsj-dz-cmw-240g","dly-dlyrsj-dz-xjw-240g","fd-fdtsyl-gz-yw-330ml","fj-fjhfcb-dz-hzmw-150g","glg-glgbcbg-hz-hjqklw-48g","glg-glgbcbg-hz-qklw-48g","glg-glgblzbg-hz-cmnnw-45g","glg-glgblzbg-hz-mcxcw-45g","glg-glgbqbg-hz-cmw-55g","glg-glgbqbg-hz-mcw-50g","glg-glgbqbg-hz-nnw-60g","glg-glgbqbg-hz-qklw-60g","glg-glgllbqbg-hz-lmw-45g","gxf-gxfsjfz-dz-yw-100g","gz-gzfwgtyl-dz-nmw-400g","harbinpj-harbinpj-gz-330ml","hly-hlydhp-hz-yw-138g","hly-hlyhdy-hz-cxskw-33g","hly-hlyhdy-hz-nxqzw-33g","hly-hlyhdy-hz-xxhtw-33g","hly-hlyqklp-hz-qklw-204g","hly-hlyqtqkldg-hz-zzqklw-168g","hly-hlytlmsp-hz-yw-138g","hly-hlyytdst-dz-fqjw-70g","hly-hlyytdst-dz-ljnpw-70g","hly-hlyytdst-dz-scjyljw-45g","hn-hnwssgnyl-gz-yw-250ml","htk-tls-dz-hdw-288g","htk-tls-dz-xyw-288g","hwd-hwdfbm-tz-hxfw-84g","hwd-hwdfbm-tz-hxw-84g","hwd-hwdfbm-tz-wxnrfw-84g","hwd-hwdfbm-tz-wxnrw-84g","hy-hybfbgz-hz-xcw-200ml","hzl-hzl-gz-yw-310ml","jb-jbjyz-dz-yw-95g","jdb-jdb-pz-yw-500ml","jdb-jdblc-gz-yw-310ml","kbk-kbksp-dz-fqw-60g","kbk-kbksp-dz-skw-60g","ke-keqczyl-gz-czw-310ml","kkkl-jcnmwqs-pz-nmw-500ml","kkkl-kkkl-pz-yw-600ml","kkkl-kkkltsyl-gz-yw-330ml","ksf-ksfbg-dz-qxnmw-125g","ksf-ksfhsnrm-tz-hsnrw-64g","ksf-ksfltscnrm-tz-scnr-82.5g","ksf-ksfyrs-pz-yw-550ml","lfe-lfeyrbttgsq-hz-yrbtr-30g","lj-ljlzkxt-pz-bhw-64g","llm-llm-dz-nmcm-60g","ls-lssp-dz-mgjdyw-70g","ls-lswxsp-tz-fchgw-104g","ls-lswxsp-tz-szhsrw-104g","ls-lswxsp-tz-xnfqw-104g","ls-lswxsp-tz-yw-104g","ls-lswxsp-tz-zzkrw-104g","lzs-rnbdwhbg-hz-nlw-145g","md-mdwssyl-pz-qn-600ml","mdl-mdlbxgg-dz-bxg-80g","mms-mmsqkl-pz-mmsnnqkld-30.6g","mn-mnssr-hz-cmw-250ml","mn-mnssr-hz-yw-250ml","mn-zgl-hz-cmw-250ml","mn-zgl-hz-ygw-250ml","mz-mzxxb-pz-nnw-50g","mz-mzxxb-pz-qklw-50g","mzy-mzyglc-pz-czw-450ml","mzy-mzyglny-pz-blw-450ml","mzy-mzyglny-pz-mgw-450ml","mzy-mzyrdgl-pz-rdfw-420ml","nfsq-nfgyhhgsyl-pz-hhgs-500ml","nfsq-nfsqc-pz-xymlhc-500ml","nfsq-nfsqc-pz-yzlc-500ml","nfsq-nfsqjjydyl-pz-nmw-550ml","nfsq-nfsqsrc-pz-nmw-445ml","nfsq-nfsqyytrs-pz-yw-550ml","pp-ppfsmb-dz-nxw-400g","pp-ppfsmb-dz-xcw-400g","pp-ppfsxmb-dz-nxw-440g","qc-qckf-pz-shnt-268ml","qc-qckfjrkfyp-hz-yw-105g","qc-qcymln-tz-yw-350g","qdpj-qdpj-gz-yw-330ml","qq-qqlcgz-dz-lcw-228g","rio-rio-gz-yw-330ml","sh-shdgzyl-hz-dgw-250ml","sh-shhtc-dz-yw-500g","sh-shjrhtc-dz-jrw-240g","shj-shjhld-dz-hldw-55g","shj-shjrsyg-dz-htw-50g","shj-shjsmt-dz-cmw-40g","shj-shjst-dz-fqw-40g","shj-shjtysp-dz-fqw-80g","shj-shjtysp-dz-krw-80g","shj-shjxxp-dz-xxw-40g","shj-shjycq-dz-ycw-40g","slj-sljqkl-dz-hsjx-35g","tdyh-tdyhpgc-gz-pg-330ml","ty-hzy-pz-gw-500ml","ty-tyhsnrm-tz-nr-105g","ty-tyxmtx-pz-lpqnhc-480ml","wl-wldmj-dz-lw-106g","wlj-wljlc-gz-yw-310ml","wlj-wljlc-hz-yw-250ml","wlj-wljlc-pz-yw-500ml","wq-wqaljm-dz-al-50g","wt-wtcyl-gz-nm-310ml","wt-wtnmc-pz-nm-500ml","wtn-wtnywdn-hz-yw-250ml","wwsp-wwhshtmb-dz-htw-118g","wwsp-wwxb-dz-yw-84g","wwsp-wwxxs-dz-yw-60g","wwsp-wznn-gz-yw-145ml","wwsp-wznn-hz-yw-125ml","wwsp-wzxmt-dz-nnw-210g","xb-xbtsyl-gz-yw-330ml","xhpj-xhqspj-gz-yw-330ml","xpp-xppnc-bz-cmw-80g","xpp-xppnc-bz-mxw-80g","xpp-xppnc-bz-xyw-80g","xpp-xppnc-bz-yw-80g","yb-ybcjs-pz-yw-555ml","yd-ydwtkxt-hz-rdsgw-32g","yd-ydwtkxt-pz-blbhw-56g","yd-ydwtkxt-pz-qscmw-56g","yd-ydwtkxt-pz-qsxgw-56g","yd-ydwtkxt-pz-qxlmw-56g","yd-ydwtkxt-pz-xcbhw-56g","yd-ydwtkxt-pz-xnmgw-56g","yj-pjfz-dz-sjw-100g","yl-ylcnn-hz-yw-250ml","yl-ylgldnn-hz-heiguw-250ml","yl-ylgldnn-hz-hongguw-250ml","yl-ylhzdhmbbz-gz-hm-280g","yl-ylqqxetcznn-hz-jgx-125ml","yl-ylqqxetcznn-hz-qcx-125ml","yl-ylshwrtnn-hz-qzx-220ml","yl-ylysr-hz-cmw-250ml","yl-ylysr-hz-yw-250ml","ys-zzyspyz-gz-yw-245ml","ys-zzyspyz-hz-yw-245ml","yy-yylght-gz-ht-240ml")
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()
@@ -54,10 +57,8 @@ class pascal_voc(imdb):
                        'matlab_eval': False,
                        'rpn_file': None}
 
-        assert os.path.exists(self._devkit_path), \
-            'VOCdevkit path does not exist: {}'.format(self._devkit_path)
-        assert os.path.exists(self._data_path), \
-            'Path does not exist: {}'.format(self._data_path)
+        assert os.path.exists(self._devkit_path), 'VOCdevkit path does not exist: {}'.format(self._devkit_path)
+        assert os.path.exists(self._data_path), 'Path does not exist: {}'.format(self._data_path)
 
     def image_path_at(self, i):
         """
@@ -71,8 +72,7 @@ class pascal_voc(imdb):
         """
         image_path = os.path.join(self._data_path, 'JPEGImages',
                                   index + self._image_ext)
-        assert os.path.exists(image_path), \
-            'Path does not exist: {}'.format(image_path)
+        assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
         return image_path
 
     def _load_image_set_index(self):
@@ -83,8 +83,7 @@ class pascal_voc(imdb):
         # self._devkit_path + /VOCdevkit2007/VOC2007/ImageSets/Main/val.txt
         image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
                                       self._image_set + '.txt')
-        assert os.path.exists(image_set_file), \
-            'Path does not exist: {}'.format(image_set_file)
+        assert os.path.exists(image_set_file), 'Path does not exist: {}'.format(image_set_file)
         with open(image_set_file) as f:
             image_index = [x.strip() for x in f.readlines()]
         return image_index
@@ -132,8 +131,7 @@ class pascal_voc(imdb):
     def _load_rpn_roidb(self, gt_roidb):
         filename = self.config['rpn_file']
         print('loading {}'.format(filename))
-        assert os.path.exists(filename), \
-            'rpn data not found at: {}'.format(filename)
+        assert os.path.exists(filename), 'rpn data not found at: {}'.format(filename)
         with open(filename, 'rb') as f:
             box_list = pickle.load(f)
         return self.create_roidb_from_box_list(box_list, gt_roidb)
@@ -166,11 +164,15 @@ class pascal_voc(imdb):
         for ix, obj in enumerate(objs):
             bbox = obj.find('bndbox')
             # Make pixel indexes 0-based
-            x1 = float(bbox.find('xmin').text) - 1
-            y1 = float(bbox.find('ymin').text) - 1
-            x2 = float(bbox.find('xmax').text) - 1
-            y2 = float(bbox.find('ymax').text) - 1
-            cls = self._class_to_ind[obj.find('name').text.lower().strip()]
+            x1 = float(bbox.find('xmin').text)
+            y1 = float(bbox.find('ymin').text)
+            x2 = float(bbox.find('xmax').text)
+            y2 = float(bbox.find('ymax').text)
+            # cls = self._class_to_ind[obj.find('name').text.lower().strip()]
+            cls = self._class_to_ind[obj.find('name').text.strip()]
+
+            if x1 > 5000:
+                print('a')
             boxes[ix, :] = [x1, y1, x2, y2]
             gt_classes[ix] = cls
             overlaps[ix, cls] = 1.0

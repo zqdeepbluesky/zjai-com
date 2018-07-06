@@ -22,6 +22,12 @@ from nets.vgg16 import vgg16
 from nets.resnet_v1 import resnetv1
 from nets.mobilenet_v1 import mobilenetv1
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 def print_args(args):
     if args is None:
         print('args error')
