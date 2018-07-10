@@ -20,16 +20,21 @@ from nets.vgg16 import vgg16
 from nets.resnet_v1 import resnetv1
 from nets.mobilenet_v1 import mobilenetv1
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 def parse_args():
     """
     Parse input arguments
     """
     parser = argparse.ArgumentParser(description='Test a Fast R-CNN network')
     parser.add_argument('--cfg', dest='cfg_file',
-                        help='optional config file', default=None, type=str)
+                        help='optional config file', default='experiments/cfgs/vgg16.yml', type=str)
     parser.add_argument('--model', dest='model',
                         help='model to test',
-                        default=None, type=str)
+                        default=os.path.join(cfg.ROOT_DIR, 'output/vgg16/voc_2007_trainval/default/vgg16_faster_rcnn_iter_110000.ckpt') , type=str)
     parser.add_argument('--imdb', dest='imdb_name',
                         help='dataset to test',
                         default='voc_2007_test', type=str)
@@ -43,14 +48,14 @@ def parse_args():
                         default='', type=str)
     parser.add_argument('--net', dest='net',
                         help='vgg16, res50, res101, res152, mobile',
-                        default='res50', type=str)
+                        default='vgg16', type=str)
     parser.add_argument('--set', dest='set_cfgs',
-                        help='set config keys', default=None,
+                        help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]'],
                         nargs=argparse.REMAINDER)
 
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
+    # if len(sys.argv) == 1:
+    #     parser.print_help()
+    #     sys.exit(1)
 
     args = parser.parse_args()
     return args
