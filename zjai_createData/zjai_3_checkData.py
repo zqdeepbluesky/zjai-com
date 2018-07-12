@@ -10,20 +10,11 @@
 #输出：数据中每个label的分布情况统计信息 txt文件
 # =========================================================
 
-import sys
-sys.path.append("..")
+import os.path as osp
 import os
-import matplotlib.pyplot as plot
-from lxml.etree import Element, SubElement, tostring
-from xml.dom.minidom import parseString
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import Element
 
-pwd=sys.path[0]
-parentDir=os.path.dirname(pwd)
-dataSetDir=os.path.join(parentDir,"dataSet")
-annotPath=os.path.join(dataSetDir,"Annotations")
-mainPath=os.path.join(dataSetDir,"ImageSets/Main")
+
 
 def getTxtData(dir,type):
     '''
@@ -73,6 +64,7 @@ def getAllXml(dirs,annot_Path):
     count=0
     for dir in dirs:
         xmlPath=annot_Path+"/"+dir+".xml"
+        xmlPath=xmlPath.replace("JPEGImages","Annotations")
         labelCount=checkXml(xmlPath,labelCount)
         count+=1
         if count%5000==0:
@@ -80,16 +72,16 @@ def getAllXml(dirs,annot_Path):
     # print(labelCount)
     return labelCount
 
-def IsValidXml(dirs):
-    '''
-    函数用于批量检查xml中是否存在不含有object的情况
-    :param dirs:xml文件的父路径
-    :return:
-    '''
-    for dir in os.listdir(dirs):
-        num=checkValidXml(dirs+"/"+dir)
-        if num==0:
-            print(dirs)
+# def IsValidXml(dirs):
+#     '''
+#     函数用于批量检查xml中是否存在不含有object的情况
+#     :param dirs:xml文件的父路径
+#     :return:
+#     '''
+#     for dir in os.listdir(dirs):
+#         num=checkValidXml(dirs+"/"+dir)
+#         if num==0:
+#             print(dirs)
 
 def countLabel(labelCount):
     '''
@@ -131,7 +123,7 @@ def writeLabelCount1(dataSetDir,labelCount,type):
     sortDict=sorted(labelCount.items(),key = lambda x:x[1],reverse = False)
     min=""
     max=""
-    with open(dataSetDir+"/"+"labelCount_{}.txt".format(type),"w") as f:
+    with open(dataSetDir+"/"+"ImageSets/Main/labelCount_{}.txt".format(type),"w") as f:
         dictNum=len(sortDict)
         countNum=0
         for key, value in sortDict:
@@ -148,7 +140,10 @@ def writeLabelCount1(dataSetDir,labelCount,type):
         # f.write("{} type object have only ".format(str(max)) + "{} \n".format(str(sortDict[max])))
     print("finish")
 
-type="trainval"
-txtData=getTxtData(mainPath,type)
-labelCount=getAllXml(txtData,annotPath)
-writeLabelCount1(dataSetDir,labelCount,type)
+if __name__=="__main__":
+    root_dir=osp.abspath(osp.join(osp.dirname(__file__), '..'))
+    dataDirs = osp.join(root_dir, 'data', 'train_data')
+    type="test"
+    txtData=getTxtData(dataDirs,type)
+    labelCount=getAllXml(txtData,dataDirs)
+    writeLabelCount1(dataDirs,labelCount,type)

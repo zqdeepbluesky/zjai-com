@@ -10,30 +10,54 @@
 #输出：用于 训练评估和测试的图像名称列表 的txt文件
 # =========================================================
 
-from data_processing import create_Main
-from data_processing import create_all_Main
-import sys
+
 import os
+import os.path as osp
 import random
+from data_processing.utils.io_utils import *
+from zjai_createData import check_exist
+from zjai_createData.check_exist import getAllFile
 
-pwd=sys.path[0]
-# srcPath="/home/hyl/data/data-lyl"
-parentDir=os.path.dirname(pwd)
-dataSetDir=os.path.join(parentDir,"dataSet")
-# dataSetDir="/home/hyl/data/data-lyl/test_data-2018-06-15"
-dataSetDir="/home/hyl/data/data-lyl/2018-07-09_test"
-scale=9
-
-def createBasicMain(dataSetPath,scale):
+def _create_Main(dataDirs,fileList,scale):
     '''
-    函数调用data_processing的函数
-    :param dataSetPath:
-    :param scale:划分比例
+    create the trainval.txt and test.txt for train.
+    trainval data : test data = 5:1
+    :param path:
     :return:
     '''
-    # dataSetPath = getPath()
-    dirs=[]
-    dirs.append(dataSetPath)
-    create_Main.create_subs_Main_new(dirs,scale)
+    trainval_images = []
+    test_images = []
+    mkdir(osp.join(dataDirs,"ImageSets","Main"))
+    for i in range(len(fileList)//scale, len(fileList)):
+        s = fileList[i]
+        if dataDirs[-1]=="/":
+            s=s.replace(dataDirs,"")
+        else:
+            s=s.replace(dataDirs + "/", "")
+        trainval_images.append(s.split('.')[0] + '\n')
 
-createBasicMain(dataSetDir,scale)
+    for i in range(len(fileList)//scale):
+        s = fileList[i]
+        if dataDirs[-1]=="/":
+            s=s.replace(dataDirs,"")
+        else:
+            s=s.replace(dataDirs + "/", "")
+        test_images.append(s.split('.')[0] + '\n')
+
+    with open(dataDirs+'/ImageSets/Main/trainval.txt','w+') as f:
+        f.writelines(trainval_images)
+        print("{}, numbers:{}".format(dataDirs + '/trainval.txt', len(trainval_images)))
+    with open(dataDirs+'/ImageSets/Main/test.txt','w+') as f:
+        f.writelines(test_images)
+        print("{}, numbers:{}".format(dataDirs + '/test.txt', len(test_images)))
+
+    print('total: {}'.format(len(fileList)))
+    print('step: {}'.format(len(trainval_images)//2+1))
+
+if __name__=="__main__":
+    # root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
+    root_dir = "/home/hyl/data/ljk/project/2-shopDetect/tf-faster-rcnn-master"
+    dataDirs = osp.join(root_dir, 'data', 'train_data')
+    scale = 9
+    fileList=getAllFile(dataDirs,fileType="jpg")
+    _create_Main(dataDirs,fileList,scale)

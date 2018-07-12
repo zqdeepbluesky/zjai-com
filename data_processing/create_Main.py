@@ -8,8 +8,8 @@
 import argparse
 import random
 import os
-from data_processing.io_utils import mkdir
-from config import ROOT_HOME
+from data_processing.utils.io_utils import mkdir
+from data_processing.config import ROOT_HOME
 
 def _create_Main(path):
     '''
