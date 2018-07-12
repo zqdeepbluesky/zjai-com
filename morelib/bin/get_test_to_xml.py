@@ -2,24 +2,20 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import _init_paths
-from model.config import cfg
-from model.test import im_detect
-from model.nms_wrapper import nms
-
-from utils.timer import Timer
-import tensorflow as tf
-import matplotlib.pyplot as plt
-import numpy as np
-import os, cv2
 import argparse
 import os.path as osp
-from nets.vgg16 import vgg16
+
+import cv2
+import numpy as np
+import tensorflow as tf
+
+from model.config import cfg
+from model.nms_wrapper import nms
+from model.test import im_detect
+from morelib.utils.xml_fromsg import *
 from nets.resnet_v1 import resnetv1
-from morelib import newUtils
-from morelib.newUtils.xml_fromsg import *
-from lxml.etree import Element, SubElement, tostring
-from xml.dom.minidom import parseString
+from nets.vgg16 import vgg16
+from utils.timer import Timer
 
 # CLASSES = ('__background__',
 #            'aeroplane', 'bicycle', 'bird', 'boat',

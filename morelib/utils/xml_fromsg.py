@@ -1,11 +1,10 @@
-from lxml.etree import Element, SubElement, tostring
-from xml.dom.minidom import parseString
 import os
+from xml.dom.minidom import parseString
+
 
 def make_xml(im_info, classDict):
     from lxml.etree import Element, SubElement, tostring
     from xml.dom.minidom import parseString
-    import os
     node_root = Element('annotation')
     node_folder = SubElement(node_root, 'folder')
     node_folder.text = 'JPEGImages'
