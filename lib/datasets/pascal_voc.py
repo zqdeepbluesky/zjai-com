@@ -31,8 +31,11 @@ class pascal_voc(imdb):
         imdb.__init__(self, name)
         self._year = year
         self._image_set = image_set
-        self._devkit_path = self._get_default_path()   #返回基础路径
-        self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
+        self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),
+                                                         "..", "..", "data", "train_data"))
+        # self._devkit_path = self._get_default_path()   #返回基础路径
+        # self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
+        self._data_path = self._devkit_path
         # self._classes = ('__background__',  # always index 0
         #                  'aeroplane', 'bicycle', 'bird', 'boat',
         #                  'bottle', 'bus', 'car', 'cat', 'chair',
@@ -131,7 +134,9 @@ class pascal_voc(imdb):
         """
         Construct an image path from the image's "index" identifier.
         """
-        image_path = os.path.join(self._data_path, 'JPEGImages',
+        # image_path = os.path.join(self._data_path, 'JPEGImages',
+        #                           index + self._image_ext)
+        image_path = os.path.join(self._data_path,
                                   index + self._image_ext)
         assert os.path.exists(image_path), \
             'Path does not exist: {}'.format(image_path)
