@@ -144,4 +144,7 @@ Tensorboard information for train and validation is saved under:
 ```
 tensorboard/[NET]/[DATASET]/default/
 tensorboard/[NET]/[DATASET]/default_val/
-```
+
+6. Test and save result into xml
+   run ./morelib/test/get_test_to_xml.py
+   #put the test picture into the files /data/forecast/JPEGImages
