@@ -11,19 +11,23 @@
 # =========================================================
 
 import os
+import os.path as osp
 import sys
-pwd=sys.path[0]
-parentDir=os.path.dirname(pwd)
-dataSetDir=os.path.join(parentDir,"dataSet")
-type='trainval'
 
 def getAlllabel(dataSetDir,type):
-    labelList=[]
-    with open(os.path.join(dataSetDir,"labelCount_{}.txt".format(type)),"r") as f:
+    labelList=["__background__"]
+    mainDir=osp.join(dataSetDir,"ImageSets","Main")
+    with open(os.path.join(mainDir,"labelCount_{}.txt".format(type)),"r") as f:
         lineList=f.readlines()
         for i in range(len(lineList)-2):
             line=lineList[i].split(":")[0].strip()
             labelList.append(line)
     print(labelList)
+    with open(dataSetDir+"/classes.txt",'w') as f:
+        f.write("\n".join(labelList))
 
-getAlllabel(dataSetDir,type)
+if __name__=="__main__":
+    root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
+    dataDirs = osp.join(root_dir, 'data', 'train_data')
+    fileType = 'trainval'
+    getAlllabel(dataDirs,fileType)
