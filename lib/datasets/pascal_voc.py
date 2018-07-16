@@ -71,10 +71,8 @@ class pascal_voc(imdb):
                        'matlab_eval': False,
                        'rpn_file': None}
 
-        assert os.path.exists(self._devkit_path), \
-            'VOCdevkit path does not exist: {}'.format(self._devkit_path)
-        assert os.path.exists(self._data_path), \
-            'Path does not exist: {}'.format(self._data_path)
+        assert os.path.exists(self._devkit_path),'VOCdevkit path does not exist: {}'.format(self._devkit_path)
+        assert os.path.exists(self._data_path),'Path does not exist: {}'.format(self._data_path)
 
     def _get_classes(self):
         classes = []
@@ -98,8 +96,7 @@ class pascal_voc(imdb):
         #                           index + self._image_ext)
         image_path = os.path.join(self._data_path,
                                   index + self._image_ext)
-        assert os.path.exists(image_path), \
-            'Path does not exist: {}'.format(image_path)
+        assert os.path.exists(image_path),'Path does not exist: {}'.format(image_path)
         return image_path
 
     def _load_image_set_index(self):
@@ -110,8 +107,7 @@ class pascal_voc(imdb):
         # self._devkit_path + /VOCdevkit2007/VOC2007/ImageSets/Main/val.txt
         image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
                                       self._image_set + '.txt')
-        assert os.path.exists(image_set_file), \
-            'Path does not exist: {}'.format(image_set_file)
+        assert os.path.exists(image_set_file),'Path does not exist: {}'.format(image_set_file)
         with open(image_set_file) as f:
             image_index = [x.strip() for x in f.readlines()]
         return image_index
@@ -159,8 +155,7 @@ class pascal_voc(imdb):
     def _load_rpn_roidb(self, gt_roidb):
         filename = self.config['rpn_file']
         print('loading {}'.format(filename))
-        assert os.path.exists(filename), \
-            'rpn data not found at: {}'.format(filename)
+        assert os.path.exists(filename),'rpn data not found at: {}'.format(filename)
         with open(filename, 'rb') as f:
             box_list = pickle.load(f)
         return self.create_roidb_from_box_list(box_list, gt_roidb)

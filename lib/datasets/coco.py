@@ -96,8 +96,7 @@ class coco(imdb):
                      str(index).zfill(12) + '.jpg')
         image_path = osp.join(self._data_path, 'images',
                               self._data_name, file_name)
-        assert osp.exists(image_path), \
-            'Path does not exist: {}'.format(image_path)
+        assert osp.exists(image_path),'Path does not exist: {}'.format(image_path)
         return image_path
 
     def gt_roidb(self):
