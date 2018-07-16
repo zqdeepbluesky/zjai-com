@@ -27,7 +27,8 @@ def getAlllabel(dataSetDir,type):
         f.write("\n".join(labelList))
 
 if __name__=="__main__":
-    root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
+    # root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
+    root_dir="/home/hyl/data/ljk/project/2-shopDetect/tf-faster-rcnn-master/"
     dataDirs = osp.join(root_dir, 'data', 'train_data')
     fileType = 'trainval'
     getAlllabel(dataDirs,fileType)
