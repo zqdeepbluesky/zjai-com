@@ -35,6 +35,7 @@ class SolverWrapper(object):
         self.roidb = roidb
         self.valroidb = valroidb
         self.output_dir = output_dir
+        self._save_batch_model = os.path.join(os.path.abspath(os.path.join(output_dir, "..")), "save_model")
         self.tbdir = tbdir
         # Simply put '_val' at the end to save the summaries from the validation set
         self.tbvaldir = tbdir + '_val'
@@ -42,21 +43,21 @@ class SolverWrapper(object):
             os.makedirs(self.tbvaldir)
         self.pretrained_model = pretrained_model
 
-    def snapshot(self, sess, iter):
+    def snapshot(self, sess, iter,outputDir):
         net = self.net
 
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
+        if not os.path.exists(outputDir):
+            os.makedirs(outputDir)
 
         # Store the model snapshot
         filename = cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_{:d}'.format(iter) + '.ckpt'
-        filename = os.path.join(self.output_dir, filename)
+        filename = os.path.join(outputDir, filename)
         self.saver.save(sess, filename)
         print('Wrote snapshot to: {:s}'.format(filename))
 
         # Also store some meta information, random state, etc.
         nfilename = cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_{:d}'.format(iter) + '.pkl'
-        nfilename = os.path.join(self.output_dir, nfilename)
+        nfilename = os.path.join(outputDir, nfilename)
         # current state of numpy random
         st0 = np.random.get_state()
         # current position in the database
@@ -268,7 +269,7 @@ class SolverWrapper(object):
             # Learning rate
             if iter == next_stepsize + 1:
                 # Add snapshot here before reducing the learning rate
-                self.snapshot(sess, iter)
+                self.snapshot(sess, iter,self.output_dir)
                 rate *= cfg.TRAIN.GAMMA
                 sess.run(tf.assign(lr, rate))
                 next_stepsize = stepsizes.pop()
@@ -304,13 +305,17 @@ class SolverWrapper(object):
             # Snapshotting
             if iter % cfg.TRAIN.SNAPSHOT_ITERS == 0:
                 last_snapshot_iter = iter
-                ss_path, np_path = self.snapshot(sess, iter)
+                ss_path, np_path = self.snapshot(sess, iter,self.output_dir)
                 np_paths.append(np_path)
                 ss_paths.append(ss_path)
 
                 # Remove the old snapshots if there are too many
                 if len(np_paths) > cfg.TRAIN.SNAPSHOT_KEPT:
                     self.remove_snapshot(np_paths, ss_paths)
+
+            if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0:  # 每100000次就保存一次模型文件
+                last_snapshot_iter = iter
+                ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
 
             iter += 1
 
