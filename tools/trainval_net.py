@@ -55,6 +55,9 @@ def parse_args():
     parser.add_argument('--imdbval', dest='imdbval_name',
                         help='dataset to validate on',
                         default='voc_2007_test', type=str)
+    parser.add_argument('--epochs', dest='epochs',
+                        help='epoch of iteration to train',
+                        default=10, type=int)
     parser.add_argument('--iters', dest='max_iters',
                         help='number of iterations to train',
                         default=70000, type=int)
@@ -139,4 +142,4 @@ if __name__ == '__main__':
     # output data directory
     output_dir, tb_dir = prepare_params()
 
-    train_net(base_net, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=args.weight, max_iters=args.max_iters)
+    train_net(base_net, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=args.weight, max_iters=args.max_iters*args.epochs)

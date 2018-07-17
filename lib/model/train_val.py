@@ -29,7 +29,7 @@ class SolverWrapper(object):
       A wrapper class for the training process
     """
 
-    def __init__(self, sess, network, imdb, roidb, valroidb, output_dir, tbdir, pretrained_model=None):
+    def __init__(self, network, imdb, roidb, valroidb, output_dir, tbdir, pretrained_model=None):
         self.net = network
         self.imdb = imdb
         self.roidb = roidb
@@ -355,14 +355,11 @@ def filter_roidb(roidb):
     num = len(roidb)
     filtered_roidb = [entry for entry in roidb if is_valid(entry)]
     num_after = len(filtered_roidb)
-    print('Filtered {} roidb entries: {} -> {}'.format(num - num_after,
-                                                       num, num_after))
+    print('Filtered {} roidb entries: {} -> {}'.format(num - num_after, num, num_after))
     return filtered_roidb
 
 
-def train_net(network, imdb, roidb, valroidb, output_dir, tb_dir,
-              pretrained_model=None,
-              max_iters=40000):
+def train_net(network, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=None, max_iters=40000):
     """Train a Faster R-CNN network."""
     roidb = filter_roidb(roidb)
     valroidb = filter_roidb(valroidb)
@@ -371,8 +368,7 @@ def train_net(network, imdb, roidb, valroidb, output_dir, tb_dir,
     tfconfig.gpu_options.allow_growth = True
 
     with tf.Session(config=tfconfig) as sess:
-        sw = SolverWrapper(sess, network, imdb, roidb, valroidb, output_dir, tb_dir,
-                           pretrained_model=pretrained_model)
+        sw = SolverWrapper(network, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=pretrained_model)
         print('Solving...')
         sw.train_model(sess, max_iters)
         print('done solving')
