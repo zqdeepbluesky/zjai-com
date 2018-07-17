@@ -313,7 +313,7 @@ class SolverWrapper(object):
                 if len(np_paths) > cfg.TRAIN.SNAPSHOT_KEPT:
                     self.remove_snapshot(np_paths, ss_paths)
 
-            if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0:  # 每100000次就保存一次模型文件
+            if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0:  # 每100000次就保存一次模型文件
                 last_snapshot_iter = iter
                 ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
 
