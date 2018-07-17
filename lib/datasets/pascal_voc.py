@@ -65,7 +65,6 @@ class pascal_voc(imdb):
         self.config = {'cleanup': True,
                        'use_salt': True,
                        'use_diff': use_diff,
-                       'matlab_eval': False,
                        'rpn_file': None}
 
         assert os.path.exists(self._devkit_path),'VOCdevkit path does not exist: {}'.format(self._devkit_path)
@@ -92,7 +91,7 @@ class pascal_voc(imdb):
         """
         image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
-        # image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
+        image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
         # image_path = os.path.join(self._file_dict[index], index + self._image_ext)
         # image_path = image_path.replace("Annotations", "JPEGImages")
         # assert os.path.exists(image_path),'Path does not exist: {}'.format(image_path)
@@ -308,26 +307,9 @@ class pascal_voc(imdb):
         print('-- Thanks, The Management')
         print('--------------------------------------------------------------')
 
-    def _do_matlab_eval(self, output_dir='output'):
-        print('-----------------------------------------------------')
-        print('Computing results with the official MATLAB eval code.')
-        print('-----------------------------------------------------')
-        path = os.path.join(cfg.ROOT_DIR, 'lib', 'datasets',
-                            'VOCdevkit-matlab-wrapper')
-        cmd = 'cd {} && '.format(path)
-        cmd += '{:s} -nodisplay -nodesktop '.format(cfg.MATLAB)
-        cmd += '-r "dbstop if error; '
-        cmd += 'voc_eval(\'{:s}\',\'{:s}\',\'{:s}\',\'{:s}\'); quit;"' \
-            .format(self._devkit_path, self._get_comp_id(),
-                    self._image_set, output_dir)
-        print(('Running:\n{}'.format(cmd)))
-        status = subprocess.call(cmd, shell=True)
-
     def evaluate_detections(self, all_boxes, output_dir):
         self._write_voc_results_file(all_boxes)
         self._do_python_eval(output_dir)
-        if self.config['matlab_eval']:
-            self._do_matlab_eval(output_dir)
         if self.config['cleanup']:
             for cls in self._classes:
                 if cls == '__background__':

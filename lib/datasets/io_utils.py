@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-# @Time    : 7/5/2018 10:43 AM
-# @Author  : sunyonghai
-# @File    : io_utils.py
-# @Software: ZJ_AI
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # @Time : 3/15/2018 4:22 PM
