@@ -9,8 +9,6 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-
-import zjai_createData.check_exist
 from datasets.imdb import imdb
 import datasets.ds_utils as ds_utils
 import xml.etree.ElementTree as ET
@@ -41,20 +39,25 @@ class pascal_voc(imdb):
         imdb.__init__(self, name)
         self._year = year
         self._image_set = image_set
-        self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),
-                                                         "..", "..", "data", "train_data"))
+        self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),  "..", "..", "data", "train_data", 'all_train_data_resize2'))
+        # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),  "..", "..", "data", "train_data", 'VOC2007_origin'))
+
+
         # self._devkit_path = self._get_default_path()   #返回基础路径
-        # self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
         self._data_path = self._devkit_path
-
-        self._classes = read_classes(os.path.join(self._get_default_path(), "..", "..", 'data', 'cfgs', 'com_classes.txt'))
-
+        self._classes = read_classes( os.path.join(self._get_default_path(),"..", "..",'data', 'cfgs', 'com_classes.txt'))
+        # self._classes = ('__background__',  # always index 0
+        #                  'aeroplane', 'bicycle', 'bird', 'boat',
+        #                  'bottle', 'bus', 'car', 'cat', 'chair',
+        #                  'cow', 'diningtable', 'dog', 'horse',
+        #                  'motorbike', 'person', 'pottedplant',
+        #                  'sheep', 'sofa', 'train', 'tvmonitor')
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))  #弄成序号
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()   #返回图像路径
         # Default to roidb handler
         self._roidb_handler = self.gt_roidb    #返回基础的roidb
-        self._file_dict = self._load_file_dict()
+        # self._file_dict = self._load_file_dict()
         self._salt = str(uuid.uuid4())
         self._comp_id = 'comp4'
 
@@ -68,6 +71,15 @@ class pascal_voc(imdb):
         assert os.path.exists(self._devkit_path),'VOCdevkit path does not exist: {}'.format(self._devkit_path)
         assert os.path.exists(self._data_path),'Path does not exist: {}'.format(self._data_path)
 
+    # def _get_classes(self):
+    #     classes = []
+    #     with open(self._data_path + "/classes.txt", "r") as f:
+    #         lineList = f.readlines()
+    #         for line in lineList:
+    #             line = line.replace("\n", "")
+    #             classes.append(line)
+    #     return tuple(classes)
+
     def image_path_at(self, i):
         """
         Return the absolute path to image i in the image sequence.
@@ -78,33 +90,39 @@ class pascal_voc(imdb):
         """
         Construct an image path from the image's "index" identifier.
         """
-        # image_path = os.path.join(self._data_path, 'JPEGImages',
+        image_path = os.path.join(self._data_path, 'JPEGImages',
+                                  index + self._image_ext)
+        # image_path = os.path.join(self._data_path,
         #                           index + self._image_ext)
-        image_path = os.path.join(self._file_dict[index], index + self._image_ext)
-        image_path = image_path.replace("Annotations", "JPEGImages")
+        assert os.path.exists(image_path), \
+            'Path does not exist: {}'.format(image_path)
+        image_path = os.path.join(self._data_path, 'JPEGImages',
+                                  index + self._image_ext)
+        # image_path = os.path.join(self._file_dict[index], index + self._image_ext)
+        # image_path = image_path.replace("Annotations", "JPEGImages")
         assert os.path.exists(image_path),'Path does not exist: {}'.format(image_path)
         return image_path
 
-    def _load_file_dict(self):
-        fileDict = {}
-        if os.path.exists(os.path.join(self._data_path,"ImageSets/Main/filedict.txt")):
-            with open(os.path.join(self._data_path,"ImageSets/Main/filedict.txt"),"r") as f:
-                lineList = f.readlines()
-                for line in lineList:
-                    key, value = line.replace("\n", "").split("|")
-                    fileDict[key] = value
-            return fileDict
-        else:
-            fileList = zjai_createData.check_exist.getAllFile(self._data_path, fileType="jpg")
-            for i in range(len(fileList)):
-                s = fileList[i]
-                parentDir = os.path.dirname(s)
-                filename = os.path.splitext(s)[0].replace(parentDir, "").replace("/", "")
-                fileDict[filename] = parentDir
-            with open(os.path.join(self._data_path, "ImageSets/Main/filedict.txt"), "w") as f:
-                for key in fileDict.keys():
-                    f.write("{}|{}\n".format(key, fileDict[key]))
-            return fileDict
+    # def _load_file_dict(self):
+    #     fileDict = {}
+    #     if os.path.exists(os.path.join(self._data_path,"ImageSets/Main/filedict.txt")):
+    #         with open(os.path.join(self._data_path,"ImageSets/Main/filedict.txt"),"r") as f:
+    #             lineList = f.readlines()
+    #             for line in lineList:
+    #                 key, value = line.replace("\n", "").split("|")
+    #                 fileDict[key] = value
+    #         return fileDict
+    #     else:
+    #         fileList = getAllFile(self._data_path, fileType="jpg")
+    #         for i in range(len(fileList)):
+    #             s = fileList[i]
+    #             parentDir = os.path.dirname(s)
+    #             filename = os.path.splitext(s)[0].replace(parentDir, "").replace("/", "")
+    #             fileDict[filename] = parentDir
+    #         with open(os.path.join(self._data_path, "ImageSets/Main/filedict.txt"), "w") as f:
+    #             for key in fileDict.keys():
+    #                 f.write("{}|{}\n".format(key, fileDict[key]))
+    #         return fileDict
 
     def _load_image_set_index(self):
         """
