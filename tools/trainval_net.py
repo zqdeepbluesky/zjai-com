@@ -7,22 +7,23 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import _init_paths
-from model.train_val import get_training_roidb, train_net
-from model.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_output_tb_dir
-from datasets.factory import get_imdb
-import datasets.imdb
 import argparse
+import logging
+import os
 import pprint
 import numpy as np
-import sys
 
-import tensorflow as tf
-from nets.vgg16 import vgg16
-from nets.resnet_v1 import resnetv1
+from tools import _init_paths
+from model.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_output_tb_dir
+from model.train_val import train_net
 from nets.mobilenet_v1 import mobilenetv1
+from nets.resnet_v1 import resnetv1
+from nets.vgg16 import vgg16
+from tools.preprocessing import calc_roidb
 
-import os
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -46,7 +47,7 @@ def parse_args():
                         default='experiments/cfgs/vgg16.yml', type=str)
     parser.add_argument('--weight', dest='weight',
                         help='initialize with pretrained model weights',
-                        default='data/imagenet_weights/vgg16.ckpt',
+                        default=os.path.join(cfg.ROOT_DIR, 'data/imagenet_weights/vgg16.ckpt'),
                         type=str)
     parser.add_argument('--imdb', dest='imdb_name',
                         help='dataset to train on',
@@ -66,42 +67,52 @@ def parse_args():
     parser.add_argument('--set', dest='set_cfgs',
                         help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[50000]'],
                         nargs=argparse.REMAINDER)
-
-    # if len(sys.argv) == 1:
-    #   parser.print_help()
-    #   sys.exit(1)
-
     args = parser.parse_args()
     print('*'*20)
     print_args(args)
 
     return args
 
-
-def combined_roidb(imdb_names):
-    """
-    Combine multiple roidbs
-    """
-
-    def get_roidb(imdb_name):
-        imdb = get_imdb(imdb_name)
-        print('Loaded dataset `{:s}` for training'.format(imdb.name))
-        imdb.set_proposal_method(cfg.TRAIN.PROPOSAL_METHOD)
-        print('Set proposal method: {:s}'.format(cfg.TRAIN.PROPOSAL_METHOD))
-        roidb = get_training_roidb(imdb)
-        return roidb
-
-    roidbs = [get_roidb(s) for s in imdb_names.split('+')]
-    roidb = roidbs[0]
-    if len(roidbs) > 1:
-        for r in roidbs[1:]:
-            roidb.extend(r)
-        tmp = get_imdb(imdb_names.split('+')[1])
-        imdb = datasets.imdb.imdb(imdb_names, tmp.classes)
+def load_base_network():
+    if args.net == 'vgg16':
+        net = vgg16()
+    elif args.net == 'res50':
+        net = resnetv1(num_layers=50)
+    elif args.net == 'res101':
+        net = resnetv1(num_layers=101)
+    elif args.net == 'res152':
+        net = resnetv1(num_layers=152)
+    elif args.net == 'mobile':
+        net = mobilenetv1()
     else:
-        imdb = get_imdb(imdb_names)
-    return imdb, roidb
+        raise NotImplementedError
+    return net
 
+def prepare_datas():
+    # train set
+    # imdb, roidb = combined_roidb(args.imdb_name)
+    imdb, roidb = calc_roidb(args.imdb_name)
+    logger.info('{:d} roidb entries'.format(len(roidb)))
+
+    # also add the validation set, but with no flipping images
+    orgflip = cfg.TRAIN.USE_FLIPPED
+    cfg.TRAIN.USE_FLIPPED = False
+    _, valroidb = calc_roidb(args.imdbval_name)
+    logger.info('{:d} validation roidb entries'.format(len(valroidb)))
+    cfg.TRAIN.USE_FLIPPED = orgflip
+
+    return imdb, roidb, valroidb
+
+def prepare_params():
+    # output directory where the models are saved
+    output_dir = get_output_dir(imdb, args.tag)
+    logger.info('Output will be saved to `{:s}`'.format(output_dir))
+
+    # tensorboard directory where the summaries are saved during training
+    tb_dir = get_output_tb_dir(imdb, args.tag)
+    logger.info('TensorFlow summaries will be saved to `{:s}`'.format(tb_dir))
+
+    return output_dir, tb_dir
 
 if __name__ == '__main__':
     args = parse_args()
@@ -119,39 +130,13 @@ if __name__ == '__main__':
 
     np.random.seed(cfg.RNG_SEED)
 
-    # train set
-    imdb, roidb = combined_roidb(args.imdb_name)
-    print('{:d} roidb entries'.format(len(roidb)))
-
-    # output directory where the models are saved
-    output_dir = get_output_dir(imdb, args.tag)
-    print('Output will be saved to `{:s}`'.format(output_dir))
-
-    # tensorboard directory where the summaries are saved during training
-    tb_dir = get_output_tb_dir(imdb, args.tag)
-    print('TensorFlow summaries will be saved to `{:s}`'.format(tb_dir))
-
-    # also add the validation set, but with no flipping images
-    orgflip = cfg.TRAIN.USE_FLIPPED
-    cfg.TRAIN.USE_FLIPPED = False
-    _, valroidb = combined_roidb(args.imdbval_name)
-    print('{:d} validation roidb entries'.format(len(valroidb)))
-    cfg.TRAIN.USE_FLIPPED = orgflip
-
     # load network
-    if args.net == 'vgg16':
-        net = vgg16()
-    elif args.net == 'res50':
-        net = resnetv1(num_layers=50)
-    elif args.net == 'res101':
-        net = resnetv1(num_layers=101)
-    elif args.net == 'res152':
-        net = resnetv1(num_layers=152)
-    elif args.net == 'mobile':
-        net = mobilenetv1()
-    else:
-        raise NotImplementedError
+    base_net = load_base_network()
 
-    train_net(net, imdb, roidb, valroidb, output_dir, tb_dir,
-              pretrained_model=args.weight,
-              max_iters=args.max_iters)
+    # train and valid data
+    imdb, roidb, valroidb = prepare_datas()
+
+    # output data directory
+    output_dir, tb_dir = prepare_params()
+
+    train_net(base_net, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=args.weight, max_iters=args.max_iters)

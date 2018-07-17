@@ -22,6 +22,14 @@ import uuid
 from .voc_eval import voc_eval
 from model.config import cfg
 
+def read_classes(path):
+    classes = []
+    with open(path, "r") as f:
+        lineList = f.readlines()
+        for line in lineList:
+            line = line.replace("\n", "")
+            classes.append(line)
+    return tuple(classes)
 
 class pascal_voc(imdb):
     def __init__(self, image_set, year, use_diff=False):
@@ -31,31 +39,19 @@ class pascal_voc(imdb):
         imdb.__init__(self, name)
         self._year = year
         self._image_set = image_set
-        self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),
-                                                         "..", "..", "data", "train_data"))
+        self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),  "..", "..", "data", "train_data", 'all_train_data_resize2'))
+        # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),  "..", "..", "data", "train_data", 'VOC2007_origin'))
+
+
         # self._devkit_path = self._get_default_path()   #返回基础路径
-        # self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
         self._data_path = self._devkit_path
+        self._classes = read_classes( os.path.join(self._get_default_path(),"..", "..",'data', 'cfgs', 'classes.txt'))
         # self._classes = ('__background__',  # always index 0
         #                  'aeroplane', 'bicycle', 'bird', 'boat',
         #                  'bottle', 'bus', 'car', 'cat', 'chair',
         #                  'cow', 'diningtable', 'dog', 'horse',
         #                  'motorbike', 'person', 'pottedplant',
         #                  'sheep', 'sofa', 'train', 'tvmonitor')
-        # self._classes=('__background__','wl-wldmj-dz-lw-106g', 'llm-llm-dz-nmcm-60g', 'ksf-ksfbg-dz-qxnmw-125g', 'htk-tls-dz-hd-288g',
-        #                'ty-hzy-pz-gw-500ml', 'ls-lssp-dz-mgjdyw-70g', 'bl-blht-dz-yw-6.7g', 'yj-pjfz-dz-sjw-100g',
-        #                'yy-yylght-gz-ht-240ml', 'qc-qckf-pz-shnt-268ml', 'tdyh-tdyhpgc-gz-pg-330ml',
-        #                'ty-tyxmtx-pz-lpqnhc-480ml', 'yl-ylhzdhmbbz-gz-hm-280g', 'ksf-ksfltscnrm-tz-scnr-82.5g',
-        #                'jdb-jdblc-gz-yw-310ml', 'ty-tyhsnrm-tz-nr-105g', 'mn-zgl-hz-cmw-250ml', 'yl-ylcnn-hz-yw-250ml',
-        #                'asm-asmnc-pz-yw-500ml', 'glg-glgblzbg-hz-mcxcw-45g', 'lzs-rnbdwhbg-hz-nlw-145g',
-        #                'wq-wqaljm-dz-al-50g', 'ys-zzyspyz-gz-yw-245ml', 'wt-wtcyl-gz-nm-310ml',
-        #                'lfe-lfeyrbttgsq-hz-yrbtr-30g', 'wwsp-wwxxs-dz-yw-60g', 'ala-alabg-hz-ywjx-116g',
-        #                'mdl-mdlbxgg-dz-bxg-80g', 'nfsq-nfsqc-pz-yzlc-500ml', 'bs-bskl-gz-yw-330ml',
-        #                'nfsq-nfsqc-pz-xymlhc-500ml', 'hzl-hzl-gz-yw-310ml', 'wwsp-wznn-hz-yw-125ml',
-        #                'wtn-wtnywdn-hz-yw-250ml', 'hwd-hwdfbm-tz-hxw-75g', 'kkkl-jcnmwqs-pz-nmw-500ml',
-        #                'kkkl-kkkl-pz-yw-600ml', 'wlj-wljlc-pz-yw-500ml', 'jb-jbjyz-dz-yw-95g',
-        #                'yd-ydmtcqscm-pz-cmw-56g', 'wlj-wljlc-hz-yw-250ml', 'hwd-hwdfbm-tz-wxnrfw-84g')
-        self._classes=self._get_classes()
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))  #弄成序号
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()   #返回图像路径
@@ -76,14 +72,15 @@ class pascal_voc(imdb):
         assert os.path.exists(self._data_path), \
             'Path does not exist: {}'.format(self._data_path)
 
-    def _get_classes(self):
-        classes = []
-        with open(self._data_path + "/classes.txt", "r") as f:
-            lineList = f.readlines()
-            for line in lineList:
-                line = line.replace("\n", "")
-                classes.append(line)
-        return tuple(classes)
+    # def _get_classes(self):
+    #     classes = []
+    #     with open(self._data_path + "/classes.txt", "r") as f:
+    #         lineList = f.readlines()
+    #         for line in lineList:
+    #             line = line.replace("\n", "")
+    #             classes.append(line)
+    #     return tuple(classes)
+
     def image_path_at(self, i):
         """
         Return the absolute path to image i in the image sequence.
@@ -94,10 +91,10 @@ class pascal_voc(imdb):
         """
         Construct an image path from the image's "index" identifier.
         """
-        # image_path = os.path.join(self._data_path, 'JPEGImages',
-        #                           index + self._image_ext)
-        image_path = os.path.join(self._data_path,
+        image_path = os.path.join(self._data_path, 'JPEGImages',
                                   index + self._image_ext)
+        # image_path = os.path.join(self._data_path,
+        #                           index + self._image_ext)
         assert os.path.exists(image_path), \
             'Path does not exist: {}'.format(image_path)
         return image_path

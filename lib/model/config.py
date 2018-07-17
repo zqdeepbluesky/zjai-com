@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import os.path as osp
 import numpy as np
+
 # `pip install easydict` if you don't have it
 from easydict import EasyDict as edict
 
@@ -83,7 +84,7 @@ __C.TRAIN.BG_THRESH_HI = 0.5
 __C.TRAIN.BG_THRESH_LO = 0.1
 
 # Use horizontally-flipped images during training?
-__C.TRAIN.USE_FLIPPED = True
+__C.TRAIN.USE_FLIPPED = False
 
 # Train bounding-box regressors
 __C.TRAIN.BBOX_REG = True

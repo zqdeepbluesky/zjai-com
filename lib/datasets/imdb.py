@@ -22,7 +22,7 @@ class imdb(object):
 
     def __init__(self, name, classes=None):
         self._name = name
-        self._num_classes = 171
+        self._num_classes = 170
         if not classes:
             self._classes = []
         else:

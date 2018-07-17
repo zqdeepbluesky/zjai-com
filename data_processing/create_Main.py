@@ -8,8 +8,9 @@
 import argparse
 import random
 import os
-from data_processing.utils.io_utils import mkdir
+
 from data_processing.config import ROOT_HOME
+from data_processing.utils.io_utils import mkdir
 
 def _create_Main(path):
     '''
@@ -73,7 +74,7 @@ def create_txts(data_dirs):
 #     create_subs_Main(data_paths)
 
 parser = argparse.ArgumentParser(description='Get the data info')
-parser.add_argument('-d', '--datadir', help='path in server', default='/home/syh/train_data/test')
+parser.add_argument('-d', '--datadir', help='path in server', default='/home/syh/tf-faster-rcnn/data/train_data/train_data-2018-04-02')
 args = parser.parse_args()
 
 if __name__ == "__main__":
