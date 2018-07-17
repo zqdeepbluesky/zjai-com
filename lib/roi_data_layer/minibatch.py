@@ -22,9 +22,7 @@ def get_minibatch(roidb, num_classes):
     # Sample random scales to use for each image in this batch
     random_scale_inds = npr.randint(0, high=len(cfg.TRAIN.SCALES),
                                     size=num_images)  #随机选择区间内的整数
-    assert(cfg.TRAIN.BATCH_SIZE % num_images == 0), \
-        'num_images ({}) must divide BATCH_SIZE ({})'. \
-            format(num_images, cfg.TRAIN.BATCH_SIZE)    #batchSize必须能够整除每次输入参数
+    assert(cfg.TRAIN.BATCH_SIZE % num_images == 0),'num_images ({}) must divide BATCH_SIZE ({})'.format(num_images, cfg.TRAIN.BATCH_SIZE)    #batchSize必须能够整除每次输入参数
 
     # Get the input image blob, formatted for caffe
     im_blob, im_scales = _get_image_blob(roidb, random_scale_inds)   #缩放后的图像，并装在blob，缩放系数

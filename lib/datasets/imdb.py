@@ -116,6 +116,9 @@ class imdb(object):
             oldx2 = boxes[:, 2].copy()  #xmax
             boxes[:, 0] = widths[i] - oldx2
             boxes[:, 2] = widths[i] - oldx1
+            for b in range(len(boxes)):
+                if boxes[b][2] < boxes[b][0]:
+                    boxes[b][0] = 0
             assert (boxes[:, 2] >= boxes[:, 0]).all()
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
@@ -215,8 +218,7 @@ class imdb(object):
                 'gt_overlaps': gt_overlaps}
 
     def create_roidb_from_box_list(self, box_list, gt_roidb):
-        assert len(box_list) == self.num_images, \
-            'Number of boxes must match number of ground-truth images'
+        assert len(box_list) == self.num_images,'Number of boxes must match number of ground-truth images'
         roidb = []
         for i in range(self.num_images):
             boxes = box_list[i]

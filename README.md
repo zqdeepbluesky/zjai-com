@@ -94,8 +94,14 @@ If you find it useful, the ``data/cache`` folder created on my side is also shar
    mv resnet_v1_101.ckpt res101.ckpt
    cd ../..
    ```
+2. prepare classes file
+  #before train,you must create the "txt" file to store the classes that you want to train
+  #that txt file should store in "./data/train_data/classes.txt",and /zjai_createData/zjai_4_getAllLabel.py can help you statistics all classes from you training data
+  '''Shell
+  python ./zjai_createData/zjai_4_getAllLabel.py 
+  '''
 
-2. Train (and test, evaluation)
+3. Train (and test, evaluation)
   ```Shell
   ./experiments/scripts/train_faster_rcnn.sh [GPU_ID] [DATASET] [NET]
   # GPU_ID is the GPU you want to test on
@@ -107,13 +113,13 @@ If you find it useful, the ``data/cache`` folder created on my side is also shar
   ```
   **Note**: Please double check you have deleted soft link to the pre-trained models before training. If you find NaNs during training, please refer to [Issue 86](https://github.com/endernewton/tf-faster-rcnn/issues/86). Also if you want to have multi-gpu support, check out [Issue 121](https://github.com/endernewton/tf-faster-rcnn/issues/121).
 
-3. Visualization with Tensorboard
+4. Visualization with Tensorboard
   ```Shell
   tensorboard --logdir=tensorboard/vgg16/voc_2007_trainval/ --port=7001 &
   tensorboard --logdir=tensorboard/vgg16/coco_2014_train+coco_2014_valminusminival/ --port=7002 &
   ```
 
-4. Test and evaluate
+5. Test and evaluate
   ```Shell
   ./experiments/scripts/test_faster_rcnn.sh [GPU_ID] [DATASET] [NET]
   # GPU_ID is the GPU you want to test on
@@ -124,7 +130,7 @@ If you find it useful, the ``data/cache`` folder created on my side is also shar
   ./experiments/scripts/test_faster_rcnn.sh 1 coco res101
   ```
 
-5. You can use ``tools/reval.sh`` for re-evaluation
+6. You can use ``tools/reval.sh`` for re-evaluation
 
 
 By default, trained networks are saved under:
@@ -145,6 +151,7 @@ Tensorboard information for train and validation is saved under:
 tensorboard/[NET]/[DATASET]/default/
 tensorboard/[NET]/[DATASET]/default_val/
 
-6. Test and save result into xml
+7. Test and save result into xml
    run ./morelib/test/get_test_to_xml.py
    #put the test picture into the files /data/forecast/JPEGImages
+

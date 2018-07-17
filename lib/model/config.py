@@ -384,7 +384,6 @@ def cfg_from_list(cfg_list):
         except:
             # handle the case when v is a string literal
             value = v
-        assert type(value) == type(d[subkey]), \
-            'type {} does not match original type {}'.format(
+        assert type(value) == type(d[subkey]), 'type {} does not match original type {}'.format(
                 type(value), type(d[subkey]))
         d[subkey] = value
