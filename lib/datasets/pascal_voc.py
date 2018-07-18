@@ -22,9 +22,7 @@ import uuid
 from .voc_eval import voc_eval
 from model.config import cfg
 
-
 DEBUG = True
-
 def read_classes(path):
     classes = []
     with open(path, "r") as f:
@@ -41,11 +39,15 @@ class pascal_voc(imdb):
             name += '_diff'
         self._year = year
         self._image_set = image_set
-        self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),  "..", "..", "data", "train_data", 'all_train_data_resize2'))
-        # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),  "..", "..", "data", "train_data", 'VOC2007_origin'))
-
+        if DEBUG:
+            self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data_resize2'))
+            self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'com_classes.txt'))
+        else:
+            self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
+            self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'voc_classes.txt'))
 
         # self._devkit_path = self._get_default_path()   #返回基础路径
+        self._data_path = self._devkit_path
         if DEBUG:
             self._devkit_path = os.path.abspath(
                 os.path.join(self._get_default_path(), "train_data", 'all_train_data_resize2'))
@@ -73,7 +75,6 @@ class pascal_voc(imdb):
         assert os.path.exists(self._devkit_path),'VOCdevkit path does not exist: {}'.format(self._devkit_path)
         assert os.path.exists(self._data_path),'Path does not exist: {}'.format(self._data_path)
 
-
     def image_path_at(self, i):
         """
         Return the absolute path to image i in the image sequence.
@@ -86,7 +87,6 @@ class pascal_voc(imdb):
         """
         image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
-        image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
         return image_path
 
     def _load_image_set_index(self):
@@ -105,7 +105,6 @@ class pascal_voc(imdb):
         """
         Return the default path where PASCAL VOC is expected to be installed.
         """
-        # return os.path.join(cfg.DATA_DIR, 'VOCdevkit' + self._year)
         return os.path.join(cfg.DATA_DIR)
 
     def gt_roidb(self):
