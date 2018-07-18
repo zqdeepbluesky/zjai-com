@@ -2,7 +2,7 @@ import os
 import os.path as osp
 import xml.etree.ElementTree as ET
 
-def checkAll(root_dir,dataDirs):
+def check_all(root_dir,dataDirs):
     mainPath=osp.join(dataDirs,"ImageSets","Main")
     fileList=[]
     with open(mainPath+"/trainval.txt","r") as f:
@@ -12,12 +12,12 @@ def checkAll(root_dir,dataDirs):
             fileList.append(dataDirs+"/"+line+".xml")
     count=0
     for xml in fileList:
-        checkXml(xml)
+        check_xml(xml)
         count+=1
         if count%5000==0:
             print(count)
 
-def checkXml(xml):
+def check_xml(xml):
     et = ET.parse(xml.replace("JPEGImages","Annotations"))
     element = et.getroot()
     element_objs = element.findall('object')
@@ -30,7 +30,6 @@ def checkXml(xml):
             print(name,xml)
 
 if __name__=="__main__":
-    # root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
-    root_dir="/home/hyl/data/ljk/project/2-shopDetect/tf-faster-rcnn-master"
+    root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
     dataDirs = osp.join(root_dir, 'data', 'train_data')
-    checkAll(root_dir,dataDirs)
+    check_all(root_dir,dataDirs)

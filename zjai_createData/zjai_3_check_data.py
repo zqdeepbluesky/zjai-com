@@ -16,14 +16,14 @@ import xml.etree.ElementTree as ET
 
 
 
-def getTxtData(dir,type):
+def get_txt_data(dir,type):
     '''
     函数用于读取数据图像名称列表的txt文件（如ImageSets/Main文件夹下的test.txt）
     :param dir:文件所在的路径
     :param type:文件名称，不需要后缀名
     :return:xml清单
     '''
-    fileDir=dir+"/"+type+".txt"
+    fileDir=dir+"/ImageSets/Main/"+type+".txt"
     dataList=[]
     with open(fileDir,'r') as f:
         lineList=f.readlines()
@@ -32,7 +32,7 @@ def getTxtData(dir,type):
             dataList.append(line)
     return dataList
 
-def checkXml(xmlPath,labelCount):
+def check_xml(xmlPath,labelCount):
     '''
     函数用于读取xml文件中含有label类型和个数
     :param xmlPath:xml文件的路径
@@ -53,7 +53,7 @@ def checkXml(xmlPath,labelCount):
     return labelCount
 
 
-def getAllXml(dirs,annot_Path):
+def get_all_xml(dirs,annot_Path):
     '''
     函数用于统计所有xml中所有label的分布情况
     :param dirs:xml文件名称
@@ -63,9 +63,10 @@ def getAllXml(dirs,annot_Path):
     labelCount={}
     count=0
     for dir in dirs:
-        xmlPath=annot_Path+"/"+dir+".xml"
+        # fileDict=get_dict(annot_Path)
+        xmlPath=osp.join(annot_Path,"Annotations",dir+".xml")
         xmlPath=xmlPath.replace("JPEGImages","Annotations")
-        labelCount=checkXml(xmlPath,labelCount)
+        labelCount=check_xml(xmlPath,labelCount)
         count+=1
         if count%5000==0:
             print(count)
@@ -83,7 +84,7 @@ def getAllXml(dirs,annot_Path):
 #         if num==0:
 #             print(dirs)
 
-def countLabel(labelCount):
+def count_label(labelCount):
     '''
     统计所有object个数
     :param labelCount:label的分布情况
@@ -95,7 +96,7 @@ def countLabel(labelCount):
     print(count)
     return count
 
-def writeLabelCount(dataSetDir,labelCount,type):
+def write_label_count(dataSetDir,labelCount,type):
     '''
     函数用于将完整的label分布情况写入到txt文件中
     :param dataSetDir: 写入txt文件的路径
@@ -103,7 +104,7 @@ def writeLabelCount(dataSetDir,labelCount,type):
     :param type: txt文件名
     :return:
     '''
-    count=countLabel(labelCount)
+    count=count_label(labelCount)
     with open(dataSetDir+"/"+"labelCount_{}.txt".format(type),"w") as f:
         for label in list(labelCount.keys()):
             f.write(label+" :  "+str(labelCount[label])+"\n")
@@ -111,7 +112,18 @@ def writeLabelCount(dataSetDir,labelCount,type):
         f.write("total have {} objects\n".format(str(count)))
     print("finish")
 
-def writeLabelCount1(dataSetDir,labelCount,type):
+def get_dict(dataDirs):
+    fileDict={}
+    with open(dataDirs+"/ImageSets/Main/filedict.txt","r") as f:
+        lineList=f.readlines()
+        for line in lineList:
+            key,value=line.replace("\n","").split("|")
+            fileDict[key]=value
+    return fileDict
+
+
+
+def write_label_count1(dataSetDir,root_dir,labelCount,type):
     '''
         函数用于将完整的label分布情况写入到txt文件中
         :param dataSetDir: 写入txt文件的路径
@@ -119,11 +131,11 @@ def writeLabelCount1(dataSetDir,labelCount,type):
         :param type: txt文件名
         :return:
     '''
-    count=countLabel(labelCount)
+    count=count_label(labelCount)
     sortDict=sorted(labelCount.items(),key = lambda x:x[1],reverse = False)
     min=""
     max=""
-    with open(dataSetDir+"/"+"ImageSets/Main/labelCount_{}.txt".format(type),"w") as f:
+    with open(root_dir+"/"+"data/cfgs/labelCount_{}.txt".format(type),"w") as f:
         dictNum=len(sortDict)
         countNum=0
         for key, value in sortDict:
@@ -140,10 +152,15 @@ def writeLabelCount1(dataSetDir,labelCount,type):
         # f.write("{} type object have only ".format(str(max)) + "{} \n".format(str(sortDict[max])))
     print("finish")
 
+def analysis_data(root_dir,fileType):
+    txtData = get_txt_data(dataDirs, type)
+    labelCount = get_all_xml(txtData, dataDirs)
+    write_label_count1(dataDirs, labelCount, type)
+
 if __name__=="__main__":
     root_dir=osp.abspath(osp.join(osp.dirname(__file__), '..'))
-    dataDirs = osp.join(root_dir, 'data', 'train_data')
-    type="test"
-    txtData=getTxtData(dataDirs,type)
-    labelCount=getAllXml(txtData,dataDirs)
-    writeLabelCount1(dataDirs,labelCount,type)
+    dataDirs = osp.join(root_dir, 'data', 'test_data')
+    type="trainval"
+    txtData=get_txt_data(dataDirs,type)
+    labelCount=get_all_xml(txtData,dataDirs)
+    write_label_count1(dataDirs,root_dir,labelCount,type)

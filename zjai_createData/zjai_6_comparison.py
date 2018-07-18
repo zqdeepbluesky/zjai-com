@@ -12,10 +12,9 @@
 # =========================================================
 
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import Element
 import os
 
-def getXmlLabelNum(xmlPath):
+def get_xml_label_num(xmlPath):
     '''
     函数用于得到xml文件的object信息
     :param xmlPath:
@@ -34,7 +33,7 @@ def getXmlLabelNum(xmlPath):
         labelList.append(label)
     return count,labelList
 
-def compareFromXml(xmlPath1,xmlPath2):
+def compare_from_xml(xmlPath1,xmlPath2):
     xmlFileList1=[]
     for xmlFile in os.listdir(xmlPath1):
         xmlFileList1.append(os.path.join(xmlPath1,xmlFile))
@@ -53,8 +52,8 @@ def compareFromXml(xmlPath1,xmlPath2):
         fn=0
         xmlFile1=xmlFileList1[i]
         xmlFile2=xmlFileList2[i]
-        d_labelNum, d_labelList=getXmlLabelNum(xmlFile1)
-        t_labelNum, t_labelList=getXmlLabelNum(xmlFile2)
+        d_labelNum, d_labelList=get_xml_label_num(xmlFile1)
+        t_labelNum, t_labelList=get_xml_label_num(xmlFile2)
         for d_label in d_labelList:
             if d_label in t_labelList:
                 labenIndex=t_labelList.index(d_label)
@@ -75,7 +74,8 @@ def compareFromXml(xmlPath1,xmlPath2):
     print(tp_sum,fp_sum,fn_sum,d_sum,t_sum)
 
 
+
 if __name__=="__main__":
     xmlPath1="/home/hyl/data/data-lyl/Annotations-2"
     xmlPath2="/home/hyl/data/data-lyl/test_data-2018-06-15/Annotations"
-    compareFromXml(xmlPath1,xmlPath2)
+    compare_from_xml(xmlPath1,xmlPath2)

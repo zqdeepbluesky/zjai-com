@@ -1,10 +1,8 @@
-import os
+from lxml.etree import Element, SubElement, tostring
 from xml.dom.minidom import parseString
+import os
 
-
-def make_xml(im_info, classDict):
-    from lxml.etree import Element, SubElement, tostring
-    from xml.dom.minidom import parseString
+def make_xml(im_info, datas):
     node_root = Element('annotation')
     node_folder = SubElement(node_root, 'folder')
     node_folder.text = 'JPEGImages'
@@ -27,8 +25,17 @@ def make_xml(im_info, classDict):
     node_segmented = SubElement(node_root, 'segmented')
     node_segmented.text = '0'
 
-    for label in classDict:
-        b=classDict[label]
+    node_root=set_object(datas,node_root)
+
+    xml = tostring(node_root, pretty_print=True)
+    dom = parseString(xml)
+
+    return dom
+
+def set_object(datas,node_root):
+    for data in datas:
+        label=data.split(",")[0]
+        b=list(map(int,data.split(",")[2:]))
         node_object = SubElement(node_root, 'object')
         node_name = SubElement(node_object, 'name')
         node_name.text = label
@@ -56,12 +63,7 @@ def make_xml(im_info, classDict):
 
         node_ymax = SubElement(node_bndbox, 'ymax')
         node_ymax.text = str(int(b[3]))
-
-    xml = tostring(node_root, pretty_print=True)
-    dom = parseString(xml)
-
-    return dom
-
+    return node_root
 def check_border(bbox, width, height):
     if len(bbox) <4:
         return
@@ -87,8 +89,8 @@ def _beautifulFormat(xmlDomObject):
         return dom
     else:
         return False
-def save_annotations(save_dir, im_info, classDict):
-    dom = make_xml(im_info, classDict)
+def save_annotations(save_dir, im_info, data):
+    dom = make_xml(im_info, data)
     xml_path = os.path.join(save_dir, im_info["name"].replace(".jpg",".xml"))
     with open(xml_path, 'w+') as f:
         dom.writexml(f, addindent='', newl='', encoding='utf-8')

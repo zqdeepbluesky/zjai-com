@@ -14,7 +14,7 @@ import os
 from ljk_utils import io_utils
 import sys
 
-def mkdirDir(dataSetDir):
+def mkdir_dir(dataSetDir):
     '''
     在输入路径下创建文件结构：Annotation、ImageSets/Main、JPEGImages
     :param dataSetDir: 构造文件结构的父路径
@@ -28,7 +28,7 @@ def mkdirDir(dataSetDir):
     io_utils.mkdir(JPEGPath)
     return annotPath,mainPath,JPEGPath
 
-def copyXml(srcPath,distPath):
+def copy_xml(srcPath,distPath):
     '''
     函数主要用于将srcPath文件夹下的xml文件复制到distPath/Annotations文件夹下
     :param srcPath: 数据源
@@ -37,7 +37,7 @@ def copyXml(srcPath,distPath):
     '''
     fileType="xml"
     many2one(srcPath,fileType,distPath)
-def copyJpg(srcPath,distPath):
+def copy_jpg(srcPath,distPath):
     '''
     函数主要用于将srcPath文件夹下的所有JPG文件复制到distPath/JPEGImages文件夹下
     :param srcPath:数据源
@@ -73,8 +73,8 @@ srcPath="/home/hyl/data/data-lyl"
 parentDir=os.path.dirname(pwd)
 dataSetDir=os.path.join(parentDir,"dataSet")
 
-annotPath, mainPath, JPEGPath=mkdirDir(dataSetDir)
-copyXml(srcPath,annotPath)
-copyJpg(srcPath,JPEGPath)
+annotPath, mainPath, JPEGPath=mkdir_dir(dataSetDir)
+copy_xml(srcPath,annotPath)
+copy_jpg(srcPath,JPEGPath)
 
 
