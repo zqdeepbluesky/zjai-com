@@ -22,11 +22,11 @@ class imdb(object):
 
     def __init__(self, name, classes=None):
         self._name = name
-        self._num_classes = 170
         if not classes:
             self._classes = []
         else:
             self._classes = classes
+        self._num_classes = len(self._classes)
         self._image_index = []
         self._obj_proposer = 'gt'
         self._roidb = None
