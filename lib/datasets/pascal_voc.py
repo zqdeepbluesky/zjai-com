@@ -22,6 +22,7 @@ import uuid
 from .voc_eval import voc_eval
 from model.config import cfg
 
+DEBUG = True
 def read_classes(path):
     classes = []
     with open(path, "r") as f:
@@ -39,19 +40,15 @@ class pascal_voc(imdb):
         imdb.__init__(self, name)
         self._year = year
         self._image_set = image_set
-        self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),  "..", "..", "data", "train_data", 'all_train_data_resize2'))
-        # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(),  "..", "..", "data", "train_data", 'VOC2007_origin'))
-
+        if DEBUG:
+            self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data_resize2'))
+            self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'com_classes.txt'))
+        else:
+            self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
+            self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'voc_classes.txt'))
 
         # self._devkit_path = self._get_default_path()   #返回基础路径
         self._data_path = self._devkit_path
-        self._classes = read_classes( os.path.join(self._get_default_path(),"..", "..",'data', 'cfgs', 'com_classes.txt'))
-        # self._classes = ('__background__',  # always index 0
-        #                  'aeroplane', 'bicycle', 'bird', 'boat',
-        #                  'bottle', 'bus', 'car', 'cat', 'chair',
-        #                  'cow', 'diningtable', 'dog', 'horse',
-        #                  'motorbike', 'person', 'pottedplant',
-        #                  'sheep', 'sofa', 'train', 'tvmonitor')
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))  #弄成序号
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()   #返回图像路径
@@ -70,15 +67,6 @@ class pascal_voc(imdb):
         assert os.path.exists(self._devkit_path),'VOCdevkit path does not exist: {}'.format(self._devkit_path)
         assert os.path.exists(self._data_path),'Path does not exist: {}'.format(self._data_path)
 
-    # def _get_classes(self):
-    #     classes = []
-    #     with open(self._data_path + "/classes.txt", "r") as f:
-    #         lineList = f.readlines()
-    #         for line in lineList:
-    #             line = line.replace("\n", "")
-    #             classes.append(line)
-    #     return tuple(classes)
-
     def image_path_at(self, i):
         """
         Return the absolute path to image i in the image sequence.
@@ -91,10 +79,6 @@ class pascal_voc(imdb):
         """
         image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
-        image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
-        # image_path = os.path.join(self._file_dict[index], index + self._image_ext)
-        # image_path = image_path.replace("Annotations", "JPEGImages")
-        # assert os.path.exists(image_path),'Path does not exist: {}'.format(image_path)
         return image_path
 
     # def _load_file_dict(self):
@@ -135,7 +119,7 @@ class pascal_voc(imdb):
         """
         Return the default path where PASCAL VOC is expected to be installed.
         """
-        return os.path.join(cfg.DATA_DIR, 'VOCdevkit' + self._year)
+        return os.path.join(cfg.DATA_DIR)
 
     def gt_roidb(self):
         """
@@ -184,9 +168,9 @@ class pascal_voc(imdb):
         Load image and bounding boxes info from XML file in the PASCAL VOC
         format.
         """
-        # filename = os.path.join(self._data_path, 'Annotations', index + '.xml')
-        filename = os.path.join(self._file_dict[index], index + ".xml")
-        filename = filename.replace("JPEGImages", "Annotations")
+        filename = os.path.join(self._data_path, 'Annotations', index + '.xml')
+        # filename = os.path.join(self._file_dict[index], index + ".xml")
+        # filename = filename.replace("JPEGImages", "Annotations")
         tree = ET.parse(filename)
         objs = tree.findall('object')
         if not self.config['use_diff']:
