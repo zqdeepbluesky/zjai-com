@@ -95,6 +95,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   | GTX 1080 (Ti) | sm_61 |
   | Grid K520 (AWS g2.2xlarge) | sm_30 |
   | Tesla K80 (AWS p2.xlarge) | sm_37 |
+
   **注意**:目前操作都是针对GPU运行环境下，若只运用CPU进行训练，则需要设置USE_GPU_NMS=False
 
 3. 构建Cython模块
