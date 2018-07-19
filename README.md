@@ -37,15 +37,17 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   tensorboard/[NET]/[DATASET]/default_val/
 
 3. Test and save result into xml
+  ```
   run ./morelib/test/get_test_to_xml.py
   #put the test picture into the files /data/forecast/JPEGImages
-
+  ```
 
 ###开发环境配置
 1. 硬件设备条件：  
+  ```
   A.操作系统---ubuntu 16.04
   B.GPU显卡---支持cuda 8.0的显卡  查看网址：https://developer.nvidia.com/cuda-gpus
-
+  ```
 2. 软件系统条件：
   A.python3.5版本
   B.显卡驱动
