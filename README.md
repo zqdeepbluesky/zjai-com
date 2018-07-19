@@ -18,24 +18,23 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
 
 2. You can use ``tools/reval.sh`` for re-evaluation
 
+  By default, trained networks are saved under:
 
-By default, trained networks are saved under:
+  ```
+  output/[NET]/[DATASET]/default/
+  ```
 
-```
-output/[NET]/[DATASET]/default/
-```
+  Test outputs are saved under:
 
-Test outputs are saved under:
+  ```
+  output/[NET]/[DATASET]/default/[SNAPSHOT]/
+  ```
 
-```
-output/[NET]/[DATASET]/default/[SNAPSHOT]/
-```
+  Tensorboard information for train and validation is saved under:
 
-Tensorboard information for train and validation is saved under:
-
-```
-tensorboard/[NET]/[DATASET]/default/
-tensorboard/[NET]/[DATASET]/default_val/
+  ```
+  tensorboard/[NET]/[DATASET]/default/
+  tensorboard/[NET]/[DATASET]/default_val/
 
 3. Test and save result into xml
    run ./morelib/test/get_test_to_xml.py
