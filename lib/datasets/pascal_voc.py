@@ -50,6 +50,15 @@ class pascal_voc(imdb):
         imdb.__init__(self, name, self._classes)
         # self._devkit_path = self._get_default_path()   #返回基础路径
         self._data_path = self._devkit_path
+        if DEBUG:
+            self._devkit_path = os.path.abspath(
+                os.path.join(self._get_default_path(), "train_data", 'all_train_data_resize2'))
+            self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'com_classes.txt'))
+        else:
+            self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
+            self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'voc_classes.txt'))
+
+        imdb.__init__(self, name, self._classes)
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))  #弄成序号
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()
@@ -81,27 +90,6 @@ class pascal_voc(imdb):
         image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
         return image_path
-
-    # def _load_file_dict(self):
-    #     fileDict = {}
-    #     if os.path.exists(os.path.join(self._data_path,"ImageSets/Main/filedict.txt")):
-    #         with open(os.path.join(self._data_path,"ImageSets/Main/filedict.txt"),"r") as f:
-    #             lineList = f.readlines()
-    #             for line in lineList:
-    #                 key, value = line.replace("\n", "").split("|")
-    #                 fileDict[key] = value
-    #         return fileDict
-    #     else:
-    #         fileList = getAllFile(self._data_path, fileType="jpg")
-    #         for i in range(len(fileList)):
-    #             s = fileList[i]
-    #             parentDir = os.path.dirname(s)
-    #             filename = os.path.splitext(s)[0].replace(parentDir, "").replace("/", "")
-    #             fileDict[filename] = parentDir
-    #         with open(os.path.join(self._data_path, "ImageSets/Main/filedict.txt"), "w") as f:
-    #             for key in fileDict.keys():
-    #                 f.write("{}|{}\n".format(key, fileDict[key]))
-    #         return fileDict
 
     def _load_image_set_index(self):
         """
@@ -220,12 +208,7 @@ class pascal_voc(imdb):
     def _get_voc_results_file_template(self):
         # VOCdevkit/results/VOC2007/Main/<comp_id>_det_test_aeroplane.txt
         filename = self._get_comp_id() + '_det_' + self._image_set + '_{:s}.txt'
-        path = os.path.join(
-            self._devkit_path,
-            'results',
-            'VOC' + self._year,
-            'Main',
-            filename)
+        path = os.path.join(self._devkit_path,'results','VOC' + self._year,'Main',filename)
         return path
 
     def _write_voc_results_file(self, all_boxes):
@@ -241,23 +224,12 @@ class pascal_voc(imdb):
                         continue
                     # the VOCdevkit expects 1-based indices
                     for k in range(dets.shape[0]):
-                        f.write('{:s} {:.3f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.
-                                format(index, dets[k, -1],
-                                       dets[k, 0] + 1, dets[k, 1] + 1,
-                                       dets[k, 2] + 1, dets[k, 3] + 1))
+                        f.write('{:s} {:.3f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.format(index, dets[k, -1],
+                                       dets[k, 0] + 1, dets[k, 1] + 1,dets[k, 2] + 1, dets[k, 3] + 1))
 
     def _do_python_eval(self, output_dir='output'):
-        annopath = os.path.join(
-            self._devkit_path,
-            'VOC' + self._year,
-            'Annotations',
-            '{:s}.xml')
-        imagesetfile = os.path.join(
-            self._devkit_path,
-            'VOC' + self._year,
-            'ImageSets',
-            'Main',
-            self._image_set + '.txt')
+        annopath = os.path.join(self._devkit_path,'VOC' + self._year,'Annotations','{:s}.xml')
+        imagesetfile = os.path.join(self._devkit_path,'VOC' + self._year,'ImageSets','Main',self._image_set + '.txt')
         cachedir = os.path.join(self._devkit_path, 'annotations_cache')
         aps = []
         # The PASCAL VOC metric changed in 2010
@@ -269,8 +241,7 @@ class pascal_voc(imdb):
             if cls == '__background__':
                 continue
             filename = self._get_voc_results_file_template().format(cls)
-            rec, prec, ap = voc_eval(
-                filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
+            rec, prec, ap = voc_eval(filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
                 use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
             aps += [ap]
             print(('AP for {} = {:.4f}'.format(cls, ap)))

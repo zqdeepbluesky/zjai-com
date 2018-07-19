@@ -16,7 +16,7 @@ import os.path as osp
 import random
 from data_processing.utils.io_utils import *
 from zjai_createData import check_exist
-from zjai_createData.check_exist import getAllFile
+from zjai_createData.check_exist import get_all_file
 
 def _create_Main(dataDirs,fileList,scale):
     '''
@@ -54,10 +54,46 @@ def _create_Main(dataDirs,fileList,scale):
     print('total: {}'.format(len(fileList)))
     print('step: {}'.format(len(trainval_images)//2+1))
 
+def _create_Main_new(dataDirs,fileList,scale):
+    '''
+    create the trainval.txt and test.txt for train.
+    trainval data : test data = 5:1
+    :param path:
+    :return:
+    '''
+    trainval_images = []
+    test_images = []
+    fileDict={}
+    mkdir(osp.join(dataDirs,"ImageSets","Main"))
+    for i in range(len(fileList)//scale, len(fileList)):
+        s = fileList[i]
+        parentDir=osp.dirname(s)
+        filename=osp.splitext(s)[0].replace(parentDir,"").replace("/","")
+        trainval_images.append(filename + '\n')
+        fileDict[filename]=parentDir
+
+    for i in range(len(fileList)//scale):
+        s = fileList[i]
+        parentDir = osp.dirname(s)
+        filename = osp.splitext(s)[0].replace(parentDir, "").replace("/", "")
+        test_images.append(filename + '\n')
+        fileDict[filename] = parentDir
+
+    with open(dataDirs+'/ImageSets/Main/trainval.txt','w+') as f:
+        f.writelines(trainval_images)
+        print("{}, numbers:{}".format(dataDirs + '/trainval.txt', len(trainval_images)))
+    with open(dataDirs+'/ImageSets/Main/test.txt','w+') as f:
+        f.writelines(test_images)
+        print("{}, numbers:{}".format(dataDirs + '/test.txt', len(test_images)))
+    with open(dataDirs+'/ImageSets/Main/filedict.txt','w+') as f:
+        for key in fileDict.keys():
+            f.write("{}|{}\n".format(key,fileDict[key]))
+    print('total: {}'.format(len(fileList)))
+    print('step: {}'.format(len(trainval_images)//2+1))
+
 if __name__=="__main__":
-    # root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
-    root_dir = "/home/hyl/data/ljk/project/2-shopDetect/tf-faster-rcnn-master"
-    dataDirs = osp.join(root_dir, 'data', 'train_data')
+    root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
+    dataDirs = osp.join(root_dir, 'data', 'test_data')
     scale = 9
     fileList=getAllFile(dataDirs,fileType="jpg")
-    _create_Main(dataDirs,fileList,scale)
+    _create_Main_new(dataDirs,fileList,scale)

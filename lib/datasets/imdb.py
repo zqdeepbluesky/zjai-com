@@ -179,8 +179,7 @@ class imdb(object):
             if limit is not None and boxes.shape[0] > limit:
                 boxes = boxes[:limit, :]
 
-            overlaps = bbox_overlaps(boxes.astype(np.float),
-                                     gt_boxes.astype(np.float))
+            overlaps = bbox_overlaps(boxes.astype(np.float),gt_boxes.astype(np.float))
 
             _gt_overlaps = np.zeros((gt_boxes.shape[0]))
             for j in range(gt_boxes.shape[0]):
@@ -213,8 +212,7 @@ class imdb(object):
             recalls[i] = (gt_overlaps >= t).sum() / float(num_pos)
         # ar = 2 * np.trapz(recalls, thresholds)
         ar = recalls.mean()
-        return {'ar': ar, 'recalls': recalls, 'thresholds': thresholds,
-                'gt_overlaps': gt_overlaps}
+        return {'ar': ar, 'recalls': recalls, 'thresholds': thresholds, 'gt_overlaps': gt_overlaps}
 
     def create_roidb_from_box_list(self, box_list, gt_roidb):
         assert len(box_list) == self.num_images,'Number of boxes must match number of ground-truth images'
@@ -249,12 +247,9 @@ class imdb(object):
         assert len(a) == len(b)
         for i in range(len(a)):
             a[i]['boxes'] = np.vstack((a[i]['boxes'], b[i]['boxes']))
-            a[i]['gt_classes'] = np.hstack((a[i]['gt_classes'],
-                                            b[i]['gt_classes']))
-            a[i]['gt_overlaps'] = scipy.sparse.vstack([a[i]['gt_overlaps'],
-                                                       b[i]['gt_overlaps']])
-            a[i]['seg_areas'] = np.hstack((a[i]['seg_areas'],
-                                           b[i]['seg_areas']))
+            a[i]['gt_classes'] = np.hstack((a[i]['gt_classes'], b[i]['gt_classes']))
+            a[i]['gt_overlaps'] = scipy.sparse.vstack([a[i]['gt_overlaps'], b[i]['gt_overlaps']])
+            a[i]['seg_areas'] = np.hstack((a[i]['seg_areas'], b[i]['seg_areas']))
         return a
 
     def competition_mode(self, on):

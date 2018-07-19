@@ -2,7 +2,7 @@ import os
 import os.path as osp
 import sys
 
-def getAllFile(dirs,fileType):
+def get_all_file(dirs,fileType):
     fileList=[]
     for parent, dirnames, filenames in os.walk(dirs):
         for filename in filenames:
@@ -22,8 +22,8 @@ if __name__=="__main__":
     root_dir=osp.abspath(osp.join(osp.dirname(__file__), '..'))
     dataDirs=osp.join(root_dir,'data','train_data')
     print(dataDirs)
-    jpgFileList=getAllFile(dataDirs,"jpg")
-    xmlFileList=getAllFile(dataDirs,"xml")
+    jpgFileList=get_all_file(dataDirs,"jpg")
+    xmlFileList=get_all_file(dataDirs,"xml")
     print("jpg files have {} files".format(len(jpgFileList)))
     print("xml files have {} files".format(len(xmlFileList)))
     compare(jpgFileList,xmlFileList)

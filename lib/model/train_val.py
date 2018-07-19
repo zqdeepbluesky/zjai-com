@@ -122,8 +122,7 @@ class SolverWrapper(object):
             tf.set_random_seed(cfg.RNG_SEED)
             # Build the main computation graph
             layers = self.net.create_architecture('TRAIN', self.imdb.num_classes, tag='default',
-                                                  anchor_scales=cfg.ANCHOR_SCALES,
-                                                  anchor_ratios=cfg.ANCHOR_RATIOS)
+                                                  anchor_scales=cfg.ANCHOR_SCALES, anchor_ratios=cfg.ANCHOR_RATIOS)
             # Define the loss
             loss = layers['total_loss']
             # Set learning rate and momentum
@@ -162,8 +161,7 @@ class SolverWrapper(object):
         # Get the snapshot name in TensorFlow
         redfiles = []
         for stepsize in cfg.TRAIN.STEPSIZE:
-            redfiles.append(os.path.join(self.output_dir,
-                                         cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_{:d}.ckpt.meta'.format(stepsize+1)))
+            redfiles.append(os.path.join(self.output_dir, cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_{:d}.ckpt.meta'.format(stepsize+1)))
         sfiles = [ss.replace('.meta', '') for ss in sfiles if ss not in redfiles]
 
         nfiles = os.path.join(self.output_dir, cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_*.pkl')
@@ -272,7 +270,7 @@ class SolverWrapper(object):
         next_stepsize = stepsizes.pop()
         while iter < max_iters + 1:
             # Learning rate
-            if iter >= next_stepsize + 1:
+            if iter == next_stepsize + 1:
                 # Add snapshot here before reducing the learning rate
                 self.snapshot(sess, iter,self.output_dir)
                 rate *= cfg.TRAIN.GAMMA
@@ -365,8 +363,7 @@ def filter_roidb(roidb):
         # find boxes with sufficient overlap
         fg_inds = np.where(overlaps >= cfg.TRAIN.FG_THRESH)[0]
         # Select background RoIs as those within [BG_THRESH_LO, BG_THRESH_HI)
-        bg_inds = np.where((overlaps < cfg.TRAIN.BG_THRESH_HI) &
-                           (overlaps >= cfg.TRAIN.BG_THRESH_LO))[0]
+        bg_inds = np.where((overlaps < cfg.TRAIN.BG_THRESH_HI) & (overlaps >= cfg.TRAIN.BG_THRESH_LO))[0]
         # image is only valid if such boxes exist
         valid = len(fg_inds) > 0 or len(bg_inds) > 0
         return valid

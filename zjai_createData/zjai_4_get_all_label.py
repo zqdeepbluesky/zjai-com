@@ -13,22 +13,23 @@
 import os
 import os.path as osp
 import sys
+import zjai_createData.zjai_3_check_data
 
-def getAlllabel(dataSetDir,type):
+def get_all_label(dataSetDir,type,root_dir,setname):
     labelList=["__background__"]
-    mainDir=osp.join(dataSetDir,"ImageSets","Main")
+    mainDir=osp.join(dataSetDir,"data","cfg")
     with open(os.path.join(mainDir,"labelCount_{}.txt".format(type)),"r") as f:
         lineList=f.readlines()
         for i in range(len(lineList)-2):
             line=lineList[i].split(":")[0].strip()
             labelList.append(line)
     print(labelList)
-    with open(dataSetDir+"/classes.txt",'w') as f:
+    with open(root_dir+"data/cfgs/{}_classes.txt".format(setname),'w') as f:
         f.write("\n".join(labelList))
 
 if __name__=="__main__":
-    # root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
-    root_dir="/home/hyl/data/ljk/project/2-shopDetect/tf-faster-rcnn-master/"
-    dataDirs = osp.join(root_dir, 'data', 'train_data')
+    root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
     fileType = 'trainval'
-    getAlllabel(dataDirs,fileType)
+    setname="voc"
+    zjai_createData.zjai_3_checkData.analysis_data(root_dir,fileType)
+    get_all_label(fileType,root_dir,setname)
