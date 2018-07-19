@@ -32,7 +32,7 @@ __C.TRAIN.WEIGHT_DECAY = 0.0001
 __C.TRAIN.GAMMA = 0.1
 
 # Step size for reducing the learning rate, currently only support one step
-__C.TRAIN.STEPSIZE = [30000]
+__C.TRAIN.STEPSIZE = [2400000]
 
 # Iteration intervals for showing the loss during training, on command line interface
 __C.TRAIN.DISPLAY = 10
@@ -61,10 +61,10 @@ __C.TRAIN.SUMMARY_INTERVAL = 180
 
 # Scale to use during training (can list multiple scales)
 # The scale is the pixel size of an image's shortest side
-__C.TRAIN.SCALES = (600,)
+__C.TRAIN.SCALES = (800,)
 
 # Max pixel size of the longest side of a scaled input image
-__C.TRAIN.MAX_SIZE = 1000
+__C.TRAIN.MAX_SIZE = 1333
 
 # Images to use per minibatch
 __C.TRAIN.IMS_PER_BATCH = 1
@@ -168,10 +168,10 @@ __C.TEST = edict()
 
 # Scale to use during testing (can NOT list multiple scales)
 # The scale is the pixel size of an image's shortest side
-__C.TEST.SCALES = (600,)
+__C.TEST.SCALES = (800,)
 
 # Max pixel size of the longest side of a scaled input image
-__C.TEST.MAX_SIZE = 1000
+__C.TEST.MAX_SIZE = 1333
 
 # Overlap threshold used for non-maximum suppression (suppress boxes with
 # IoU >= this threshold)

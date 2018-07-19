@@ -40,12 +40,14 @@ class pascal_voc(imdb):
         self._year = year
         self._image_set = image_set
         if DEBUG:
+            # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data2'))
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data_resize2'))
             self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'com_classes.txt'))
         else:
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
             self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'voc_classes.txt'))
 
+        imdb.__init__(self, name, self._classes)
         # self._devkit_path = self._get_default_path()   #返回基础路径
         self._data_path = self._devkit_path
         if DEBUG:
@@ -59,7 +61,7 @@ class pascal_voc(imdb):
         imdb.__init__(self, name, self._classes)
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))  #弄成序号
         self._image_ext = '.jpg'
-        self._image_index = self._load_image_set_index()   #返回图像路径
+        self._image_index = self._load_image_set_index()
         # Default to roidb handler
         self._roidb_handler = self.gt_roidb    #返回基础的roidb
         # self._file_dict = self._load_file_dict()
@@ -94,8 +96,8 @@ class pascal_voc(imdb):
         Load the indexes listed in this dataset's image set file.
         """
         # Example path to image set file:
-        image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
-                                      self._image_set + '.txt')
+        # self._data_path + /ImageSets/Main/val.txt
+        image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main', self._image_set + '.txt')
         assert os.path.exists(image_set_file),'Path does not exist: {}'.format(image_set_file)
         with open(image_set_file) as f:
             image_index = [x.strip() for x in f.readlines()]

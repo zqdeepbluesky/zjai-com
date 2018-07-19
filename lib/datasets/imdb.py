@@ -127,8 +127,7 @@ class imdb(object):
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
 
-    def evaluate_recall(self, candidate_boxes=None, thresholds=None,
-                        area='all', limit=None):
+    def evaluate_recall(self, candidate_boxes=None, thresholds=None, area='all', limit=None):
         """Evaluate detection proposal recall metrics.
 
         Returns:

@@ -23,6 +23,7 @@ import time
 
 import tensorflow as tf
 from tensorflow.python import pywrap_tensorflow
+from utils.generic_utils import Progbar
 
 class SolverWrapper(object):
     """
@@ -42,6 +43,7 @@ class SolverWrapper(object):
         if not os.path.exists(self.tbvaldir):
             os.makedirs(self.tbvaldir)
         self.pretrained_model = pretrained_model
+        self.log_values=[]
 
     def snapshot(self, sess, iter,outputDir):
         net = self.net
@@ -253,7 +255,12 @@ class SolverWrapper(object):
         if lsf == 0:
             rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.initialize(sess)
         else:
-            rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.restore(sess, str(sfiles[-1]), str(nfiles[-1]))
+            rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.restore(sess,  str(sfiles[-1]), str(nfiles[-1]))
+            sess.run(tf.assign(lr, cfg.TRAIN.LEARNING_RATE))
+
+        progbar = Progbar(target=max_iters)
+        progbar.update(last_snapshot_iter)
+
         timer = Timer()
         iter = last_snapshot_iter + 1
         last_summary_time = time.time()
@@ -292,11 +299,20 @@ class SolverWrapper(object):
             timer.toc()
 
             # Display training information
-            if iter % (cfg.TRAIN.DISPLAY) == 0:
-                print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
-                      '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
-                      (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
-                print('speed: {:.3f}s / iter'.format(timer.average_time))
+            # if iter % (cfg.TRAIN.DISPLAY) == 0:
+
+                # print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
+                #       '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
+                #       (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
+                # print('speed: {:.3f}s / iter'.format(timer.average_time))
+
+            self.log_values.append(('rpn_loss_cls', rpn_loss_cls))
+            self.log_values.append(('rpn_loss_box', rpn_loss_box))
+            self.log_values.append(('loss_cls', loss_cls))
+            self.log_values.append(('loss_box', loss_box))
+            self.log_values.append(('lr', lr.eval()))
+            self.log_values.append(('total_loss', total_loss))
+            progbar.update(iter, self.log_values)
 
             # Snapshotting
             if iter % cfg.TRAIN.SNAPSHOT_ITERS == 0:
