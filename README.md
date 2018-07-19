@@ -49,7 +49,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   B.GPU显卡---支持cuda 8.0的显卡  查看网址：https://developer.nvidia.com/cuda-gpus
   ```
 2. 软件系统条件：
-  '''shell
+  ```shell
   A.python3.5版本
   B.显卡驱动
   C.cuda8.0  &  对应cuda 8.0的cudnn v6
@@ -57,24 +57,30 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   E.PyCharm 代码编写IDE
   F.g++
   G.git
-  '''
+  ```
 
 3. 必备工具包：
+  ```shell
   A.python3-dev
   B.python3-tk
   C.bazel
   D.Cython
+  ```
 
 4. 环境变量设置：
+  ```shell
   A.将python路径加入环境变量， PYTHONPATH
   B.将cuda路径加入环境变量，CUDA_HOME
-
+  '''
 
 ###安装
 1. 下载代码 
+  ```shell
   git clone git@github.com:FirminSun/zjai-com.git
+  ```
 
 2. 修改部分代码
+  ```shell
   打开./lib/setup.py更新-arch参数为当前GPU设备型号对应数值
   """
   cd tf-faster-rcnn/lib
@@ -90,17 +96,19 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   | Grid K520 (AWS g2.2xlarge) | sm_30 |
   | Tesla K80 (AWS p2.xlarge) | sm_37 |
   **注意**:目前操作都是针对GPU运行环境下，若只运用CPU进行训练，则需要设置USE_GPU_NMS=False
+  ```
 
 3. 构建Cython模块
+  ```shell
   在./lib路径下，进行编译相关文件，得到so等编译文件
-  """
   make clean
   make
   cd ..
-  """
+  ```
 
 ###训练VOC数据集
 1. 下载并设置VOC_2007数据
+  ```shell
   A.下载VOC_2007数据集，
   """
   VOCtrainval  :http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
@@ -114,16 +122,16 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   tar xvf VOCdevkit_08-Jun-2007.tar
   """
   C.将数据放到./data文件夹下且创建软连接
-  """
   cd ./data
   In -s $VOCdevkit VOCdevkit2007
-  """
-
+  ```
 2. 下载预训练模型
+  ```shell
   预训练模型下载网址  res101：http://download.tensorflow.org/models/resnet_v1_101_2016_08_28.tar.gz
 		      vgg16:http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz
   ./data路径下创建imagenet_weights文件夹放置解压后的预训练模型文件
   修改模型文件名：res101模型改为 res101.ckpt  vgg16模型改为 vgg16.ckpt
+  ```
 
 3. 相关工具包下载
   运行程序需要较多python工具包，如numpy、pandas、matplotlib、easydict等，遇到未安装的，可通过pycharm安装下载相应工具包
