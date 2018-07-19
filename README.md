@@ -87,6 +87,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   设置-arch
   ```
   设备参数表如下：
+
   | GPU model  | Architecture |
   | ------------- | ------------- |
   | TitanX (Maxwell/Pascal) | sm_52 |
