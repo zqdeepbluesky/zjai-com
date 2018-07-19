@@ -12,7 +12,7 @@ import time
 import sys
 
 class Progbar(object):
-    def __init__(self, target, width=30, verbose=1):
+    def __init__(self, target, width=30, verbose=1, display=20):
         '''
             @param target: total number of steps expected
         '''
@@ -24,6 +24,7 @@ class Progbar(object):
         self.total_width = 0
         self.seen_so_far = 0
         self.verbose = verbose
+        self.display = display
 
     def update(self, current, values=[]):
         '''
@@ -41,7 +42,7 @@ class Progbar(object):
         self.seen_so_far = current
 
         now = time.time()
-        if self.verbose == 1:
+        if self.verbose == 1 and current % self.display == 0:
             prev_total_width = self.total_width
             sys.stdout.write("\b" * prev_total_width)
             sys.stdout.write("\r")
