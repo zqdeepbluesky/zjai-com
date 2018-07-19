@@ -7,6 +7,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import utils.generic_utils_
 from model.config import cfg
 import roi_data_layer.roidb as rdl_roidb
 from roi_data_layer.layer import RoIDataLayer
@@ -42,6 +43,7 @@ class SolverWrapper(object):
         if not os.path.exists(self.tbvaldir):
             os.makedirs(self.tbvaldir)
         self.pretrained_model = pretrained_model
+        self.log_values=[]
 
     def snapshot(self, sess, iter,outputDir):
         net = self.net
@@ -255,9 +257,12 @@ class SolverWrapper(object):
         if lsf == 0:
             rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.initialize(sess)
         else:
-            rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.restore(sess,
-                                                                                   str(sfiles[-1]),
-                                                                                   str(nfiles[-1]))
+            rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.restore(sess,  str(sfiles[-1]), str(nfiles[-1]))
+            sess.run(tf.assign(lr, cfg.TRAIN.LEARNING_RATE))
+
+        progbar = utils.generic_utils_.Progbar(target=max_iters)
+        progbar.update(last_snapshot_iter)
+
         timer = Timer()
         iter = last_snapshot_iter + 1
         last_summary_time = time.time()
@@ -267,7 +272,7 @@ class SolverWrapper(object):
         next_stepsize = stepsizes.pop()
         while iter < max_iters + 1:
             # Learning rate
-            if iter == next_stepsize + 1:
+            if iter >= next_stepsize + 1:
                 # Add snapshot here before reducing the learning rate
                 self.snapshot(sess, iter,self.output_dir)
                 rate *= cfg.TRAIN.GAMMA
@@ -297,10 +302,19 @@ class SolverWrapper(object):
 
             # Display training information
             if iter % (cfg.TRAIN.DISPLAY) == 0:
-                print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
-                      '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
-                      (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
-                print('speed: {:.3f}s / iter'.format(timer.average_time))
+
+                # print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
+                #       '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
+                #       (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
+                # print('speed: {:.3f}s / iter'.format(timer.average_time))
+
+                self.log_values.append(('rpn_loss_cls', rpn_loss_cls))
+                self.log_values.append(('rpn_loss_box', rpn_loss_box))
+                self.log_values.append(('loss_cls', loss_cls))
+                self.log_values.append(('loss_box', loss_box))
+                self.log_values.append(('lr', lr.eval()))
+                self.log_values.append(('total_loss', total_loss))
+                progbar.update(iter, self.log_values)
 
             # Snapshotting
             if iter % cfg.TRAIN.SNAPSHOT_ITERS == 0:

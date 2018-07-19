@@ -57,10 +57,10 @@ def parse_args():
                         default='voc_2007_test', type=str)
     parser.add_argument('--epochs', dest='epochs',
                         help='epoch of iteration to train',
-                        default=10, type=int)
+                        default=50, type=int)
     parser.add_argument('--iters', dest='max_iters',
                         help='number of iterations to train',
-                        default=70000, type=int)
+                        default=80000, type=int)
     parser.add_argument('--tag', dest='tag',
                         help='tag of the model',
                         default=None, type=str)
@@ -68,7 +68,7 @@ def parse_args():
                         help='vgg16, res50, res101, res152, mobile',
                         default='vgg16', type=str)
     parser.add_argument('--set', dest='set_cfgs',
-                        help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[50000]'],
+                        help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[2400000]'],
                         nargs=argparse.REMAINDER)
     args = parser.parse_args()
     print('*'*20)
