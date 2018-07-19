@@ -80,13 +80,12 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   ```
 
 2. 修改部分代码
-  ```shell
   打开./lib/setup.py更新-arch参数为当前GPU设备型号对应数值
-  """
+  ```shell
   cd tf-faster-rcnn/lib
   vim setup.py
   设置-arch
-  """
+  ```
   设备参数表如下：
   | GPU model  | Architecture |
   | ------------- | ------------- |
@@ -96,7 +95,6 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   | Grid K520 (AWS g2.2xlarge) | sm_30 |
   | Tesla K80 (AWS p2.xlarge) | sm_37 |
   **注意**:目前操作都是针对GPU运行环境下，若只运用CPU进行训练，则需要设置USE_GPU_NMS=False
-  ```
 
 3. 构建Cython模块
   ```shell
@@ -143,6 +141,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   用pycharm打开./tools/train_net.py查看args参数是否正确，如使用的网络架构是否与下载的预训练模型名称一致；
   检查完成后，使用python3.5 运行程序；
   若出现类似如下报告，则代表成功运行：
+  ```shell
   iter: 20 / 50000, total loss: 0.359652
   >>> rpn_loss_cls: 0.000063
   >>> rpn_loss_box: 0.000821
@@ -150,6 +149,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   >>> loss_box: 0.007290
   >>> lr: 0.000100
   speed: 0.440s / iter
+  ```
 
 
 ###训练自己的数据集
@@ -168,7 +168,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   **注意**:目前代码只支持单GPU训练，若需要多GPU训练，请看https://github.com/endernewton/tf-faster-rcnn/issues/121
 
 5. 使用tensorbroad可视化
-  ```
+  ```shell
   tensorboard --logdir=tensorboard/vgg16/voc_2007_trainval/ --port=7001 &
   tensorboard --logdir=tensorboard/vgg16/coco_2014_train+coco_2014_valminusminival/ --port=7002 &
   ```
