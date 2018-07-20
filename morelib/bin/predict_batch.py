@@ -11,9 +11,9 @@ import argparse
 import os.path as osp
 from nets.resnet_v1 import resnetv1
 from nets.vgg16 import vgg16
-from morelib.newUtils.xml_fromsg import *
+from morelib.utils.xml_fromsg import *
 from lib.datasets import pascal_voc
-from morelib.test import predict
+from morelib.bin import predict
 
 
 def parse_args():

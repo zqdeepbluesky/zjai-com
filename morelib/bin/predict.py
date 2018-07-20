@@ -86,7 +86,7 @@ def _get_image_blob(im):
 def get_thresh_label(class_name, dets, thresh=0.5):
     """Draw detected bounding boxes."""
     inds = np.where(dets[:, -1] >= thresh)[0]
-    boxes = np.zeros((1, 4), dtype=np.float32)
+    boxes = np.zeros((1,5),dtype=np.float32)
     cls_list = []
     score_list=[]
     flag = 1
@@ -97,10 +97,12 @@ def get_thresh_label(class_name, dets, thresh=0.5):
     for i in inds:
         bbox = list(map(int,dets[i, :4]))
         score = dets[i, -1]
+        bbox.append(score)
+        bbox = np.array(bbox)
         if count ==0:
-            boxes[0,:]=bbox
+            boxes[0,:]= bbox
         else:
-            boxes=np.r_[boxes,bbox]
+            boxes=np.row_stack((boxes,bbox))
         count+=1
         cls_list.append(class_name)
         score_list.append(score)

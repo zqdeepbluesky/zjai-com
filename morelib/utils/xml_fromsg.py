@@ -91,6 +91,6 @@ def _beautifulFormat(xmlDomObject):
         return False
 def save_annotations(save_dir, im_info, data):
     dom = make_xml(im_info, data)
-    xml_path = os.path.join(save_dir, im_info["name"].replace(".jpg",".xml"))
+    xml_path = os.path.join(save_dir, im_info["name"]+".xml")
     with open(xml_path, 'w+') as f:
         dom.writexml(f, addindent='', newl='', encoding='utf-8')
