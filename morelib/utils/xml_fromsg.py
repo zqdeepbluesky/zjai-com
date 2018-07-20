@@ -25,14 +25,14 @@ def make_xml(im_info, datas):
     node_segmented = SubElement(node_root, 'segmented')
     node_segmented.text = '0'
 
-    node_root=set_object(datas,node_root)
+    node_root=set_object(datas,node_root,im_info)
 
     xml = tostring(node_root, pretty_print=True)
     dom = parseString(xml)
 
     return dom
 
-def set_object(datas,node_root):
+def set_object(datas,node_root,im_info):
     for data in datas:
         label=data.split(",")[0]
         b=list(map(int,data.split(",")[2:]))
@@ -94,3 +94,4 @@ def save_annotations(save_dir, im_info, data):
     xml_path = os.path.join(save_dir, im_info["name"]+".xml")
     with open(xml_path, 'w+') as f:
         dom.writexml(f, addindent='', newl='', encoding='utf-8')
+
