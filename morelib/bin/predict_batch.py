@@ -15,12 +15,16 @@ from morelib.utils.xml_fromsg import *
 from lib.datasets import pascal_voc
 from morelib.bin import predict
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--net', dest='demo_net', help='Network to use [vgg16 res101]',
-                        default='res101')
+                        default='vgg16')
     parser.add_argument('--dataset', dest='dataset', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         default='pascal_voc_0712')
     parser.add_argument('--root_dir', dest='root_dir', help='the path of the file hava stored',
@@ -30,7 +34,7 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.abspath(osp.join(osp.dirname(__file__), '..',"..","data","model")))
     parser.add_argument('--forecast_dir', dest='forecast_dir', help='prepare to forecast this picture',
-                        default=osp.abspath(osp.join(osp.dirname(__file__), '..', "..", "data", "forecast")))
+                        default='/home/syh/tf-faster-rcnn/data/predict_data/test_data-2018-07-19')
     args = parser.parse_args()
 
     return args
