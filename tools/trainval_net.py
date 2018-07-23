@@ -98,11 +98,14 @@ def prepare_datas():
     logger.info('{:d} roidb entries'.format(len(roidb)))
 
     # also add the validation set, but with no flipping images
-    orgflip = cfg.TRAIN.USE_FLIPPED
-    cfg.TRAIN.USE_FLIPPED = False
+    hor_orgflip = cfg.TRAIN.USE_HOR_FLIPPED
+    ver_orgflip = cfg.TRAIN.USE_VER_FLIPPED
+    cfg.TRAIN.USE_HOR_FLIPPED = False
+    cfg.TRAIN.USE_VER_FLIPPED = False
     _, valroidb = calc_roidb(args.imdbval_name)
     logger.info('{:d} validation roidb entries'.format(len(valroidb)))
-    cfg.TRAIN.USE_FLIPPED = orgflip
+    cfg.TRAIN.USE_HOR_FLIPPED = hor_orgflip
+    cfg.TRAIN.USE_VER_FLIPPED = ver_orgflip
 
     return imdb, roidb, valroidb
 
