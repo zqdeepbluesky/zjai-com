@@ -95,5 +95,5 @@ if __name__=="__main__":
     root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
     dataDirs = osp.join(root_dir, 'data', 'test_data')
     scale = 9
-    fileList=getAllFile(dataDirs,fileType="jpg")
+    fileList=get_all_file(dataDirs,fileType="jpg")
     _create_Main_new(dataDirs,fileList,scale)

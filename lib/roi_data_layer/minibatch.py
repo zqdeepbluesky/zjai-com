@@ -15,6 +15,7 @@ import numpy.random as npr
 import cv2
 from model.config import cfg
 from utils.blob import prep_im_for_blob, im_list_to_blob
+from skimage import exposure
 
 def get_minibatch(roidb, num_classes):
     """Given a roidb, construct a minibatch sampled from it."""
@@ -49,6 +50,10 @@ def get_minibatch(roidb, num_classes):
 
     return blobs
 
+def _bright_adjuest(im,gamma):
+    im = exposure.adjust_gamma(im, gamma)
+    return im
+
 def _get_image_blob(roidb, scale_inds):
     """Builds an input blob from the images in the roidb at the specified
     scales.
@@ -58,10 +63,12 @@ def _get_image_blob(roidb, scale_inds):
     im_scales = []
     for i in range(num_images):
         im = cv2.imread(roidb[i]['image'])  #读取图像
-        if roidb[i]['hor_flipped']:     #被翻转
+        if 'hor_flipped' in roidb[i] and roidb[i]['hor_flipped']:     #被翻转
             im = im[:, ::-1, :]       #图像翻转
-        if roidb[i]['ver_flipped']:
+        if 'ver_flipped' in roidb[i] and roidb[i]['ver_flipped']:
             im = im[::-1, :, :]
+        if 'bright_scala' in roidb[i] and roidb[i]['bright_scala']!=1:
+            im=_bright_adjuest(im,roidb[i]['bright_scala'])
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]  #设置size
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
                                         cfg.TRAIN.MAX_SIZE)   #得到缩放后的图像和缩放系数

@@ -348,6 +348,8 @@ def get_training_roidb(imdb):
         print('Appending vertical-flipped training examples...')
         imdb.append_ver_flipped_images()
         print('done')
+    if len(cfg.TRAIN.BRIGHT_ADJUEST)!=0:
+        imdb.append_bright_adjuest_images()
     print('Preparing training data...')
     rdl_roidb.prepare_roidb(imdb)
     print('done')

@@ -120,8 +120,12 @@ class imdb(object):
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
                      'gt_classes': self.roidb[i]['gt_classes'],
-                     'hor_flipped': True,
-                     'ver_flipped': self.roidb[i]['ver_flipped']}
+                     'hor_flipped': True}
+
+            if 'ver_flipped' in self.roidb[i]:
+                entry['ver_flipped']=self.roidb[i]['ver_flipped']
+            if 'bright_scala' in self.roidb[i]:
+                entry['bright_scala']=self.roidb[i]['bright']
             self.roidb.append(entry)
         self._image_index = self._image_index *2
 
@@ -140,10 +144,36 @@ class imdb(object):
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
                      'gt_classes': self.roidb[i]['gt_classes'],
-                     'ver_flipped': self.roidb[i]['ver_flipped'],
-                     'hor_flipped': True}
+                     'ver_flipped': True}
+
+            if 'hor_flipped' in self.roidb[i]:
+                entry['hor_flipped']=self.roidb[i]['hor_flipped']
+            if 'bright_scala' in self.roidb[i]:
+                entry['bright_scala']=self.roidb[i]['bright']
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
+
+    def append_bright_adjuest_images(self):
+        num_images = self.num_images
+        error_num=0
+        for gamma in cfg.TRAIN.BRIGHT_ADJUEST:
+            if gamma==1 or gamma<=0:
+                error_num+=1
+                continue
+            for i in range(num_images):
+                boxes = self.roidb[i]['boxes'].copy()
+                entry = {'boxes': boxes,
+                         'gt_overlaps': self.roidb[i]['gt_overlaps'],
+                         'gt_classes': self.roidb[i]['gt_classes'],
+                         'bright_scala': gamma}
+                if 'hor_flipped' in self.roidb[i]:
+                    entry['hor_flipped'] = self.roidb[i]['hor_flipped']
+                if 'ver_flipped' in self.roidb[i]:
+                    entry['ver_flipped'] = self.roidb[i]['ver_flipped']
+                self.roidb.append(entry)
+        self._image_index += self._image_index * (len(cfg.TRAIN.BRIGHT_ADJUEST)-error_num)
+
+
 
     def evaluate_recall(self, candidate_boxes=None, thresholds=None, area='all', limit=None):
         """Evaluate detection proposal recall metrics.
