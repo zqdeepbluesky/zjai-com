@@ -24,13 +24,15 @@ def parse_args():
     parser.add_argument('--dataset', dest='dataset', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         default='pascal_voc_0712')
     parser.add_argument('--root_dir', dest='root_dir', help='the path of the file hava stored',
-                         default=osp.abspath(osp.join(osp.dirname(__file__), '..',"..","data")))
+                         default=osp.join(cfg.ROOT_DIR,"data"))
     parser.add_argument('--set_name', dest='set_name', help='the name of the classes file',
                         default="com")
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
-                        default=osp.abspath(osp.join(osp.dirname(__file__), '..',"..","data","model")))
-    parser.add_argument('--forecast_dir', dest='forecast_dir', help='prepare to forecast this picture',
-                        default=osp.abspath(osp.join(osp.dirname(__file__), '..', "..", "data", "forecast")))
+                        default=osp.join(cfg.ROOT_DIR, "data","model"))
+    parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
+                        default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
+    parser.add_argument('--package_data', dest='package_data', help='the test data file name',
+                        default="test_data-2018-07-19")
     args = parser.parse_args()
 
     return args
@@ -47,7 +49,7 @@ def get_tf_model(model_dir):
                        'our server and place them properly?').format(tf_model + '.meta'))
     return tf_model
 
-def load_model(demonet,tf_model,classes_num):
+def load_model(sess,demonet,tf_model,classes_num):
     if demonet == 'vgg16':
         net = vgg16()
     elif demonet == 'res101':
@@ -75,12 +77,12 @@ def load_forecast_files(forecast_dir):
         print("Please load some Images in the {}!".format(jpg_path))
     return jpg_files,xml_path
 
-def predict_all_images(sess,net,jpg_files,xml_path):
+def predict_images(sess,net,jpg_files,xml_path):
     for image in jpg_files:
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print('Demo for data/demo/{}'.format(image))
+        print('Demo for {}'.format(image))
         im = cv2.imread(image)
-        result_data=predict.detect_single_image(sess, net, im,CLASSES)
+        result_data=predict.predict_image(sess, net, im,CLASSES)
         im_info={"path":image}
         im_info["width"]=im.shape[0]
         im_info["height"]=im.shape[1]
@@ -88,12 +90,11 @@ def predict_all_images(sess,net,jpg_files,xml_path):
         im_info["channel"]=im.shape[2]
         save_annotations(xml_path,im_info,result_data)
 
+args = parse_args()
+CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes.txt".format(args.set_name)))
 
 if __name__ == '__main__':
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
-    args = parse_args()
-
-    CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes.txt".format(args.set_name)))
 
     tf_model=get_tf_model(args.model_dir)
     # set config
@@ -103,7 +104,7 @@ if __name__ == '__main__':
     # init session
     sess = tf.Session(config=tfconfig)
     # load network
-    saver,net=load_model(args.demo_net,tf_model,len(CLASSES))
+    saver,net=load_model(sess,args.demo_net,tf_model,len(CLASSES))
 
-    jpg_files,xml_path=load_forecast_files(args.forecast_dir)
-    predict_all_images(sess,net,jpg_files,xml_path)
+    jpg_files,xml_path=load_forecast_files(os.path.join(args.predict_dir,args.package_data))
+    predict_images(sess,net,jpg_files,xml_path)
