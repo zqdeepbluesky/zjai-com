@@ -30,18 +30,18 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="res101_faster_rcnn_iter_200000.ckpt")
+                        default="res101_faster_rcnn_iter_900000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
-                        default="test_data-2018-07-19")
+                        default="train_data-2018-07-24")
     args = parser.parse_args()
 
     return args
 
 def get_tf_model(model_dir,model_data):
-    tf_model = os.path.join(model_dir, model_data+".meta")
-    if not os.path.isfile(tf_model ):
+    tf_model = os.path.join(model_dir, model_data)
+    if not os.path.isfile(tf_model+".meta" ):
         raise IOError(('{:s} not found.\nDid you download the proper networks from '
                        'our server and place them properly?').format(tf_model))
     return tf_model
@@ -89,6 +89,7 @@ def predict_images(sess,net,jpg_files,xml_path):
 
 args = parse_args()
 CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes.txt".format(args.set_name)))
+
 
 if __name__ == '__main__':
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
