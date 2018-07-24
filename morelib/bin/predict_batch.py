@@ -29,6 +29,8 @@ def parse_args():
                         default="com")
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
+    parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
+                        default="res101_faster_rcnn_iter_200000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
@@ -37,16 +39,11 @@ def parse_args():
 
     return args
 
-def get_tf_model(model_dir):
-    tf_model = ''
-    for files in os.listdir(model_dir):
-        if files.find(".meta") != -1:
-            tf_model = os.path.join(model_dir, files[:files.find(".meta")])
-            break
-    print(tf_model)
-    if not os.path.isfile(tf_model + '.meta'):
+def get_tf_model(model_dir,model_data):
+    tf_model = os.path.join(model_dir, model_data+".meta")
+    if not os.path.isfile(tf_model ):
         raise IOError(('{:s} not found.\nDid you download the proper networks from '
-                       'our server and place them properly?').format(tf_model + '.meta'))
+                       'our server and place them properly?').format(tf_model))
     return tf_model
 
 def load_model(sess,demonet,tf_model,classes_num):
@@ -96,7 +93,7 @@ CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes.
 if __name__ == '__main__':
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
 
-    tf_model=get_tf_model(args.model_dir)
+    tf_model=get_tf_model(args.model_dir,args.model_data)
     # set config
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
     tfconfig.gpu_options.allow_growth=True
