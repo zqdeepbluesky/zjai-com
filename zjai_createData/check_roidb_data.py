@@ -8,6 +8,7 @@ import pickle
 import argparse
 import random
 import PIL.Image
+import numpy as np
 
 def parse_args():
     """Parse input arguments."""
@@ -15,7 +16,7 @@ def parse_args():
     parser.add_argument('--cache_dir', dest='cache_dir', help='Network to use [vgg16 res101]',
                         default=os.path.join(cfg.ROOT_DIR,"data","cache"))
     parser.add_argument('--roidb_name', dest='roidb_name', help='Trained dataset [pascal_voc pascal_voc_0712]',
-                        default='voc_2007_trainval_all_roidb.pkl')
+                        default='voc_2007_trainval_gt_roidb.pkl')
     parser.add_argument('--root_dir', dest='root_dir', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         default=os.path.join(cfg.ROOT_DIR,"data"))
     args = parser.parse_args()
@@ -33,15 +34,16 @@ def get_roidb(cache_dir,roidb_name):
     return roidb
 
 def draw_roidb(roidb):
+    print(roidb)
     image_path=roidb['image']
     print(image_path)
     boxes=roidb['boxes']
     classes=roidb['gt_classes']
     im=PIL.Image.open(image_path)
     if 'flipped' in roidb and roidb['flipped']==True:
-        im = im[:, ::-1, :]
+        im = np.ndarray(im)[:, ::-1, :]
     if 'hor_flipped' in roidb and roidb['hor_flipped']==True:
-        im = im[:, ::-1, :]
+        im = np.ndarray(im)[:, ::-1, :]
     fig, ax = plt.subplots(figsize=(12, 12))
     ax.imshow(im, aspect='equal')
     for i in range(len(classes)):
@@ -69,4 +71,4 @@ if __name__=="__main__":
     roidb=get_roidb(args.cache_dir,args.roidb_name)
     for i in range(10):
         num=random.randint(0,len(roidb))
-        draw_roidb(roidb[num])
+        draw_roidb(roidb[1])

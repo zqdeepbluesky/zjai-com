@@ -13,7 +13,7 @@ import os
 
 import cv2
 
-from io_utils import *
+from data_processing.utils.io_utils import *
 
 
 def read_xml(in_path):
