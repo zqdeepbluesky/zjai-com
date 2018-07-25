@@ -86,10 +86,10 @@ __C.TRAIN.BG_THRESH_LO = 0.1
 # Use horizontally-flipped images during training?
 __C.TRAIN.USE_HOR_FLIPPED = True
 # Use vertical-flipped images during training?
-__C.TRAIN.USE_VER_FLIPPED = True
+__C.TRAIN.USE_VER_FLIPPED = False
 
 # Use brightness-adjuest images during training?
-__C.TRAIN.BRIGHT_ADJUEST=[0.8,1.2]
+__C.TRAIN.BRIGHT_ADJUEST=[]
 
 # Train bounding-box regressors
 __C.TRAIN.BBOX_REG = True

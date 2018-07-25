@@ -6,6 +6,7 @@ import argparse
 from data_processing.utils import io_utils
 import matplotlib.pyplot as plt
 import numpy as np
+import zjai_createData.zjai_6_comparison
 
 def crop(img,crop_size):
     img=img.crop(crop_size)
@@ -52,6 +53,11 @@ def crop_images(data_dir,crop_size):
     for image_file in image_files:
         image=Image.open(image_file)
         img_size=image.size
+        xml_path=image_file.replace("JPEGImages","Annotations").replace(".jpg",".xml")
+        xml_save_path=os.path.dirname(xml_path)
+        count,labelList=zjai_createData.zjai_6_comparison.get_xml_label_num(xml_path)
+        print(labelList)
+
         # count=161
         if img_size[0]>crop_size[0] and img_size[1]>crop_size[1]:
             crop_bbox=create_crop_bbox(img_size,crop_size)
@@ -59,11 +65,6 @@ def crop_images(data_dir,crop_size):
             for box in crop_bbox:
                 img=crop(image,box)
 
-        break
-
-
-
-        break
 
 
 if __name__=="__main__":
