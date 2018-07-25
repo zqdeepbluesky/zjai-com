@@ -329,11 +329,18 @@ class SolverWrapper(object):
 
 def get_training_roidb(imdb):
     """Returns a roidb (Region of Interest database) for use in training."""
-    if cfg.TRAIN.USE_FLIPPED:
+    if cfg.TRAIN.USE_HOR_FLIPPED:
         print('Appending horizontally-flipped training examples...')
-        imdb.append_flipped_images()
+        imdb.append_hor_flipped_images()
         print('done')
-
+    if cfg.TRAIN.USE_VER_FLIPPED:
+        print('Appending vertical-flipped training examples...')
+        imdb.append_ver_flipped_images()
+        print('done')
+    if len(cfg.TRAIN.BRIGHT_ADJUEST)!=0:
+        print('Appending bright-adjuest training examples...')
+        imdb.append_bright_adjuest_images()
+        print('done')
     print('Preparing training data...')
     rdl_roidb.prepare_roidb(imdb)
     print('done')

@@ -1,6 +1,7 @@
 from lxml.etree import Element, SubElement, tostring
 from xml.dom.minidom import parseString
 import os
+from data_processing.utils import io_utils
 
 def make_xml(im_info, datas):
     node_root = Element('annotation')
@@ -91,6 +92,7 @@ def _beautifulFormat(xmlDomObject):
         return False
 def save_annotations(save_dir, im_info, data):
     dom = make_xml(im_info, data)
+    io_utils.mkdir(save_dir)
     xml_path = os.path.join(save_dir, im_info["name"]+".xml")
     with open(xml_path, 'w+') as f:
         dom.writexml(f, addindent='', newl='', encoding='utf-8')

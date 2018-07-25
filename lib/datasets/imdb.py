@@ -103,10 +103,9 @@ class imdb(object):
         raise NotImplementedError
 
     def _get_widths(self):
-        return [PIL.Image.open(self.image_path_at(i)).size[0]
-                for i in range(self.num_images)]
+        return [PIL.Image.open(self.image_path_at(i)).size[0] for i in range(self.num_images)]
 
-    def append_flipped_images(self):  #水平翻转
+    def append_hor_flipped_images(self):  #水平翻转
         num_images = self.num_images
         widths = self._get_widths()
         print("finish get_widths")
@@ -116,16 +115,65 @@ class imdb(object):
             oldx2 = boxes[:, 2].copy()  #xmax
             boxes[:, 0] = widths[i] - oldx2
             boxes[:, 2] = widths[i] - oldx1
-
-            if boxes[:, 2] < boxes[:, 0]:
-                boxes[:, 0] = 0
+            boxes[boxes[:, 2] < boxes[:, 0],0]=0
             assert (boxes[:, 2] >= boxes[:, 0]).all()
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
                      'gt_classes': self.roidb[i]['gt_classes'],
-                     'flipped': True}
+                     'hor_flipped': True}
+
+            if 'ver_flipped' in self.roidb[i]:
+                entry['ver_flipped']=self.roidb[i]['ver_flipped']
+            if 'bright_scala' in self.roidb[i]:
+                entry['bright_scala']=self.roidb[i]['bright']
+            self.roidb.append(entry)
+        self._image_index = self._image_index *2
+
+    def append_ver_flipped_images(self):  #竖直翻转
+        num_images = self.num_images
+        widths = [PIL.Image.open(self.image_path_at(i)).size[1] for i in range(self.num_images)]
+        print("finish get_widths")
+        for i in range(num_images):
+            boxes = self.roidb[i]['boxes'].copy()   #如果roidb还未加载时，会先加载，并保存,图片的object
+            oldx1 = boxes[:, 1].copy()  #ymin
+            oldx2 = boxes[:, 3].copy()  #ymax
+            boxes[:, 1] = widths[i] - oldx2
+            boxes[:, 3] = widths[i] - oldx1
+            boxes[boxes[:, 3] < boxes[:, 1],0]=0
+            assert (boxes[:, 3] >= boxes[:, 1]).all()
+            entry = {'boxes': boxes,
+                     'gt_overlaps': self.roidb[i]['gt_overlaps'],
+                     'gt_classes': self.roidb[i]['gt_classes'],
+                     'ver_flipped': True}
+
+            if 'hor_flipped' in self.roidb[i]:
+                entry['hor_flipped']=self.roidb[i]['hor_flipped']
+            if 'bright_scala' in self.roidb[i]:
+                entry['bright_scala']=self.roidb[i]['bright']
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
+
+    def append_bright_adjuest_images(self):
+        num_images = self.num_images
+        error_num=0
+        for gamma in cfg.TRAIN.BRIGHT_ADJUEST:
+            if gamma==1 or gamma<=0:
+                error_num+=1
+                continue
+            for i in range(num_images):
+                boxes = self.roidb[i]['boxes'].copy()
+                entry = {'boxes': boxes,
+                         'gt_overlaps': self.roidb[i]['gt_overlaps'],
+                         'gt_classes': self.roidb[i]['gt_classes'],
+                         'bright_scala': gamma}
+                if 'hor_flipped' in self.roidb[i]:
+                    entry['hor_flipped'] = self.roidb[i]['hor_flipped']
+                if 'ver_flipped' in self.roidb[i]:
+                    entry['ver_flipped'] = self.roidb[i]['ver_flipped']
+                self.roidb.append(entry)
+        self._image_index += self._image_index * (len(cfg.TRAIN.BRIGHT_ADJUEST)-error_num)
+
+
 
     def evaluate_recall(self, candidate_boxes=None, thresholds=None, area='all', limit=None):
         """Evaluate detection proposal recall metrics.

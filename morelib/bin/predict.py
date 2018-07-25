@@ -18,7 +18,7 @@ from lib.model.nms_wrapper import nms
 
 
 
-def predict_single_image(sess, net, im):
+def _detect_image(sess, net, im):
     blobs, im_scales = _get_blobs(im)
     assert len(im_scales) == 1, "Only single-image batch implemented"
     im_blob = blobs['data']
@@ -83,7 +83,7 @@ def _get_image_blob(im):
     blob = im_list_to_blob(processed_ims)
     return blob, np.array(im_scale_factors)
 
-def get_thresh_label(class_name, dets, thresh=0.5):
+def _get_thresh_label(class_name, dets, thresh=0.5):
     """Draw detected bounding boxes."""
     inds = np.where(dets[:, -1] >= thresh)[0]
     boxes = np.zeros((1,5),dtype=np.float32)
@@ -108,10 +108,10 @@ def get_thresh_label(class_name, dets, thresh=0.5):
         score_list.append(score)
     return boxes,cls_list,flag,score_list
 
-def detect_single_image(sess,net,im,CLASSES):
+def predict_image(sess,net,im,CLASSES):
 
     # Detect all object classes and regress object bounds
-    scores, boxes = predict_single_image(sess, net, im)
+    scores, boxes = _detect_image(sess, net, im)
     CONF_THRESH = 0.8
     NMS_THRESH = 0.3
     result_data=[]
@@ -122,7 +122,7 @@ def detect_single_image(sess,net,im,CLASSES):
         dets = np.hstack((cls_boxes,cls_scores[:, np.newaxis])).astype(np.float32)
         keep = nms(dets, NMS_THRESH)
         dets = dets[keep, :]
-        box, classname, flag, score = get_thresh_label(cls, dets, thresh=CONF_THRESH)
+        box, classname, flag, score = _get_thresh_label(cls, dets, thresh=CONF_THRESH)
         if flag == -1:
             continue
         for i in range(len(classname)):

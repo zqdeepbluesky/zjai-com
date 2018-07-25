@@ -50,13 +50,6 @@ class pascal_voc(imdb):
         imdb.__init__(self, name, self._classes)
         # self._devkit_path = self._get_default_path()   #返回基础路径
         self._data_path = self._devkit_path
-        if DEBUG:
-            self._devkit_path = os.path.abspath(
-                os.path.join(self._get_default_path(), "train_data", 'all_train_data_resize2'))
-            self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'com_classes.txt'))
-        else:
-            self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
-            self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'voc_classes.txt'))
 
         imdb.__init__(self, name, self._classes)
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))  #弄成序号
@@ -125,8 +118,7 @@ class pascal_voc(imdb):
             print('{} gt roidb loaded from {}'.format(self.name, cache_file))
             return roidb
 
-        gt_roidb = [self._load_pascal_annotation(index)
-                    for index in self.image_index]
+        gt_roidb = [self._load_pascal_annotation(index) for index in self.image_index]
         with open(cache_file, 'wb') as fid:
             pickle.dump(gt_roidb, fid, pickle.HIGHEST_PROTOCOL)
         print('wrote gt roidb to {}'.format(cache_file))
@@ -197,7 +189,6 @@ class pascal_voc(imdb):
         return {'boxes': boxes,
                 'gt_classes': gt_classes,
                 'gt_overlaps': overlaps,
-                'flipped': False,
                 'seg_areas': seg_areas}
 
     def _get_comp_id(self):
