@@ -20,7 +20,7 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--net', dest='demo_net', help='Network to use [vgg16 res101]',
-                        default='res101')
+                        default='vgg16')
     parser.add_argument('--dataset', dest='dataset', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         default='pascal_voc_0712')
     parser.add_argument('--root_dir', dest='root_dir', help='the path of the file hava stored',
@@ -30,7 +30,7 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="res101_faster_rcnn_iter_900000.ckpt")
+                        default="vgg16_faster_rcnn_iter_1050000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
@@ -80,12 +80,16 @@ def predict_images(sess,net,jpg_files,xml_path):
         print('Demo for {}'.format(image))
         im = cv2.imread(image)
         result_data=predict.predict_image(sess, net, im,CLASSES)
-        im_info={"path":image}
-        im_info["width"]=im.shape[0]
-        im_info["height"]=im.shape[1]
-        im_info["name"]=os.path.splitext(os.path.split(image)[1])[0]
-        im_info["channel"]=im.shape[2]
-        save_annotations(xml_path,im_info,result_data)
+        save_data_into_xml(image,im,xml_path,result_data)
+
+def save_data_into_xml(image,im,xml_path,result_data):
+    im_info = {"path": image}
+    print(im.shape)
+    im_info["width"] = im.shape[1]
+    im_info["height"] = im.shape[0]
+    im_info["name"] = os.path.splitext(os.path.split(image)[1])[0]
+    im_info["channel"] = im.shape[2]
+    save_annotations(xml_path, im_info, result_data)
 
 args = parse_args()
 CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes.txt".format(args.set_name)))
