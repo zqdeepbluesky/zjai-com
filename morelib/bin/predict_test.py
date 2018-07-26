@@ -31,13 +31,13 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="res101_faster_rcnn_iter_200000.ckpt")
+                        default="res101_faster_rcnn_iter_900000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test package data file name',
-                        default="test_data-2018-07-19")
+                        default="train_data-2018-07-24/JPEGImages")
     parser.add_argument('--file_name', dest='file_name', help='the test jpg file name',
-                        default="test_2018-07-19_1421.jpg")
+                        default="train_2018-07-24_1000.jpg")
     args = parser.parse_args()
 
     return args
@@ -47,7 +47,7 @@ def predict_test(sess,net,args):
     image_file=os.path.join(args.predict_dir,args.package_data,args.file_name)
     print(image_file)
     im = cv2.imread(image_file)
-    result_data = predict.predict_image(sess, net, im, CLASSES)
+    result_data = predict.predict_image(sess, net, im, CLASSES,verbose=1)
     im_info = {"path": image_file}
     im_info["width"] = im.shape[0]
     im_info["height"] = im.shape[1]
