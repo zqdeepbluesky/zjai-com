@@ -63,10 +63,16 @@ def parse_args():
     parser.add_argument('--data_dir', dest='data_dir', help='prepare to compare this image and xml',
                         default=os.path.join(cfg.ROOT_DIR,"data","train_data"))
     parser.add_argument('--package_dir', dest='package_dir', help='the compare data file name',
-                        default="all_train_data_resize2")
+                        default="test_data-2018-07-20")
     args = parser.parse_args()
 
     return args
+
+def _rename_file(data_dir):
+    origin_file=os.path.join(data_dir,"Annotations")
+    new_file=os.path.join(data_dir,"Annotations_new")
+    os.rename(origin_file,os.path.join(data_dir,"Annotations_old"))
+    os.rename(new_file, os.path.join(data_dir, "Annotations"))
 
 args = parse_args()
 
@@ -74,3 +80,4 @@ if __name__=="__main__":
     data_set=os.path.join(args.data_dir,args.package_dir)
     xmlList=_get_xml(data_set)
     _overwrite(xmlList)
+    _rename_file(data_set)
