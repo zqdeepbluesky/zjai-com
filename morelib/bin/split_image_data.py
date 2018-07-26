@@ -35,7 +35,7 @@ def get_random_index(num):
     return random_index
 
 def split_files(data_dir,image_files,index,split_num):
-    group_size=int(len(image_files)/split_num)
+    group_size=round(len(image_files)/split_num)
     print(index)
     for i in range(split_num):
         start_num=i*group_size
