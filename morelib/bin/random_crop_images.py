@@ -143,6 +143,8 @@ def crop_images(data_dir,crop_size):
         xml_path = image_file.replace("JPEGImages", "Annotations").replace(".jpg", ".xml")
         image=Image.open(image_file)
         scale = cal_scale(image,args.scala)
+        if scale<=1:
+            continue
         obj_info = get_info_from_xml(xml_path)
         image=image.resize((int(image.size[0]/scale),int(image.size[1]/scale)))
         obj_info = resize_box(obj_info, scale)
