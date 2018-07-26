@@ -4,45 +4,7 @@ For a good and more up-to-date implementation for faster/mask RCNN with multi-gp
 # tf-faster-rcnn
 A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (xinleic@cs.cmu.edu). This repository is based on the python Caffe implementation of faster RCNN available [here](https://github.com/rbgirshick/py-faster-rcnn).
 
-### Test and evaluate
-1. Test and evaluate
-  ```Shell
-  ./experiments/scripts/test_faster_rcnn.sh [GPU_ID] [DATASET] [NET]
-  # GPU_ID is the GPU you want to test on
-  # NET in {vgg16, res50, res101, res152} is the network arch to use
-  # DATASET {pascal_voc, pascal_voc_0712, coco} is defined in test_faster_rcnn.sh
-  # Examples:
-  ./experiments/scripts/test_faster_rcnn.sh 0 pascal_voc vgg16
-  ./experiments/scripts/test_faster_rcnn.sh 1 coco res101
-  ```
-
-2. You can use ``tools/reval.sh`` for re-evaluation
-
-  By default, trained networks are saved under:
-
-  ```
-  output/[NET]/[DATASET]/default/
-  ```
-
-  Test outputs are saved under:
-
-  ```
-  output/[NET]/[DATASET]/default/[SNAPSHOT]/
-  ```
-
-  Tensorboard information for train and validation is saved under:
-
-  ```
-  tensorboard/[NET]/[DATASET]/default/
-  tensorboard/[NET]/[DATASET]/default_val/
-
-3. Test and save result into xml
-  ```shell
-  run ./morelib/test/get_test_to_xml.py
-  #put the test picture into the files /data/forecast/JPEGImages
-  ```
-
-###开发环境配置
+# 开发环境配置
 1. 硬件设备条件：  
   ```shell
   A.操作系统---ubuntu 16.04
@@ -73,7 +35,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   B.将cuda路径加入环境变量，CUDA_HOME
   '''
 
-###安装
+# 安装
 1. 下载代码 
   ```shell
   git clone git@github.com:FirminSun/zjai-com.git
@@ -106,7 +68,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   cd ..
   ```
 
-###训练VOC数据集
+# 训练VOC数据集
 1. 下载并设置VOC_2007数据
   ```shell
   A.下载VOC_2007数据集，
@@ -154,7 +116,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   ```
 
 
-###训练自己的数据集
+# 训练自己的数据集
 1. 放置数据集
   将对应VOC数据集文件结构的数据文件放置到./data/train_data文件夹下，若无train_data文件夹，则自行创建
 
@@ -168,9 +130,37 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
 
 4. 运行程序开始训练
   **注意**:目前代码只支持单GPU训练，若需要多GPU训练，请看https://github.com/endernewton/tf-faster-rcnn/issues/121
+  **注意**:如果更替数据集或者进行不一样的数据增强操作后，需要删掉./data/cache文件夹下的pkl文件
 
 5. 使用tensorbroad可视化
   ```shell
   tensorboard --logdir=tensorboard/vgg16/voc_2007_trainval/ --port=7001 &
   tensorboard --logdir=tensorboard/vgg16/coco_2014_train+coco_2014_valminusminival/ --port=7002 &
   ```
+
+# 预测测试集
+1. 预测单张图像测试
+  将测试数据放置到./data/predcit_data文件夹下，并将模型文件数据防止到./data/model文件夹下；
+  修改参数，使程序能够读取指定的测试图像和模型文件；
+  运行predict_test.py即可进行测试，并将其识别物体类别和位置信息，存放于相同路径的同名xml文件中；
+
+2. 批量预测测试集
+  将测试数据文件夹放置到./data/predcit_data文件夹下，并将模型文件数据防止到./data/model文件夹下；
+  修改参数，使程序能够读取指定的测试图像和模型文件；
+  运行predict_batch.py即可进行批量测试，并将其识别物体类别和位置信息，存放于数据文件夹路径下的Annotations文件中；
+
+# 数据增强
+1. 水平翻转
+  参数意义：在config.py文件中参数USE_HOR_FLIPPED为设定是否执行水平翻转操作的参数；
+  参数设定：USE_HOR_FLIPPED=TRUE时数据集加倍，否则不做操作；
+
+2. 竖直翻转
+  参数意义：在config.py文件中参数USE_VER_FLIPPED为设定是否执行竖直翻转操作的参数；
+  参数设定：USE_VER_FLIPPED=TRUE时数据集加倍，否则不做操作；
+
+3. 调整亮度
+  参数意义：在config.py文件中参数BRIGHT_ADJUEST为设定是否执行调整亮度操作的参数；参数BRIGHT_ADJUEST_SCALE为设定调整亮度程度的参数；
+  参数设定：BRIGHT_ADJUEST=TRUE时数据集执行亮度调整操作；参数BRIGHT_ADJUEST_SCALE=[0.8,1.2]为对图像调整亮度是原本的0.8和1.2倍，为1或为空时不做操作；
+
+
+
