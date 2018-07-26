@@ -158,7 +158,7 @@ class imdb(object):
     def append_bright_adjuest_images(self):
         num_images = self.num_images
         error_num=0
-        for gamma in cfg.TRAIN.BRIGHT_ADJUEST:
+        for gamma in cfg.TRAIN.BRIGHT_ADJUEST_SCALE:
             if gamma==1 or gamma<=0:
                 error_num+=1
                 continue
@@ -173,7 +173,7 @@ class imdb(object):
                 if 'ver_flipped' in self.roidb[i]:
                     entry['ver_flipped'] = self.roidb[i]['ver_flipped']
                 self.roidb.append(entry)
-        self._image_index += self._image_index * (len(cfg.TRAIN.BRIGHT_ADJUEST)-error_num)
+        self._image_index += self._image_index * (len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)-error_num)
 
 
 

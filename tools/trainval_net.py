@@ -103,7 +103,7 @@ def prepare_datas():
     org_bright_adjuset = cfg.TRAIN.BRIGHT_ADJUEST
     cfg.TRAIN.USE_HOR_FLIPPED = False
     cfg.TRAIN.USE_VER_FLIPPED = False
-    cfg.TRAIN.BRIGHT_ADJUEST = []
+    cfg.TRAIN.BRIGHT_ADJUEST = False
     _, valroidb = calc_roidb(args.imdbval_name)
     logger.info('{:d} validation roidb entries'.format(len(valroidb)))
     cfg.TRAIN.USE_HOR_FLIPPED = hor_orgflip

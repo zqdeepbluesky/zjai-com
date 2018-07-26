@@ -89,7 +89,8 @@ __C.TRAIN.USE_HOR_FLIPPED = True
 __C.TRAIN.USE_VER_FLIPPED = False
 
 # Use brightness-adjuest images during training?
-__C.TRAIN.BRIGHT_ADJUEST=[]
+__C.TRAIN.BRIGHT_ADJUEST=False
+__C.TRAIN.BRIGHT_ADJUEST_SCALE=[]
 
 # Train bounding-box regressors
 __C.TRAIN.BBOX_REG = True
