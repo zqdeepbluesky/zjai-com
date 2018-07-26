@@ -34,8 +34,8 @@ def parse_args():
                         default="train_data-2018-03-07")
     parser.add_argument('--size', dest='size', help='the crop size',
                         default=(800,800))
-    parser.add_argument('--scala', dest='scala', help='the resize scala',
-                        default=1.5)
+    parser.add_argument('--scale', dest='scale', help='the resize scale',
+                        default=1000)
     args = parser.parse_args()
 
     return args
@@ -130,16 +130,22 @@ def resize_box(obj_info,scala):
         obj_info[i]="{},1,{},{},{},{}".format(classes,int(int(x1)/scala),int(int(y1)/scala),int(int(x2)/scala),int(int(y2)/scala))
     return obj_info
 
+def cal_scale(image,scale):
+    height=image.size[1]
+    scale= height/scale
+    return scale
+
+
 def crop_images(data_dir,crop_size):
     image_files, crop_jpg_files, crop_xml_files=load_image_files(data_dir)
-    scala=args.scala
     for image_file in image_files:
         print(image_file)
         xml_path = image_file.replace("JPEGImages", "Annotations").replace(".jpg", ".xml")
         image=Image.open(image_file)
+        scale = cal_scale(image,args.scala)
         obj_info = get_info_from_xml(xml_path)
-        image=image.resize((int(image.size[0]/scala),int(image.size[1]/scala)))
-        obj_info = resize_box(obj_info, scala)
+        image=image.resize((int(image.size[0]/scale),int(image.size[1]/scale)))
+        obj_info = resize_box(obj_info, scale)
         # min_box,obj_info=get_min_box(obj_info)
         # image=crop(image,min_box)
         # plt.imshow(image)
