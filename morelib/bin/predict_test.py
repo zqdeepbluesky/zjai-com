@@ -16,6 +16,7 @@ from lib.datasets import pascal_voc
 from morelib.bin import predict
 from morelib.bin import predict_batch
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def parse_args():
     """Parse input arguments."""
