@@ -59,14 +59,11 @@ def vis_detections(im, class_name, dets, thresh=0.5):
                           bbox[3] - bbox[1], fill=False,
                           edgecolor='red', linewidth=3.5)
         )
-        ax.text(bbox[0], bbox[1] - 2,
-                '{:s} {:.3f}'.format(class_name, score),
+        ax.text(bbox[0], bbox[1] - 2, '{:s} {:.3f}'.format(class_name, score),
                 bbox=dict(facecolor='blue', alpha=0.5),
                 fontsize=14, color='white')
 
-    ax.set_title(('{} detections with '
-                  'p({} | box) >= {:.1f}').format(class_name, class_name,
-                                                  thresh),
+    ax.set_title(('{} detections with p({} | box) >= {:.1f}').format(class_name, class_name, thresh),
                  fontsize=14)
     plt.axis('off')
     plt.tight_layout()
@@ -93,8 +90,7 @@ def demo(sess, net, image_name):
         cls_ind += 1 # because we skipped background
         cls_boxes = boxes[:, 4*cls_ind:4*(cls_ind + 1)]
         cls_scores = scores[:, cls_ind]
-        dets = np.hstack((cls_boxes,
-                          cls_scores[:, np.newaxis])).astype(np.float32)
+        dets = np.hstack((cls_boxes, cls_scores[:, np.newaxis])).astype(np.float32)
         keep = nms(dets, NMS_THRESH)
         dets = dets[keep, :]
         vis_detections(im, cls, dets, thresh=CONF_THRESH)
@@ -117,13 +113,11 @@ if __name__ == '__main__':
     # model path
     demonet = args.demo_net
     dataset = args.dataset
-    tfmodel = os.path.join('output', demonet, DATASETS[dataset][0], 'default',
-                           NETS[demonet][0])
+    tfmodel = os.path.join('output', demonet, DATASETS[dataset][0], 'default', NETS[demonet][0])
 
 
     if not os.path.isfile(tfmodel + '.meta'):
-        raise IOError(('{:s} not found.\nDid you download the proper networks from '
-                       'our server and place them properly?').format(tfmodel + '.meta'))
+        raise IOError(('{:s} not found.\nDid you download the proper networks from our server and place them properly?').format(tfmodel + '.meta'))
 
     # set config
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
@@ -138,8 +132,7 @@ if __name__ == '__main__':
         net = resnetv1(num_layers=101)
     else:
         raise NotImplementedError
-    net.create_architecture("TEST", 21,
-                            tag='default', anchor_scales=[8, 16, 32])
+    net.create_architecture("TEST", 21, tag='default', anchor_scales=[8, 16, 32])
     saver = tf.train.Saver()
     saver.restore(sess, tfmodel)
 

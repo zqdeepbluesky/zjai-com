@@ -23,10 +23,7 @@ def parse_rec(filename):
         obj_struct['truncated'] = int(obj.find('truncated').text)
         obj_struct['difficult'] = int(obj.find('difficult').text)
         bbox = obj.find('bndbox')
-        obj_struct['bbox'] = [int(bbox.find('xmin').text),
-                              int(bbox.find('ymin').text),
-                              int(bbox.find('xmax').text),
-                              int(bbox.find('ymax').text)]
+        obj_struct['bbox'] = [int(bbox.find('xmin').text), int(bbox.find('ymin').text), int(bbox.find('xmax').text), int(bbox.find('ymax').text)]
         objects.append(obj_struct)
 
     return objects
@@ -114,8 +111,7 @@ def voc_eval(detpath,
         for i, imagename in enumerate(imagenames):
             recs[imagename] = parse_rec(annopath.format(imagename))
             if i % 100 == 0:
-                print('Reading annotation for {:d}/{:d}'.format(
-                    i + 1, len(imagenames)))
+                print('Reading annotation for {:d}/{:d}'.format(i + 1, len(imagenames)))
         # save
         print('Saving cached annotations to {:s}'.format(cachefile))
         with open(cachefile, 'w') as f:
@@ -140,9 +136,7 @@ def voc_eval(detpath,
             difficult = np.array([x['difficult'] for x in R]).astype(np.bool)
         det = [False] * len(R)
         npos = npos + sum(~difficult)
-        class_recs[imagename] = {'bbox': bbox,
-                                 'difficult': difficult,
-                                 'det': det}
+        class_recs[imagename] = {'bbox': bbox, 'difficult': difficult, 'det': det}
 
     # read dets
     detfile = detpath.format(classname)
@@ -184,9 +178,7 @@ def voc_eval(detpath,
                 inters = iw * ih
 
                 # union
-                uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) +
-                       (BBGT[:, 2] - BBGT[:, 0] + 1.) *
-                       (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
+                uni = ((bb[2] - bb[0] + 1.) * (bb[3] - bb[1] + 1.) + (BBGT[:, 2] - BBGT[:, 0] + 1.) * (BBGT[:, 3] - BBGT[:, 1] + 1.) - inters)
 
                 overlaps = inters / uni
                 ovmax = np.max(overlaps)

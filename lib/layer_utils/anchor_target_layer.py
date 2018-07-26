@@ -44,14 +44,11 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
 
     # overlaps between the anchors and the gt boxes
     # overlaps (ex, gt)
-    overlaps = bbox_overlaps(
-        np.ascontiguousarray(anchors, dtype=np.float),
-        np.ascontiguousarray(gt_boxes, dtype=np.float))
+    overlaps = bbox_overlaps( np.ascontiguousarray(anchors, dtype=np.float), np.ascontiguousarray(gt_boxes, dtype=np.float))
     argmax_overlaps = overlaps.argmax(axis=1)
     max_overlaps = overlaps[np.arange(len(inds_inside)), argmax_overlaps]
     gt_argmax_overlaps = overlaps.argmax(axis=0)
-    gt_max_overlaps = overlaps[gt_argmax_overlaps,
-                               np.arange(overlaps.shape[1])]
+    gt_max_overlaps = overlaps[gt_argmax_overlaps, np.arange(overlaps.shape[1])]
     gt_argmax_overlaps = np.where(overlaps == gt_max_overlaps)[0]
 
     if not cfg.TRAIN.RPN_CLOBBER_POSITIVES:
@@ -73,16 +70,14 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
     num_fg = int(cfg.TRAIN.RPN_FG_FRACTION * cfg.TRAIN.RPN_BATCHSIZE)
     fg_inds = np.where(labels == 1)[0]
     if len(fg_inds) > num_fg:
-        disable_inds = npr.choice(
-            fg_inds, size=(len(fg_inds) - num_fg), replace=False)
+        disable_inds = npr.choice(fg_inds, size=(len(fg_inds) - num_fg), replace=False)
         labels[disable_inds] = -1
 
     # subsample negative labels if we have too many
     num_bg = cfg.TRAIN.RPN_BATCHSIZE - np.sum(labels == 1)
     bg_inds = np.where(labels == 0)[0]
     if len(bg_inds) > num_bg:
-        disable_inds = npr.choice(
-            bg_inds, size=(len(bg_inds) - num_bg), replace=False)
+        disable_inds = npr.choice(bg_inds, size=(len(bg_inds) - num_bg), replace=False)
         labels[disable_inds] = -1
 
     bbox_targets = np.zeros((len(inds_inside), 4), dtype=np.float32)
@@ -99,12 +94,9 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
         positive_weights = np.ones((1, 4)) * 1.0 / num_examples
         negative_weights = np.ones((1, 4)) * 1.0 / num_examples
     else:
-        assert ((cfg.TRAIN.RPN_POSITIVE_WEIGHT > 0) &
-                (cfg.TRAIN.RPN_POSITIVE_WEIGHT < 1))
-        positive_weights = (cfg.TRAIN.RPN_POSITIVE_WEIGHT /
-                            np.sum(labels == 1))
-        negative_weights = ((1.0 - cfg.TRAIN.RPN_POSITIVE_WEIGHT) /
-                            np.sum(labels == 0))
+        assert ((cfg.TRAIN.RPN_POSITIVE_WEIGHT > 0) & (cfg.TRAIN.RPN_POSITIVE_WEIGHT < 1))
+        positive_weights = (cfg.TRAIN.RPN_POSITIVE_WEIGHT / np.sum(labels == 1))
+        negative_weights = ((1.0 - cfg.TRAIN.RPN_POSITIVE_WEIGHT) / np.sum(labels == 0))
     bbox_outside_weights[labels == 1, :] = positive_weights
     bbox_outside_weights[labels == 0, :] = negative_weights
 
@@ -120,19 +112,16 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
     rpn_labels = labels
 
     # bbox_targets
-    bbox_targets = bbox_targets \
-        .reshape((1, height, width, A * 4))
+    bbox_targets = bbox_targets.reshape((1, height, width, A * 4))
 
     rpn_bbox_targets = bbox_targets
     # bbox_inside_weights
-    bbox_inside_weights = bbox_inside_weights \
-        .reshape((1, height, width, A * 4))
+    bbox_inside_weights = bbox_inside_weights.reshape((1, height, width, A * 4))
 
     rpn_bbox_inside_weights = bbox_inside_weights
 
     # bbox_outside_weights
-    bbox_outside_weights = bbox_outside_weights \
-        .reshape((1, height, width, A * 4))
+    bbox_outside_weights = bbox_outside_weights.reshape((1, height, width, A * 4))
 
     rpn_bbox_outside_weights = bbox_outside_weights
     return rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights

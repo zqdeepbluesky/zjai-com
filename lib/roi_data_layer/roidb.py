@@ -25,8 +25,7 @@ def prepare_roidb(imdb): #详细说明riodb的属性  利用imdb传递数据，�
     """
     roidb = imdb.roidb
     if not (imdb.name.startswith('coco')):   #get_widths??
-        sizes = [PIL.Image.open(imdb.image_path_at(i)).size
-                 for i in range(imdb.num_images)]
+        sizes = [PIL.Image.open(imdb.image_path_at(i)).size for i in range(imdb.num_images)]
     for i in range(len(imdb.image_index)):
         roidb[i]['image'] = imdb.image_path_at(i)
         if not (imdb.name.startswith('coco')):

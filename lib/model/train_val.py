@@ -113,16 +113,14 @@ class SolverWrapper(object):
         except Exception as e:  # pylint: disable=broad-except
             print(str(e))
             if "corrupted compressed block contents" in str(e):
-                print("It's likely that your checkpoint file has been compressed "
-                      "with SNAPPY.")
+                print("It's likely that your checkpoint file has been compressed with SNAPPY.")
 
     def construct_graph(self, sess):
         with sess.graph.as_default():
             # Set the random seed for tensorflow
             tf.set_random_seed(cfg.RNG_SEED)
             # Build the main computation graph
-            layers = self.net.create_architecture('TRAIN', self.imdb.num_classes, tag='default',
-                                                  anchor_scales=cfg.ANCHOR_SCALES, anchor_ratios=cfg.ANCHOR_RATIOS)
+            layers = self.net.create_architecture('TRAIN', self.imdb.num_classes, tag='default', anchor_scales=cfg.ANCHOR_SCALES, anchor_ratios=cfg.ANCHOR_RATIOS)
             # Define the loss
             loss = layers['total_loss']
             # Set learning rate and momentum
@@ -291,8 +289,7 @@ class SolverWrapper(object):
                 last_summary_time = now
             else:
                 # Compute the graph without summary
-                rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, total_loss = \
-                    self.net.train_step(sess, blobs, train_op)
+                rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, total_loss = self.net.train_step(sess, blobs, train_op)
             timer.toc()
 
             # Display training information

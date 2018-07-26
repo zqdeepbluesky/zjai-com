@@ -155,8 +155,7 @@ class pascal_voc(imdb):
         objs = tree.findall('object')
         if not self.config['use_diff']:
             # Exclude the samples labeled as difficult
-            non_diff_objs = [
-                obj for obj in objs if int(obj.find('difficult').text) == 0]
+            non_diff_objs = [ obj for obj in objs if int(obj.find('difficult').text) == 0]
             # if len(non_diff_objs) != len(objs):
             #     print 'Removed {} difficult objects'.format(
             #         len(objs) - len(non_diff_objs))
@@ -215,8 +214,7 @@ class pascal_voc(imdb):
                         continue
                     # the VOCdevkit expects 1-based indices
                     for k in range(dets.shape[0]):
-                        f.write('{:s} {:.3f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.format(index, dets[k, -1],
-                                       dets[k, 0] + 1, dets[k, 1] + 1,dets[k, 2] + 1, dets[k, 3] + 1))
+                        f.write('{:s} {:.3f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.format(index, dets[k, -1], dets[k, 0] + 1, dets[k, 1] + 1,dets[k, 2] + 1, dets[k, 3] + 1))
 
     def _do_python_eval(self, output_dir='output'):
         annopath = os.path.join(self._devkit_path,'VOC' + self._year,'Annotations','{:s}.xml')
@@ -232,8 +230,7 @@ class pascal_voc(imdb):
             if cls == '__background__':
                 continue
             filename = self._get_voc_results_file_template().format(cls)
-            rec, prec, ap = voc_eval(filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5,
-                use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
+            rec, prec, ap = voc_eval(filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5, use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
             aps += [ap]
             print(('AP for {} = {:.4f}'.format(cls, ap)))
             with open(os.path.join(output_dir, cls + '_pr.pkl'), 'wb') as f:

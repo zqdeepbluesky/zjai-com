@@ -21,8 +21,7 @@ def get_minibatch(roidb, num_classes):
     """Given a roidb, construct a minibatch sampled from it."""
     num_images = len(roidb)
     # Sample random scales to use for each image in this batch
-    random_scale_inds = npr.randint(0, high=len(cfg.TRAIN.SCALES),
-                                    size=num_images)  #随机选择区间内的整数
+    random_scale_inds = npr.randint(0, high=len(cfg.TRAIN.SCALES), size=num_images)  #随机选择区间内的整数
     assert(cfg.TRAIN.BATCH_SIZE % num_images == 0),'num_images ({}) must divide BATCH_SIZE ({})'.format(num_images, cfg.TRAIN.BATCH_SIZE)    #batchSize必须能够整除每次输入参数
 
     # Get the input image blob, formatted for caffe
@@ -44,9 +43,7 @@ def get_minibatch(roidb, num_classes):
     gt_boxes[:, 0:4] = roidb[0]['boxes'][gt_inds, :] * im_scales[0]  #修改boxes尺寸
     gt_boxes[:, 4] = roidb[0]['gt_classes'][gt_inds]   #获取真实的类别序号
     blobs['gt_boxes'] = gt_boxes         #为甚都是blob[0]???
-    blobs['im_info'] = np.array(
-        [im_blob.shape[1], im_blob.shape[2], im_scales[0]],
-        dtype=np.float32)
+    blobs['im_info'] = np.array([im_blob.shape[1], im_blob.shape[2], im_scales[0]], dtype=np.float32)
 
     return blobs
 
@@ -70,8 +67,7 @@ def _get_image_blob(roidb, scale_inds):
         if 'bright_scala' in roidb[i] and roidb[i]['bright_scala']!=1:
             im=_bright_adjuest(im,roidb[i]['bright_scala'])
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]  #设置size
-        im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size,
-                                        cfg.TRAIN.MAX_SIZE)   #得到缩放后的图像和缩放系数
+        im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size, cfg.TRAIN.MAX_SIZE)   #得到缩放后的图像和缩放系数
         im_scales.append(im_scale)   #存放起缩放系数
         processed_ims.append(im)     #存放缩放后的图像
 

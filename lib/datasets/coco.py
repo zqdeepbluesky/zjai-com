@@ -39,8 +39,7 @@ class coco(imdb):
         cats = self._COCO.loadCats(self._COCO.getCatIds())
         self._classes = tuple(['__background__'] + [c['name'] for c in cats])
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))
-        self._class_to_coco_cat_id = dict(list(zip([c['name'] for c in cats],
-                                                   self._COCO.getCatIds())))
+        self._class_to_coco_cat_id = dict(list(zip([c['name'] for c in cats],self._COCO.getCatIds())))
         self._image_index = self._load_image_set_index()
         # Default to roidb handler
         self.set_proposal_method('gt')
@@ -55,18 +54,14 @@ class coco(imdb):
             'test-dev2015': 'test2015',
         }
         coco_name = image_set + year  # e.g., "val2014"
-        self._data_name = (self._view_map[coco_name]
-                           if coco_name in self._view_map
-                           else coco_name)
+        self._data_name = (self._view_map[coco_name] if coco_name in self._view_map else coco_name)
         # Dataset splits that have ground-truth annotations (test splits
         # do not have gt annotations)
         self._gt_splits = ('train', 'val', 'minival')
 
     def _get_ann_file(self):
-        prefix = 'instances' if self._image_set.find('test') == -1 \
-            else 'image_info'
-        return osp.join(self._data_path, 'annotations',
-                        prefix + '_' + self._image_set + self._year + '.json')
+        prefix = 'instances' if self._image_set.find('test') == -1 else 'image_info'
+        return osp.join(self._data_path, 'annotations', prefix + '_' + self._image_set + self._year + '.json')
 
     def _load_image_set_index(self):
         """
@@ -92,10 +87,8 @@ class coco(imdb):
         """
         # Example image path for index=119993:
         #   images/train2014/COCO_train2014_000000119993.jpg
-        file_name = ('COCO_' + self._data_name + '_' +
-                     str(index).zfill(12) + '.jpg')
-        image_path = osp.join(self._data_path, 'images',
-                              self._data_name, file_name)
+        file_name = ('COCO_' + self._data_name + '_' + str(index).zfill(12) + '.jpg')
+        image_path = osp.join(self._data_path, 'images', self._data_name, file_name)
         assert osp.exists(image_path),'Path does not exist: {}'.format(image_path)
         return image_path
 
@@ -111,8 +104,7 @@ class coco(imdb):
             print('{} gt roidb loaded from {}'.format(self.name, cache_file))
             return roidb
 
-        gt_roidb = [self._load_coco_annotation(index)
-                    for index in self._image_index]
+        gt_roidb = [self._load_coco_annotation(index) for index in self._image_index]
 
         with open(cache_file, 'wb') as fid:
             pickle.dump(gt_roidb, fid, pickle.HIGHEST_PROTOCOL)
@@ -151,9 +143,7 @@ class coco(imdb):
 
         # Lookup table to map from COCO category ids to our internal class
         # indices
-        coco_cat_id_to_class_ind = dict([(self._class_to_coco_cat_id[cls],
-                                          self._class_to_ind[cls])
-                                         for cls in self._classes[1:]])
+        coco_cat_id_to_class_ind = dict([(self._class_to_coco_cat_id[cls], self._class_to_ind[cls]) for cls in self._classes[1:]])
 
         for ix, obj in enumerate(objs):
             cls = coco_cat_id_to_class_ind[obj['category_id']]
@@ -213,8 +203,7 @@ class coco(imdb):
         IoU_hi_thresh = 0.95
 
         def _get_thr_ind(coco_eval, thr):
-            ind = np.where((coco_eval.params.iouThrs > thr - 1e-5) &
-                           (coco_eval.params.iouThrs < thr + 1e-5))[0][0]
+            ind = np.where((coco_eval.params.iouThrs > thr - 1e-5) & (coco_eval.params.iouThrs < thr + 1e-5))[0][0]
             iou_thr = coco_eval.params.iouThrs[ind]
             assert np.isclose(iou_thr, thr)
             return ind
@@ -227,8 +216,7 @@ class coco(imdb):
         precision = \
             coco_eval.eval['precision'][ind_lo:(ind_hi + 1), :, :, 0, 2]
         ap_default = np.mean(precision[precision > -1])
-        print(('~~~~ Mean and per-category AP @ IoU=[{:.2f},{:.2f}] '
-               '~~~~').format(IoU_lo_thresh, IoU_hi_thresh))
+        print(('~~~~ Mean and per-category AP @ IoU=[{:.2f},{:.2f}]  ~~~~').format(IoU_lo_thresh, IoU_hi_thresh))
         print('{:.1f}'.format(100 * ap_default))
         for cls_ind, cls in enumerate(self.classes):
             if cls == '__background__':
@@ -281,20 +269,15 @@ class coco(imdb):
         for cls_ind, cls in enumerate(self.classes):
             if cls == '__background__':
                 continue
-            print('Collecting {} results ({:d}/{:d})'.format(cls, cls_ind,
-                                                             self.num_classes - 1))
+            print('Collecting {} results ({:d}/{:d})'.format(cls, cls_ind, self.num_classes - 1))
             coco_cat_id = self._class_to_coco_cat_id[cls]
-            results.extend(self._coco_results_one_category(all_boxes[cls_ind],
-                                                           coco_cat_id))
+            results.extend(self._coco_results_one_category(all_boxes[cls_ind], coco_cat_id))
         print('Writing results json to {}'.format(res_file))
         with open(res_file, 'w') as fid:
             json.dump(results, fid)
 
     def evaluate_detections(self, all_boxes, output_dir):
-        res_file = osp.join(output_dir, ('detections_' +
-                                         self._image_set +
-                                         self._year +
-                                         '_results'))
+        res_file = osp.join(output_dir, ('detections_' + self._image_set + self._year + '_results'))
         if self.config['use_salt']:
             res_file += '_{}'.format(str(uuid.uuid4()))
         res_file += '.json'

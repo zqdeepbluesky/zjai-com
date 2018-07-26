@@ -189,8 +189,7 @@ class imdb(object):
         """
         # Record max overlap value for each gt box
         # Return vector of overlap values
-        areas = {'all': 0, 'small': 1, 'medium': 2, 'large': 3,
-                 '96-128': 4, '128-256': 5, '256-512': 6, '512-inf': 7}
+        areas = {'all': 0, 'small': 1, 'medium': 2, 'large': 3, '96-128': 4, '128-256': 5, '256-512': 6, '512-inf': 7}
         area_ranges = [[0 ** 2, 1e5 ** 2],  # all
                        [0 ** 2, 32 ** 2],  # small
                        [32 ** 2, 96 ** 2],  # medium
@@ -208,12 +207,10 @@ class imdb(object):
             # Checking for max_overlaps == 1 avoids including crowd annotations
             # (...pretty hacking :/)
             max_gt_overlaps = self.roidb[i]['gt_overlaps'].toarray().max(axis=1)
-            gt_inds = np.where((self.roidb[i]['gt_classes'] > 0) &
-                               (max_gt_overlaps == 1))[0]
+            gt_inds = np.where((self.roidb[i]['gt_classes'] > 0) & (max_gt_overlaps == 1))[0]
             gt_boxes = self.roidb[i]['boxes'][gt_inds, :]
             gt_areas = self.roidb[i]['seg_areas'][gt_inds]
-            valid_gt_inds = np.where((gt_areas >= area_range[0]) &
-                                     (gt_areas <= area_range[1]))[0]
+            valid_gt_inds = np.where((gt_areas >= area_range[0]) & (gt_areas <= area_range[1]))[0]
             gt_boxes = gt_boxes[valid_gt_inds, :]
             num_pos += len(valid_gt_inds)
 
@@ -275,8 +272,7 @@ class imdb(object):
             if gt_roidb is not None and gt_roidb[i]['boxes'].size > 0:
                 gt_boxes = gt_roidb[i]['boxes']
                 gt_classes = gt_roidb[i]['gt_classes']
-                gt_overlaps = bbox_overlaps(boxes.astype(np.float),
-                                            gt_boxes.astype(np.float))
+                gt_overlaps = bbox_overlaps(boxes.astype(np.float), gt_boxes.astype(np.float))
                 argmaxes = gt_overlaps.argmax(axis=1)
                 maxes = gt_overlaps.max(axis=1)
                 I = np.where(maxes > 0)[0]

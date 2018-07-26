@@ -34,19 +34,14 @@ def separable_conv2d_same(inputs, kernel_size, stride, rate=1, scope=None):
     # By passing filters=None
     # separable_conv2d produces only a depth-wise convolution layer
     if stride == 1:
-        return slim.separable_conv2d(inputs, None, kernel_size,
-                                     depth_multiplier=1, stride=1, rate=rate,
-                                     padding='SAME', scope=scope)
+        return slim.separable_conv2d(inputs, None, kernel_size, depth_multiplier=1, stride=1, rate=rate, padding='SAME', scope=scope)
     else:
         kernel_size_effective = kernel_size + (kernel_size - 1) * (rate - 1)
         pad_total = kernel_size_effective - 1
         pad_beg = pad_total // 2
         pad_end = pad_total - pad_beg
-        inputs = tf.pad(inputs,
-                        [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
-        return slim.separable_conv2d(inputs, None, kernel_size,
-                                     depth_multiplier=1, stride=stride, rate=rate,
-                                     padding='VALID', scope=scope)
+        inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
+        return slim.separable_conv2d(inputs, None, kernel_size, depth_multiplier=1, stride=stride, rate=rate, padding='VALID', scope=scope)
 
 # The following is adapted from:
 # https://github.com/tensorflow/models/blob/master/slim/nets/mobilenet_v1.py
@@ -147,33 +142,24 @@ def mobilenet_v1_base(inputs,
 
             if isinstance(conv_def, Conv):
                 end_point = end_point_base
-                net = resnet_utils.conv2d_same(net, depth(conv_def.depth), conv_def.kernel,
-                                               stride=conv_def.stride,
-                                               scope=end_point)
+                net = resnet_utils.conv2d_same(net, depth(conv_def.depth), conv_def.kernel, stride=conv_def.stride, scope=end_point)
 
             elif isinstance(conv_def, DepthSepConv):
                 end_point = end_point_base + '_depthwise'
 
-                net = separable_conv2d_same(net, conv_def.kernel,
-                                            stride=layer_stride,
-                                            rate=layer_rate,
-                                            scope=end_point)
+                net = separable_conv2d_same(net, conv_def.kernel, stride=layer_stride, rate=layer_rate, scope=end_point)
 
                 end_point = end_point_base + '_pointwise'
 
-                net = slim.conv2d(net, depth(conv_def.depth), [1, 1],
-                                  stride=1,
-                                  scope=end_point)
+                net = slim.conv2d(net, depth(conv_def.depth), [1, 1], stride=1, scope=end_point)
 
             else:
-                raise ValueError('Unknown convolution type %s for layer %d'
-                                 % (conv_def.ltype, i))
+                raise ValueError('Unknown convolution type %s for layer %d' % (conv_def.ltype, i))
 
         return net
 
 # Modified arg_scope to incorporate configs
-def mobilenet_v1_arg_scope(is_training=True,
-                           stddev=0.09):
+def mobilenet_v1_arg_scope(is_training=True, stddev=0.09):
     batch_norm_params = {
         'is_training': False,
         'center': True,
@@ -199,8 +185,7 @@ def mobilenet_v1_arg_scope(is_training=True,
                         padding='SAME'):
         with slim.arg_scope([slim.batch_norm], **batch_norm_params):
             with slim.arg_scope([slim.conv2d], weights_regularizer=regularizer):
-                with slim.arg_scope([slim.separable_conv2d],
-                                    weights_regularizer=depthwise_regularizer) as sc:
+                with slim.arg_scope([slim.separable_conv2d], weights_regularizer=depthwise_regularizer) as sc:
                     return sc
 
 class mobilenetv1(Network):
@@ -268,11 +253,8 @@ class mobilenetv1(Network):
         with tf.variable_scope('Fix_MobileNet_V1') as scope:
             with tf.device("/cpu:0"):
                 # fix RGB to BGR, and match the scale by (255.0 / 2.0)
-                Conv2d_0_rgb = tf.get_variable("Conv2d_0_rgb",
-                                               [3, 3, 3, max(int(32 * self._depth_multiplier), 8)],
-                                               trainable=False)
+                Conv2d_0_rgb = tf.get_variable("Conv2d_0_rgb", [3, 3, 3, max(int(32 * self._depth_multiplier), 8)], trainable=False)
                 restorer_fc = tf.train.Saver({self._scope + "/Conv2d_0/weights": Conv2d_0_rgb})
                 restorer_fc.restore(sess, pretrained_model)
 
-                sess.run(tf.assign(self._variables_to_fix[self._scope + "/Conv2d_0/weights:0"],
-                                   tf.reverse(Conv2d_0_rgb / (255.0 / 2.0), [2])))
+                sess.run(tf.assign(self._variables_to_fix[self._scope + "/Conv2d_0/weights:0"], tf.reverse(Conv2d_0_rgb / (255.0 / 2.0), [2])))
