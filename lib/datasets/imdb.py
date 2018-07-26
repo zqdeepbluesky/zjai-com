@@ -115,7 +115,8 @@ class imdb(object):
             oldx2 = boxes[:, 2].copy()  #xmax
             boxes[:, 0] = widths[i] - oldx2
             boxes[:, 2] = widths[i] - oldx1
-            boxes[boxes[:, 2] < boxes[:, 0],0]=0
+            index=np.where(boxes[:, 2]< boxes[:, 0])
+            boxes[index,0]=0
             assert (boxes[:, 2] >= boxes[:, 0]).all()
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
@@ -139,7 +140,8 @@ class imdb(object):
             oldx2 = boxes[:, 3].copy()  #ymax
             boxes[:, 1] = widths[i] - oldx2
             boxes[:, 3] = widths[i] - oldx1
-            boxes[boxes[:, 3] < boxes[:, 1],0]=0
+            index = np.where(boxes[:, 3] < boxes[:, 1])
+            boxes[index, 1] = 0
             assert (boxes[:, 3] >= boxes[:, 1]).all()
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
