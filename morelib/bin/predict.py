@@ -108,17 +108,17 @@ def _get_thresh_label(class_name, dets, thresh=0.5):
         score_list.append(score)
     return boxes,cls_list,flag,score_list
 
-def decorator(func):
-    def _decorator(sess,net,im,CLASSES):
+def cal_time(func):
+    def _cal_time(*args, **kwargs):
         timer=Timer()
         timer.tic()
-        result_data=func(sess,net,im,CLASSES)
+        result_data=func(*args, **kwargs)
         timer.toc()
-        print("predict this images have need {}s".format(timer.average_time))
+        print("deal this func have need {}s".format(timer.average_time))
         return result_data
-    return _decorator
+    return _cal_time
 
-@decorator
+@cal_time
 def predict_image(sess,net,im,CLASSES):
 
     # Detect all object classes and regress object bounds
