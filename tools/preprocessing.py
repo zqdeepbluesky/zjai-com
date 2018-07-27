@@ -24,8 +24,8 @@ def wrote_roidbs(roidb,imdb_name):
         pickle.dump(roidb, fid, pickle.HIGHEST_PROTOCOL)
     print('wrote enhance {}roidb to {}'.format(imdb_name,roidb_file))
 
-def calc_roidb(imdb_name):
-    imdb = datasets.factory.get_imdb(imdb_name)
+def calc_roidb(imdb_name,package_name):
+    imdb = datasets.factory.get_imdb(imdb_name,package_name)
     logger.info('Loaded dataset `{:s}` for training'.format(imdb.name))
     imdb.set_proposal_method(cfg.TRAIN.PROPOSAL_METHOD)
 

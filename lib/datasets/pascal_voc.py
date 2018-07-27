@@ -32,16 +32,25 @@ def read_classes(path):
             classes.append(line)
     return tuple(classes)
 
+def load_file_dict(path):
+    with open(path, 'rb') as fid:
+        try:
+            file_dict = pickle.load(fid)
+        except:
+            file_dict = pickle.load(fid, encoding='bytes')
+    return file_dict
+
 class pascal_voc(imdb):
-    def __init__(self, image_set, year, use_diff=False):
+    def __init__(self, image_set, year,package_name, use_diff=False):
         name = 'voc_' + year + '_' + image_set
         if use_diff:
             name += '_diff'
         self._year = year
         self._image_set = image_set
+        self.package_name=package_name
         if DEBUG:
             # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data2'))
-            self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data_resize2'))
+            self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data"))
             self._classes = read_classes(os.path.join(self._get_default_path(), 'cfgs', 'com_classes.txt'))
         else:
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
@@ -49,9 +58,7 @@ class pascal_voc(imdb):
 
         imdb.__init__(self, name, self._classes)
         # self._devkit_path = self._get_default_path()   #返回基础路径
-        self._data_path = self._devkit_path
-
-        imdb.__init__(self, name, self._classes)
+        self._data_path = [os.path.join(self._devkit_path,file_name) for file_name in self.package_name]
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))  #弄成序号
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()
@@ -68,7 +75,8 @@ class pascal_voc(imdb):
                        'rpn_file': None}
 
         assert os.path.exists(self._devkit_path),'VOCdevkit path does not exist: {}'.format(self._devkit_path)
-        assert os.path.exists(self._data_path),'Path does not exist: {}'.format(self._data_path)
+        for i in range(len(self._data_path)):
+            assert os.path.exists(self._data_path[i]),'Path does not exist: {}'.format(self._data_path[i])
 
     def image_path_at(self, i):
         """
@@ -80,9 +88,17 @@ class pascal_voc(imdb):
         """
         Construct an image path from the image's "index" identifier.
         """
-        image_path = os.path.join(self._data_path, 'JPEGImages', index + self._image_ext)
+        file_list = load_file_dict(os.path.join(self._devkit_path, "{}_file_dict.log".format("+".join(self.package_name))))
+        image_path = os.path.join(file_list[index], 'JPEGImages', index + self._image_ext)
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
         return image_path
+
+    def _wrote_file_dict(self,image_index,image_file_path):
+        file_dict={}
+        for i in range(len(image_index)):
+            file_dict[image_index[i]]=image_file_path[i]
+        with open(os.path.join(self._devkit_path,'{}_file_dict.log'.format("+".join(self.package_name))), 'wb') as f:
+            pickle.dump(file_dict, f, pickle.HIGHEST_PROTOCOL)
 
     def _load_image_set_index(self):
         """
@@ -90,10 +106,16 @@ class pascal_voc(imdb):
         """
         # Example path to image set file:
         # self._data_path + /ImageSets/Main/val.txt
-        image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main', self._image_set + '.txt')
-        assert os.path.exists(image_set_file),'Path does not exist: {}'.format(image_set_file)
-        with open(image_set_file) as f:
-            image_index = [x.strip() for x in f.readlines()]
+        image_index=[]
+        image_file_path=[]
+        for i in range(len(self._data_path)):
+            image_set_file = os.path.join(self._data_path[i], 'ImageSets', 'Main', self._image_set + '.txt')
+            assert os.path.exists(image_set_file),'Path does not exist: {}'.format(image_set_file)
+            with open(image_set_file) as f:
+                for x in f.readlines():
+                    image_index.append(x.strip())
+                    image_file_path.append(os.path.join(self._data_path[i]))
+        self._wrote_file_dict(image_index,image_file_path)
         return image_index
 
     def _get_default_path(self):
@@ -118,7 +140,7 @@ class pascal_voc(imdb):
             print('{} gt roidb loaded from {}'.format(self.name, cache_file))
             return roidb
 
-        gt_roidb = [self._load_pascal_annotation(index) for index in self.image_index]
+        gt_roidb = [self._load_pascal_annotation(index) for index in self._image_index]
         with open(cache_file, 'wb') as fid:
             pickle.dump(gt_roidb, fid, pickle.HIGHEST_PROTOCOL)
         print('wrote gt roidb to {}'.format(cache_file))
@@ -148,7 +170,8 @@ class pascal_voc(imdb):
         Load image and bounding boxes info from XML file in the PASCAL VOC
         format.
         """
-        filename = os.path.join(self._data_path, 'Annotations', index + '.xml')
+        file_list=load_file_dict(os.path.join(self._devkit_path,"{}_file_dict.log".format("+".join(self.package_name))))
+        filename = os.path.join(file_list[index], 'Annotations', index + '.xml')
         # filename = os.path.join(self._file_dict[index], index + ".xml")
         # filename = filename.replace("JPEGImages", "Annotations")
         tree = ET.parse(filename)
@@ -161,7 +184,6 @@ class pascal_voc(imdb):
             #         len(objs) - len(non_diff_objs))
             objs = non_diff_objs
         num_objs = len(objs)
-
         boxes = np.zeros((num_objs, 4), dtype=np.uint16)
         gt_classes = np.zeros((num_objs), dtype=np.int32)
         overlaps = np.zeros((num_objs, self.num_classes), dtype=np.float32)

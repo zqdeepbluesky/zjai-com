@@ -70,6 +70,9 @@ def parse_args():
     parser.add_argument('--set', dest='set_cfgs',
                         help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[2400000]'],
                         nargs=argparse.REMAINDER)
+    parser.add_argument('--package_name', dest='package_name',
+                        help='train_data1,train_data2,train_data3',
+                        default=['all_train_data_resize2'], type=list)
     args = parser.parse_args()
     print('*'*20)
     print_args(args)
@@ -91,10 +94,10 @@ def load_base_network():
         raise NotImplementedError
     return net
 
-def prepare_datas():
+def prepare_datas(package_name):
     # train set
     # imdb, roidb = combined_roidb(args.imdb_name)
-    imdb, roidb = calc_roidb(args.imdb_name)
+    imdb, roidb = calc_roidb(args.imdb_name,package_name)
     logger.info('{:d} roidb entries'.format(len(roidb)))
 
     # also add the validation set, but with no flipping images
@@ -104,7 +107,7 @@ def prepare_datas():
     cfg.TRAIN.USE_HOR_FLIPPED = False
     cfg.TRAIN.USE_VER_FLIPPED = False
     cfg.TRAIN.BRIGHT_ADJUEST = False
-    _, valroidb = calc_roidb(args.imdbval_name)
+    _, valroidb = calc_roidb(args.imdbval_name,package_name)
     logger.info('{:d} validation roidb entries'.format(len(valroidb)))
     cfg.TRAIN.USE_HOR_FLIPPED = hor_orgflip
     cfg.TRAIN.USE_VER_FLIPPED = ver_orgflip
@@ -143,7 +146,7 @@ if __name__ == '__main__':
     base_net = load_base_network()
 
     # train and valid data
-    imdb, roidb, valroidb = prepare_datas()
+    imdb, roidb, valroidb = prepare_datas(args.package_name)
 
     # output data directory
     output_dir, tb_dir = prepare_params()
