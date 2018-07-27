@@ -16,6 +16,9 @@ from lib.datasets import pascal_voc
 from morelib.bin import predict
 from morelib.bin import predict_batch
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def parse_args():
@@ -48,7 +51,7 @@ def predict_test(sess,net,args):
     image_file=os.path.join(args.predict_dir,args.package_data,args.file_name)
     print(image_file)
     im = cv2.imread(image_file)
-    result_data = predict.predict_image(sess, net, im, CLASSES,verbose=1)
+    result_data = predict.predict_image(sess, net, im, CLASSES)
     im_info = {"path": image_file}
     im_info["width"] = im.shape[0]
     im_info["height"] = im.shape[1]

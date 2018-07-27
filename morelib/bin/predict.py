@@ -108,11 +108,20 @@ def _get_thresh_label(class_name, dets, thresh=0.5):
         score_list.append(score)
     return boxes,cls_list,flag,score_list
 
-def predict_image(sess,net,im,CLASSES,verbose=False):
+def decorator(func):
+    def _decorator(sess,net,im,CLASSES):
+        timer=Timer()
+        timer.tic()
+        result_data=func(sess,net,im,CLASSES)
+        timer.toc()
+        print("predict this images have need {}s".format(timer.average_time))
+        return result_data
+    return _decorator
+
+@decorator
+def predict_image(sess,net,im,CLASSES):
 
     # Detect all object classes and regress object bounds
-    timer=Timer()
-    timer.tic()
     scores, boxes = _detect_image(sess, net, im)
     CONF_THRESH = 0.8
     NMS_THRESH = 0.3
@@ -129,8 +138,5 @@ def predict_image(sess,net,im,CLASSES,verbose=False):
             continue
         for i in range(len(classname)):
             result_data.append("{},{:.3f},{},{},{},{}".format(classname[i],score[i],int(box[i, 0]),int(box[i, 1]),int(box[i, 2]),int(box[i, 3])))
-    timer.toc()
-    if verbose:
-        print("speed : {}s per image".format(float(timer.average_time)))
     return result_data
 
