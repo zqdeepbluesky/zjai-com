@@ -129,6 +129,14 @@ class pascal_voc(imdb):
         Return the database of ground-truth regions of interest.
 
         This function loads/saves from/to a cache file to speed up future calls.
+        读取并返回图片gt的db。这个函数就是将图片的gt加载进来。
+        其中，pascal_voc图片的gt信息在XML文件中（这个XML文件是pascal_voc数据集本身提供的）
+        并且，图片的gt被提前放在了一个.pkl文件里面。（这个.pkl文件需要我们自己生成，代码就在该函数中）
+
+        This function loads/saves from/to a cache file to speed up future calls.
+        之所以会将图片的gt提前放在一个.pkl文件里面，是为了不用每次都再重新读图片的gt，直接加载这个文件就可以了，可以提升速度。
+
+        注意：如果你再次训练的时候修改了train数据库，增加或者删除了一些数据，再想重新训练的时候，一定要先删除这个.pkl文件！！！！！！因为如果不删除的话，就会自动加载旧的pkl文件，而不会生成新的pkl文件。一定别忘了！
         """
         cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
         if os.path.exists(cache_file):
@@ -169,6 +177,7 @@ class pascal_voc(imdb):
         """
         Load image and bounding boxes info from XML file in the PASCAL VOC
         format.
+        从XML文件中获取图片信息和gt
         """
         file_list=load_file_dict(os.path.join(self._devkit_path,"{}_file_dict.log".format("+".join(self.package_name))))
         filename = os.path.join(file_list[index], 'Annotations', index + '.xml')
