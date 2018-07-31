@@ -5,6 +5,8 @@ from data_processing.utils import io_utils
 import argparse
 import _init_paths
 from model.config import cfg
+import math
+from zjai_createData.zjai_2_create_main import create_package_main
 
 def parse_args():
     """Parse input arguments."""
@@ -14,7 +16,7 @@ def parse_args():
     parser.add_argument('--package_dir', dest='package_dir', help='the compare data file name',
                         default="train_data-2018-03-07")
     parser.add_argument('--split_num', dest='split_num', help='how many the num you want to split',
-                        default=11)
+                        default=5)
     args = parser.parse_args()
 
     return args
@@ -35,8 +37,9 @@ def get_random_index(num):
     return random_index
 
 def split_files(data_dir,image_files,index,split_num):
-    group_size=round(len(image_files)/split_num)
+    group_size=math.ceil(len(image_files)/split_num)
     print(index)
+    split_file_lists=[]
     for i in range(split_num):
         start_num=i*group_size
         end_num=(i+1)*group_size
@@ -54,6 +57,8 @@ def split_files(data_dir,image_files,index,split_num):
             new_xml_file=os.path.join(data_dir+"_sub{}".format(i+1),"Annotations")
             io_utils.mkdir(new_xml_file)
             io_utils.copy(xml_path, new_xml_file)
+        split_file_lists.append(data_dir+"_sub{}".format(i+1))
+    return split_file_lists
 
 
 
@@ -62,4 +67,7 @@ if __name__=="__main__":
     data_dir=os.path.join(args.data_dir,args.package_dir)
     image_files=load_image_files(data_dir)
     index=get_random_index(len(image_files))
-    split_files(data_dir,image_files,index,args.split_num)
+    split_file_lists=split_files(data_dir,image_files,index,args.split_num)
+    scale=9
+    for split_file in split_file_lists:
+        create_package_main(split_file,scale)
