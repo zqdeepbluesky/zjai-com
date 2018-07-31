@@ -41,10 +41,8 @@ def load_file_dict(path):
     return file_dict
 
 class pascal_voc(imdb):
-    def __init__(self, image_set, year,package_name, use_diff=False):
+    def __init__(self, image_set, year,package_name):
         name = 'voc_' + year + '_' + image_set
-        if use_diff:
-            name += '_diff'
         self._year = year
         self._image_set = image_set
         self.package_name=package_name
@@ -71,7 +69,6 @@ class pascal_voc(imdb):
         # PASCAL specific config options
         self.config = {'cleanup': True,
                        'use_salt': True,
-                       'use_diff': use_diff,
                        'rpn_file': None}
 
         assert os.path.exists(self._devkit_path),'VOCdevkit path does not exist: {}'.format(self._devkit_path)
@@ -176,13 +173,8 @@ class pascal_voc(imdb):
         # filename = filename.replace("JPEGImages", "Annotations")
         tree = ET.parse(filename)
         objs = tree.findall('object')
-        if not self.config['use_diff']:
-            # Exclude the samples labeled as difficult
-            non_diff_objs = [ obj for obj in objs if int(obj.find('difficult').text) == 0]
-            # if len(non_diff_objs) != len(objs):
-            #     print 'Removed {} difficult objects'.format(
-            #         len(objs) - len(non_diff_objs))
-            objs = non_diff_objs
+        non_diff_objs = [ obj for obj in objs if int(obj.find('difficult').text) == 0]
+        objs = non_diff_objs
         num_objs = len(objs)
         boxes = np.zeros((num_objs, 4), dtype=np.uint16)
         gt_classes = np.zeros((num_objs), dtype=np.int32)
@@ -252,7 +244,7 @@ class pascal_voc(imdb):
             if cls == '__background__':
                 continue
             filename = self._get_voc_results_file_template().format(cls)
-            rec, prec, ap = voc_eval(filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5, use_07_metric=use_07_metric, use_diff=self.config['use_diff'])
+            rec, prec, ap = voc_eval(filename, annopath, imagesetfile, cls, cachedir, ovthresh=0.5, use_07_metric=use_07_metric)
             aps += [ap]
             print(('AP for {} = {:.4f}'.format(cls, ap)))
             with open(os.path.join(output_dir, cls + '_pr.pkl'), 'wb') as f:
