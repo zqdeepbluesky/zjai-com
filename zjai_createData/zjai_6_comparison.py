@@ -13,6 +13,7 @@
 
 import xml.etree.ElementTree as ET
 import os
+from  data_processing.utils import io_utils
 
 def get_xml_label_num(xmlPath):
     '''
@@ -33,13 +34,13 @@ def get_xml_label_num(xmlPath):
         labelList.append(label)
     return count,labelList
 
-def compare_from_xml(xmlPath1,xmlPath2):
+def compare_from_xml(xmlPath1,xmlPath2,save_path):
     xmlFileList1=[]
+    xmlFileList2 = []
     for xmlFile in os.listdir(xmlPath1):
         xmlFileList1.append(os.path.join(xmlPath1,xmlFile))
-    xmlFileList2 = []
-    for xmlFile in os.listdir(xmlPath2):
         xmlFileList2.append(os.path.join(xmlPath2, xmlFile))
+
     print(len(xmlFileList1),len(xmlFileList2))
     tp_sum=0
     fp_sum=0
@@ -65,6 +66,9 @@ def compare_from_xml(xmlPath1,xmlPath2):
         tp_sum+=tp
         fp_sum+=fp
         fn_sum+=fn
+        if fp !=0 or fn !=0:
+            io_utils.copy(xmlFile1.replace("Annotations","JPEGImages").replace(".xml",".jpg"),save_path)
+            io_utils.copy(xmlFile1,save_path)
         d_sum+=d_labelNum
         t_sum+=t_labelNum
         print(xmlFile1,xmlFile2,tp,fp,fn,d_labelNum,t_labelNum)
@@ -76,6 +80,8 @@ def compare_from_xml(xmlPath1,xmlPath2):
 
 
 if __name__=="__main__":
-    xmlPath1="/home/hyl/data/data-lyl/Annotations-2"
-    xmlPath2="/home/hyl/data/data-lyl/test_data-2018-06-15/Annotations"
-    compare_from_xml(xmlPath1,xmlPath2)
+    xmlPath1="/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data/test_data-2018-07-30/Annotations"
+    xmlPath2="/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data/test_data-2018-07-30/Annotations_true"
+    save_path='/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data/images'
+    io_utils.mkdir(save_path)
+    compare_from_xml(xmlPath1,xmlPath2,save_path)

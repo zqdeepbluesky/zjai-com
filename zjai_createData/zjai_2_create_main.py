@@ -91,6 +91,10 @@ def _create_Main_new(dataDirs,fileList,scale):
     print('total: {}'.format(len(fileList)))
     print('step: {}'.format(len(trainval_images)//2+1))
 
+def create_package_main(data_dir,scale):
+    fileList = get_all_file(data_dir, fileType="jpg")
+    _create_Main_new(data_dir, fileList, scale)
+
 if __name__=="__main__":
     root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
     dataDirs = osp.join(root_dir, 'data', 'test_data')

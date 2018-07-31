@@ -22,11 +22,6 @@ def get_sets(pk_name):
             t = (lambda split=split, year=year: pascal_voc(split, year))
             # t2 =  pascal_voc(split, year)
             __sets[name] = (lambda split=split, year=year: pascal_voc(split, year,pk_name))
-
-    for year in ['2007', '2012']:
-        for split in ['train', 'val', 'trainval', 'test']:
-            name = 'voc_{}_{}_diff'.format(year, split)
-            __sets[name] = (lambda split=split, year=year: pascal_voc(split, year,pk_name, use_diff=True))
     return __sets
 
 
