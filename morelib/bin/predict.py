@@ -115,6 +115,7 @@ def cal_time(func):
         result_data=func(*args, **kwargs)
         timer.toc()
         print("deal this func have need {}s".format(timer.average_time))
+        print("this images have predict {} object: {}".format(len(result_data),result_data))
         return result_data
     return _cal_time
 
@@ -139,4 +140,3 @@ def predict_image(sess,net,im,CLASSES):
         for i in range(len(classname)):
             result_data.append("{},{:.3f},{},{},{},{}".format(classname[i],score[i],int(box[i, 0]),int(box[i, 1]),int(box[i, 2]),int(box[i, 3])))
     return result_data
-
