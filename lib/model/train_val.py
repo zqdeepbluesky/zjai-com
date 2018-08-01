@@ -42,7 +42,7 @@ class SolverWrapper(object):
         self.tbvaldir = tbdir + '_val'
         if not os.path.exists(self.tbvaldir):
             os.makedirs(self.tbvaldir)
-        self.pretrained_model = pretrained_model
+        self.pretrained_model = os.path.join(cfg.ROOT_DIR, pretrained_model)
         self.log_values=[]
 
     def snapshot(self, sess, iter,outputDir):
