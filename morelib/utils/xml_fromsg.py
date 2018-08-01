@@ -2,6 +2,7 @@ from lxml.etree import Element, SubElement, tostring
 from xml.dom.minidom import parseString
 import os
 from data_processing.utils import io_utils
+import xml.etree.ElementTree as ET
 
 def make_xml(im_info, datas):
     node_root = Element('annotation')
@@ -93,7 +94,21 @@ def _beautifulFormat(xmlDomObject):
 def save_annotations(save_dir, im_info, data):
     dom = make_xml(im_info, data)
     io_utils.mkdir(save_dir)
-    xml_path = os.path.join(save_dir, im_info["name"]+".xml")
+    xml_path = os.path.join(save_dir, im_info["name"].replace(".jpg",".xml"))
     with open(xml_path, 'w+') as f:
         dom.writexml(f, addindent='', newl='', encoding='utf-8')
+def get_object_infos_from_xml(xml_path):
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+    element_objs = root.findall('object')
+    object_infos=[]
+    for element_obj in element_objs:
+        name = element_obj.find('name').text
+        bbox = element_obj.find('bndbox')
+        xmin = int(float(bbox.find('xmin').text))
+        ymin = int(float(bbox.find('ymin').text))
+        xmax = int(float(bbox.find('xmax').text))
+        ymax = int(float(bbox.find('ymax').text))
+        object_infos.append("{},1,{},{},{},{}".format(name,xmin,ymin,xmax,ymax))
+    return object_infos
 

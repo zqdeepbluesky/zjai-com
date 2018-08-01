@@ -34,11 +34,11 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="vgg16_faster_rcnn_iter_1050000.ckpt")
+                        default="vgg16_faster_rcnn_iter_3335000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
-                        default="train_data-2018-07-24")
+                        default="predict_data-2018-07-30")
     args = parser.parse_args()
 
     return args
@@ -91,7 +91,7 @@ def save_data_into_xml(image,im,xml_path,result_data):
     print(im.shape)
     im_info["width"] = im.shape[1]
     im_info["height"] = im.shape[0]
-    im_info["name"] = os.path.splitext(os.path.split(image)[1])[0]
+    im_info["name"] = os.path.splitext(os.path.split(image)[1])[0]+".jpg"
     im_info["channel"] = im.shape[2]
     save_annotations(xml_path, im_info, result_data)
 
