@@ -68,9 +68,9 @@ def load_forecast_files(forecast_dir):
     if os.path.exists(forecast_dir)!=1:
         os.mkdir(forecast_dir)
         os.mkdir(os.path.join(forecast_dir,"JPEGImages"))
-        os.mkdir(os.path.join(forecast_dir,"Annotations"))
+        os.mkdir(os.path.join(forecast_dir,"Annotations_test"))
     jpg_path=os.path.join(forecast_dir,'JPEGImages')
-    xml_path=os.path.join(forecast_dir,"Annotations")
+    xml_path=os.path.join(forecast_dir,"Annotations_test")
     jpg_files=[]
     for file in os.listdir(jpg_path):
         jpg_files.append(os.path.join(jpg_path,file))
@@ -98,19 +98,21 @@ def save_data_into_xml(image,im,xml_path,result_data):
 args = parse_args()
 CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes.txt".format(args.set_name)))
 
-
-if __name__ == '__main__':
+def main():
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
 
-    tf_model=get_tf_model(args.model_dir,args.model_data)
+    tf_model = get_tf_model(args.model_dir, args.model_data)
     # set config
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
-    tfconfig.gpu_options.allow_growth=True
+    tfconfig.gpu_options.allow_growth = True
 
     # init session
     sess = tf.Session(config=tfconfig)
     # load network
-    saver,net=load_model(sess,args.demo_net,tf_model,len(CLASSES))
+    saver, net = load_model(sess, args.demo_net, tf_model, len(CLASSES))
 
-    jpg_files,xml_path=load_forecast_files(os.path.join(args.predict_dir,args.package_data))
-    predict_images(sess,net,jpg_files,xml_path)
+    jpg_files, xml_path = load_forecast_files(os.path.join(args.predict_dir, args.package_data))
+    predict_images(sess, net, jpg_files, xml_path)
+
+if __name__ == '__main__':
+    main()

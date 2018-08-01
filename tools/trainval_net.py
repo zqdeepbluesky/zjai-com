@@ -67,10 +67,19 @@ def parse_args():
     parser.add_argument('--net', dest='net',
                         help='vgg16, res50, res101, res152, mobile',
                         default='vgg16', type=str)
+    parser.add_argument('--use_test_data', dest='use_test_data',
+                        help='whether want to use test data to test the model',
+                        default=True, type=bool)
     parser.add_argument('--set', dest='set_cfgs',
                         help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[2400000]'],
                         type=list,nargs=argparse.REMAINDER)
     parser.add_argument('--package_name', dest='package_name',
+                        help='train_data1,train_data2,train_data3',
+                        default=['all_train_data_resize2'], type=list)
+    parser.add_argument('--test_dir', dest='test_dir',
+                        help='train_data1,train_data2,train_data3',
+                        default='data/predict_data', type=str)
+    parser.add_argument('--test_package', dest='test_package',
                         help='train_data1,train_data2,train_data3',
                         default=['all_train_data_resize2'], type=list)
     args = parser.parse_args()
@@ -171,4 +180,4 @@ if __name__ == '__main__':
     # output data directory
     output_dir, tb_dir = prepare_params()
 
-    train_net(base_net, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=args.weight, max_iters=args.max_iters*args.epochs)
+    train_net(args,base_net, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=args.weight, max_iters=args.max_iters*args.epochs)
