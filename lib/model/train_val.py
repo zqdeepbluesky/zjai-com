@@ -99,9 +99,9 @@ class SolverWrapper(object):
 
             np.random.set_state(st0)
             self.data_layer._cur = cur
-            self.data_layer._perm = perm
+            # self.data_layer._perm = perm
             self.data_layer_val._cur = cur_val
-            self.data_layer_val._perm = perm_val
+            # self.data_layer_val._perm = perm_val
 
         return last_snapshot_iter
 

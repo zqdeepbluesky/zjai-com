@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 def print_args(args):
     if args is None:
@@ -36,6 +36,48 @@ def print_args(args):
     print('cfg_file:', args.cfg_file)
     print('set_cfgs:', args.set_cfgs)
     print('tag:', args.tag)
+
+# def parse_args():
+#     """
+#     Parse input arguments
+#     """
+#     parser = argparse.ArgumentParser(description='Train a Fast R-CNN network')
+#     parser.add_argument('--cfg', dest='cfg_file',
+#                         help='optional config file',
+#                         default='experiments/cfgs/res101.yml', type=str)
+#     parser.add_argument('--weight', dest='weight',
+#                         help='initialize with pretrained model weights',
+#                         default=os.path.join(cfg.ROOT_DIR, 'data/imagenet_weights/res101.ckpt'),
+#                         type=str)
+#     parser.add_argument('--imdb', dest='imdb_name',
+#                         help='dataset to train on',
+#                         default='voc_2007_trainval', type=str)
+#     parser.add_argument('--imdbval', dest='imdbval_name',
+#                         help='dataset to validate on',
+#                         default='voc_2007_test', type=str)
+#     parser.add_argument('--epochs', dest='epochs',
+#                         help='epoch of iteration to train',
+#                         default=50, type=int)
+#     parser.add_argument('--iters', dest='max_iters',
+#                         help='number of iterations to train',
+#                         default=80000, type=int)
+#     parser.add_argument('--tag', dest='tag',
+#                         help='tag of the model',
+#                         default=None, type=str)
+#     parser.add_argument('--net', dest='net',
+#                         help='vgg16, res50, res101, res152, mobile',
+#                         default='res101', type=str)
+#     parser.add_argument('--set', dest='set_cfgs',
+#                         help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[2400000]'],
+#                         nargs=argparse.REMAINDER)
+#     parser.add_argument('--package_name', dest='package_name',
+#                         help='train_data1,train_data2,train_data3',
+#                         default=['all_train_data_resize2'], type=list)
+#     args = parser.parse_args()
+#     print('*'*20)
+#     print_args(args)
+#
+#     return args
 
 def parse_args():
     """
