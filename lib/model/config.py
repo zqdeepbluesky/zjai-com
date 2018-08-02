@@ -84,7 +84,7 @@ __C.TRAIN.BG_THRESH_HI = 0.5
 __C.TRAIN.BG_THRESH_LO = 0.1
 
 # Use horizontally-flipped images during training?
-__C.TRAIN.USE_HOR_FLIPPED = True
+__C.TRAIN.USE_HOR_FLIPPED = False
 # Use vertical-flipped images during training?
 __C.TRAIN.USE_VER_FLIPPED = False
 

@@ -50,6 +50,7 @@ def prepare_model(imdb_name,iter,demo_net):
     model_dir = os.path.join(cfg.ROOT_DIR, 'output', demo_net, imdb_name, 'save_model')
     model_data = "{}_faster_rcnn_iter_{}.ckpt".format(demo_net, iter)
     tf_model = predict_batch.get_tf_model(model_dir, model_data)
+    print(tf_model)
     # set config
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
     tfconfig.gpu_options.allow_growth = True
@@ -58,22 +59,23 @@ def prepare_model(imdb_name,iter,demo_net):
     sess = tf.Session(config=tfconfig)
     # load network
     CLASSES = pascal_voc.read_classes(osp.join(cfg.ROOT_DIR, 'data', 'cfgs', 'com_classes.txt'))
+    print(len(CLASSES))
     saver, net = predict_batch.load_model(sess, demo_net, tf_model, len(CLASSES))
     return sess,saver,net,model_dir,model_data
 
 def test_model(imdb_name,iter,demo_net,predict_dir,package_data):
-    sess,saver, net, model_dir,model_data=prepare_model(imdb_name,iter,demo_net)
+    sess1,saver, net, model_dir,model_data=prepare_model(imdb_name,iter,demo_net)
     acc_list=[]
     for package in package_data:
         jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package))
-        predict_batch.predict_images(sess, net, jpg_files, xml_path)
+        predict_batch.predict_images(sess1, net, jpg_files, xml_path)
         acc=zjai_6_comparison.compare_from_xml(xml_path,xml_path[:-5])
         acc_list.append(acc)
     with open(osp.join(model_dir,'{}_model_test.log'.format(demo_net)),'a+') as f:
         f.write("-----------{} model test result------------\n\n".format(model_data))
-        fp,tp,fn,act_num,detect_num=0
+        fp,tp,fn,act_num,detect_num=0,0,0,0,0
         for i in range(len(acc_list)):
-            f.write('test data : {}'.format(package_data[i]))
+            f.write('test data : {}\n'.format(package_data[i]))
             prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum=acc_list[i].split(",")
             write_report(f, prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum)
             tp+=int(tp_sum)
@@ -86,3 +88,10 @@ def test_model(imdb_name,iter,demo_net,predict_dir,package_data):
         f.write('total :\n')
         write_report(f,precsion,recall,tp,fp,fn,detect_num,act_num)
     print("finish test model {}".format(model_data))
+
+imdb_name='voc_2007_trainval'
+iter='160000'
+demo_net='vgg16'
+predict_dir='/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data'
+package_data=['test_data-2018-07-24']
+test_model(imdb_name,iter,demo_net,predict_dir,package_data)
