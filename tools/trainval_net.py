@@ -89,7 +89,7 @@ def parse_args():
                         default='experiments/cfgs/vgg16.yml', type=str)
     parser.add_argument('--weight', dest='weight',
                         help='initialize with pretrained model weights',
-                        default=os.path.join(cfg.ROOT_DIR, 'data/imagenet_weights/vgg16.ckpt'),
+                        default='data/imagenet_weights/vgg16.ckpt',
                         type=str)
     parser.add_argument('--imdb', dest='imdb_name',
                         help='dataset to train on',
@@ -109,16 +109,24 @@ def parse_args():
     parser.add_argument('--net', dest='net',
                         help='vgg16, res50, res101, res152, mobile',
                         default='vgg16', type=str)
+    parser.add_argument('--use_test_data', dest='use_test_data',
+                        help='whether want to use test data to test the model',
+                        default=True, type=bool)
     parser.add_argument('--set', dest='set_cfgs',
                         help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[2400000]'],
-                        nargs=argparse.REMAINDER)
+                        type=list,nargs=argparse.REMAINDER)
     parser.add_argument('--package_name', dest='package_name',
+                        help='train_data1,train_data2,train_data3',
+                        default=['all_train_data_resize2'], type=list)
+    parser.add_argument('--test_dir', dest='test_dir',
+                        help='train_data1,train_data2,train_data3',
+                        default='data/predict_data', type=str)
+    parser.add_argument('--test_package', dest='test_package',
                         help='train_data1,train_data2,train_data3',
                         default=['all_train_data_resize2'], type=list)
     args = parser.parse_args()
     print('*'*20)
     print_args(args)
-
     return args
 
 def load_base_network():
@@ -168,12 +176,33 @@ def prepare_params():
 
     return output_dir, tb_dir
 
+def get_setting_cfg():
+    import yaml
+    from easydict import EasyDict as edict
+    assert os.path.exists(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg')),'setting cfg dont exist in {}'.\
+        format(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg'))
+    with open(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg'), 'r') as f:
+        setting_cfg = edict(yaml.load(f))
+    return setting_cfg
+
+def load_setting_cfg(setting_cfg,args):
+    args_dict = args.__dict__
+    for k,v in setting_cfg['TRAIN'].items():
+        if k in args_dict.keys():
+            args_dict[k]=v
+    for k,v in setting_cfg['TEST'].items():
+        if k in args_dict.keys():
+            args_dict[k]=v
+    return args
+
 if __name__ == '__main__':
     args = parse_args()
 
     print('Called with args:')
     print(args)
-
+    setting_cfg=get_setting_cfg()
+    args=load_setting_cfg(setting_cfg, args)
+    print(args)
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
@@ -193,4 +222,4 @@ if __name__ == '__main__':
     # output data directory
     output_dir, tb_dir = prepare_params()
 
-    train_net(base_net, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=args.weight, max_iters=args.max_iters*args.epochs)
+    train_net(args,base_net, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=args.weight, max_iters=args.max_iters*args.epochs)

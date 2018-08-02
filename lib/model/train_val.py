@@ -11,6 +11,7 @@ from model.config import cfg
 import roi_data_layer.roidb as rdl_roidb
 from roi_data_layer.layer import RoIDataLayer
 from utils.timer import Timer
+from morelib.utils import test_model_acc
 try:
     import cPickle as pickle
 except ImportError:
@@ -42,7 +43,7 @@ class SolverWrapper(object):
         self.tbvaldir = tbdir + '_val'
         if not os.path.exists(self.tbvaldir):
             os.makedirs(self.tbvaldir)
-        self.pretrained_model = pretrained_model
+        self.pretrained_model = os.path.join(cfg.ROOT_DIR, pretrained_model)
         self.log_values=[]
 
     def snapshot(self, sess, iter,outputDir):
@@ -238,7 +239,7 @@ class SolverWrapper(object):
             os.remove(str(sfile_meta))
             ss_paths.remove(sfile)
 
-    def train_model(self, sess, max_iters):
+    def train_model(self, sess, max_iters,args):
         # Build data layers for both training and validation set
         self.data_layer = RoIDataLayer(self.roidb, self.imdb.num_classes)
         self.data_layer_val = RoIDataLayer(self.valroidb, self.imdb.num_classes, random=True)
@@ -314,6 +315,15 @@ class SolverWrapper(object):
             if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0:  # 每100000次就保存一次模型文件
                 last_snapshot_iter = iter
                 ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
+                # if args.use_test_data:
+                #     predict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'train_data')
+                #     packages=args.package_name
+                #     test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
+                # else:
+                #     predict_dir=os.path.join(cfg.ROOT_DIR,args.test_dir)
+                #     packages=args.test_package
+                #     test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
+
 
             iter += 1
 
@@ -369,7 +379,7 @@ def filter_roidb(roidb):
     return filtered_roidb
 
 
-def train_net(network, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=None, max_iters=40000):
+def train_net(args,network, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=None, max_iters=40000):
     """Train a Faster R-CNN network."""
     roidb = filter_roidb(roidb)
     valroidb = filter_roidb(valroidb)
@@ -380,5 +390,5 @@ def train_net(network, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_mod
     with tf.Session(config=tfconfig) as sess:
         sw = SolverWrapper(network, imdb, roidb, valroidb, output_dir, tb_dir, pretrained_model=pretrained_model)
         print('Solving...')
-        sw.train_model(sess, max_iters)
+        sw.train_model(sess, max_iters,args)
         print('done solving')

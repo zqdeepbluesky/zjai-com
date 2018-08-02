@@ -34,7 +34,7 @@ def get_xml_label_num(xmlPath):
         labelList.append(label)
     return count,labelList
 
-def compare_from_xml(xmlPath1,xmlPath2,save_path):
+def compare_from_xml(xmlPath1,xmlPath2):
     xmlFileList1=[]
     xmlFileList2 = []
     for xmlFile in os.listdir(xmlPath1):
@@ -66,9 +66,9 @@ def compare_from_xml(xmlPath1,xmlPath2,save_path):
         tp_sum+=tp
         fp_sum+=fp
         fn_sum+=fn
-        if fp !=0 or fn !=0:
-            io_utils.copy(xmlFile1.replace("Annotations","JPEGImages").replace(".xml",".jpg"),save_path)
-            io_utils.copy(xmlFile1,save_path)
+        # if fp !=0 or fn !=0:
+        #     io_utils.copy(xmlFile1.replace("Annotations","JPEGImages").replace(".xml",".jpg"),save_path)
+        #     io_utils.copy(xmlFile1,save_path)
         d_sum+=d_labelNum
         t_sum+=t_labelNum
         print(xmlFile1,xmlFile2,tp,fp,fn,d_labelNum,t_labelNum)
@@ -76,6 +76,7 @@ def compare_from_xml(xmlPath1,xmlPath2,save_path):
     recall=tp_sum/(tp_sum+fn_sum)
     print(prec,recall)
     print(tp_sum,fp_sum,fn_sum,d_sum,t_sum)
+    return "{},{},{},{},{},{},{}".format(prec,recall,tp_sum,fp_sum,fn_sum,d_sum,t_sum)
 
 
 
@@ -83,5 +84,4 @@ if __name__=="__main__":
     xmlPath1="/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data/test_data-2018-07-30/Annotations"
     xmlPath2="/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data/test_data-2018-07-30/Annotations_true"
     save_path='/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data/images'
-    io_utils.mkdir(save_path)
-    compare_from_xml(xmlPath1,xmlPath2,save_path)
+    compare_from_xml(xmlPath1,xmlPath2)

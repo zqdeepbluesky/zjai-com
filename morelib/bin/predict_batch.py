@@ -34,11 +34,11 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="vgg16_faster_rcnn_iter_1050000.ckpt")
+                        default="vgg16_faster_rcnn_iter_3335000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
-                        default="train_data-2018-07-24")
+                        default="predict_data-2018-07-30")
     args = parser.parse_args()
 
     return args
@@ -68,9 +68,9 @@ def load_forecast_files(forecast_dir):
     if os.path.exists(forecast_dir)!=1:
         os.mkdir(forecast_dir)
         os.mkdir(os.path.join(forecast_dir,"JPEGImages"))
-        os.mkdir(os.path.join(forecast_dir,"Annotations"))
+        os.mkdir(os.path.join(forecast_dir,"Annotations_test"))
     jpg_path=os.path.join(forecast_dir,'JPEGImages')
-    xml_path=os.path.join(forecast_dir,"Annotations")
+    xml_path=os.path.join(forecast_dir,"Annotations_test")
     jpg_files=[]
     for file in os.listdir(jpg_path):
         jpg_files.append(os.path.join(jpg_path,file))
@@ -91,26 +91,28 @@ def save_data_into_xml(image,im,xml_path,result_data):
     print(im.shape)
     im_info["width"] = im.shape[1]
     im_info["height"] = im.shape[0]
-    im_info["name"] = os.path.splitext(os.path.split(image)[1])[0]
+    im_info["name"] = os.path.splitext(os.path.split(image)[1])[0]+".jpg"
     im_info["channel"] = im.shape[2]
     save_annotations(xml_path, im_info, result_data)
 
 args = parse_args()
 CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes.txt".format(args.set_name)))
 
-
-if __name__ == '__main__':
+def main():
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
 
-    tf_model=get_tf_model(args.model_dir,args.model_data)
+    tf_model = get_tf_model(args.model_dir, args.model_data)
     # set config
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
-    tfconfig.gpu_options.allow_growth=True
+    tfconfig.gpu_options.allow_growth = True
 
     # init session
     sess = tf.Session(config=tfconfig)
     # load network
-    saver,net=load_model(sess,args.demo_net,tf_model,len(CLASSES))
+    saver, net = load_model(sess, args.demo_net, tf_model, len(CLASSES))
 
-    jpg_files,xml_path=load_forecast_files(os.path.join(args.predict_dir,args.package_data))
-    predict_images(sess,net,jpg_files,xml_path)
+    jpg_files, xml_path = load_forecast_files(os.path.join(args.predict_dir, args.package_data))
+    predict_images(sess, net, jpg_files, xml_path)
+
+if __name__ == '__main__':
+    main()
