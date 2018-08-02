@@ -229,6 +229,7 @@ class Network(object):
     def _build_network(self, is_training=True):
         # select initializers
         if cfg.TRAIN.TRUNCATED:
+            # 截断的正态分布中输出随机值
             initializer = tf.truncated_normal_initializer(mean=0.0, stddev=0.01)
             initializer_bbox = tf.truncated_normal_initializer(mean=0.0, stddev=0.001)
         else:
