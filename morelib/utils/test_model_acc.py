@@ -89,9 +89,9 @@ def test_model(imdb_name,iter,demo_net,predict_dir,package_data):
         write_report(f,precsion,recall,tp,fp,fn,detect_num,act_num)
     print("finish test model {}".format(model_data))
 
-imdb_name='voc_2007_trainval'
-iter='160000'
-demo_net='vgg16'
-predict_dir='/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data'
-package_data=['test_data-2018-07-24']
-test_model(imdb_name,iter,demo_net,predict_dir,package_data)
+# imdb_name='voc_2007_trainval'
+# iter='160000'
+# demo_net='vgg16'
+# predict_dir='/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data'
+# package_data=['test_data-2018-07-24']
+# test_model(imdb_name,iter,demo_net,predict_dir,package_data)
