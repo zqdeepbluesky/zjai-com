@@ -78,7 +78,7 @@ def load_forecast_files(forecast_dir):
         print("Please load some Images in the {}!".format(jpg_path))
     return jpg_files,xml_path
 
-def predict_images(sess,net,jpg_files,xml_path):
+def predict_images(sess,net,jpg_files,xml_path,CLASSES):
     for image in jpg_files:
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         print('Demo for {}'.format(image))
