@@ -100,6 +100,11 @@ def show_object_PIL_box(datas,img):
         plt.imshow(img.crop((x1, y1, x2, y2))), plt.axis('off')
     plt.show()
 
+def create_image_info(img_name,img_path,img_width,img_height,img_channel):
+    im_info={'name':img_name,'path':img_path,
+             'width':img_width,'height':img_height,'channel':img_channel}
+    return im_info
+
 def show_object_cv_box(datas,img):
     plot_num=math.ceil((len(datas)+1)/3)*100+4*10+1
     plt.figure("Image")

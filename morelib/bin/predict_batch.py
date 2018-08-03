@@ -13,7 +13,7 @@ from lib.datasets import pascal_voc
 
 from morelib.utils import predict
 from morelib.utils.prepare_model import *
-from morelib.utils.xml_fromsg import *
+from morelib.utils.xml_store import *
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 

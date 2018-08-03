@@ -10,7 +10,7 @@ import argparse
 import os.path as osp
 import tensorflow as tf
 
-from morelib.utils.xml_fromsg import *
+from morelib.utils.xml_store import *
 from lib.datasets import pascal_voc
 from morelib.utils import prepare_model, predict
 

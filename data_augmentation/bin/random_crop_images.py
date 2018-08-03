@@ -4,7 +4,7 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 import xml.etree.ElementTree as ET
-from ..utils import xml_fromsg,io_utils
+from ..utils import xml_store,io_utils
 
 def crop(img,crop_size):
     img=img.crop(crop_size)
@@ -72,7 +72,7 @@ def save_data_into_xml(image,size,xml_path,result_data):
     im_info["height"] = size[1]
     im_info["name"] = os.path.splitext(os.path.split(image)[1])[0]
     im_info["channel"] = size[2]
-    xml_fromsg.save_annotations(xml_path, im_info, result_data)
+    xml_store.save_annotations(xml_path, im_info, result_data)
 
 def compare_obj_info(obj_info,crop_box):
     new_obj_info=[]

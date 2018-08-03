@@ -2,7 +2,7 @@ from lib.model.config import cfg
 
 import tensorflow as tf
 import os.path as osp
-from morelib.utils.xml_fromsg import *
+from morelib.utils.xml_store import *
 from lib.datasets import pascal_voc
 from zjai_createData import zjai_6_comparison
 from morelib.utils import io_utils,prepare_model
