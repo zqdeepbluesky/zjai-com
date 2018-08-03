@@ -179,9 +179,9 @@ def prepare_params():
 def get_setting_cfg():
     import yaml
     from easydict import EasyDict as edict
-    assert os.path.exists(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg')),'setting cfg dont exist in {}'.\
-        format(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg'))
-    with open(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg'), 'r') as f:
+    assert os.path.exists(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg')),'setting cfg dont exist in {}'.\
+        format(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg'))
+    with open(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg'), 'r') as f:
         setting_cfg = edict(yaml.load(f))
     return setting_cfg
 
