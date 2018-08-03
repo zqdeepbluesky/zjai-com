@@ -10,11 +10,11 @@ from __future__ import print_function
 
 import cv2
 import numpy as np
-from lib.utils.blob import im_list_to_blob
-from lib.utils.timer import Timer
-from lib.model.config import cfg
-from lib.model.bbox_transform import bbox_transform_inv
-from lib.model.nms_wrapper import nms
+from utils.blob import im_list_to_blob
+from utils.timer import Timer
+from model.config import cfg
+from model.bbox_transform import bbox_transform_inv
+from model.nms_wrapper import nms
 
 
 

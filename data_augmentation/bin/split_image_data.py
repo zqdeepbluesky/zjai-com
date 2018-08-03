@@ -1,18 +1,15 @@
 import os
 import random
-import numpy
-from data_processing.utils import io_utils
+from ..utils import io_utils
 import argparse
-import _init_paths
-from model.config import cfg
 import math
-from zjai_createData.zjai_2_create_main import create_package_main
+from ..utils.xml_utils import create_package_main
 
 def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--data_dir', dest='data_dir', help='prepare to compare this image and xml',
-                        default=os.path.join(cfg.ROOT_DIR,"data","train_data"))
+                        default='')
     parser.add_argument('--package_dir', dest='package_dir', help='the compare data file name',
                         default="train_data-2018-03-07")
     parser.add_argument('--split_num', dest='split_num', help='how many the num you want to split',

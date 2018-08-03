@@ -1,6 +1,5 @@
-import os
 import os.path as osp
-from data_processing.utils.io_utils import *
+from morelib.utils.io_utils import *
 
 def copy_file(srcDirs,distDirs,fileList):
     for line in fileList:

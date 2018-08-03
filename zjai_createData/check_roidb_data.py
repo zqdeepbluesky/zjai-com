@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import os
-import _init_paths
+from tools import _init_paths
 from model.config import cfg
 from datasets import pascal_voc
 

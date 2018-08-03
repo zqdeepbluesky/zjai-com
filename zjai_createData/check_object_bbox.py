@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import math
-from PIL import Image
 import numpy as np
 
 def show_object_PIL_box(datas,img):

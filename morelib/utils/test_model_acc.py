@@ -1,13 +1,12 @@
-import _init_paths
 from lib.model.config import cfg
 
 import tensorflow as tf
 import os.path as osp
 from morelib.utils.xml_fromsg import *
 from lib.datasets import pascal_voc
-from morelib.bin import predict_batch
 from zjai_createData import zjai_6_comparison
-from data_processing.utils import io_utils
+from morelib.utils import io_utils,prepare_model
+from morelib.bin import predict_batch
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -36,12 +35,12 @@ def write_report(f,prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum):
     f.write("-->model detect num : {}\n".format(d_sum))
     f.write("-->actual num : {}\n\n".format(t_sum))
 
-def prepare_model(imdb_name,iter,demo_net):
+def get_model(imdb_name,iter,demo_net):
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
 
     model_dir = os.path.join(cfg.ROOT_DIR, 'output', demo_net, imdb_name, 'save_model')
     model_data = "{}_faster_rcnn_iter_{}.ckpt".format(demo_net, iter)
-    tf_model = predict_batch.get_tf_model(model_dir, model_data)
+    tf_model = prepare_model.get_tf_model(model_dir, model_data)
     print(tf_model)
     # set config
     tfconfig = tf.ConfigProto(allow_soft_placement=True)
@@ -52,13 +51,13 @@ def prepare_model(imdb_name,iter,demo_net):
     # load network
     CLASSES = pascal_voc.read_classes(osp.join(cfg.ROOT_DIR, 'data', 'cfgs', 'com_classes.txt'))
     print(len(CLASSES))
-    saver, net_test = predict_batch.load_model(sess_test, demo_net, tf_model, len(CLASSES))
+    saver, net_test = prepare_model.load_model(sess_test, demo_net, tf_model, len(CLASSES))
     return sess_test,net_test,model_dir,model_data,CLASSES
 
 def test_model(imdb_name,iter,net_name,predict_dir,package_data):
     test_g=tf.Graph()
     with test_g.as_default():
-        sess_test, net_test, model_dir,model_data,CLASSES=prepare_model(imdb_name,iter,net_name)
+        sess_test, net_test, model_dir,model_data,CLASSES=get_model(imdb_name,iter,net_name)
         acc_list=[]
         for package in package_data:
             jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package))

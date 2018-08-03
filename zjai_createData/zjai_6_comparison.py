@@ -13,7 +13,7 @@
 
 import xml.etree.ElementTree as ET
 import os
-from  data_processing.utils import io_utils
+from  morelib.utils import io_utils
 
 def get_xml_label_num(xmlPath):
     '''

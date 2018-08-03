@@ -12,7 +12,6 @@
 
 import os
 import os.path as osp
-import sys
 import zjai_createData.zjai_3_check_data
 
 def get_all_label(dataSetDir,type,root_dir,setname):

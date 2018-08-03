@@ -3,7 +3,7 @@ import os.path as osp
 from  xml.etree import ElementTree
 import PIL.Image
 from xml.etree.ElementTree import ElementTree
-from  data_processing.utils.io_utils import mkdir
+from  morelib.utils.io_utils import mkdir
 
 def get_xml(data_dirs):
     xmlList=[]

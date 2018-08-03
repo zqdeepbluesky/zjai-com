@@ -1,13 +1,10 @@
 from PIL import Image
 import os
-import _init_paths
-from model.config import cfg
 import argparse
-from data_processing.utils import io_utils
 import matplotlib.pyplot as plt
 import numpy as np
 import xml.etree.ElementTree as ET
-from morelib.utils import xml_fromsg
+from ..utils import xml_fromsg,io_utils
 
 def crop(img,crop_size):
     img=img.crop(crop_size)
@@ -29,7 +26,7 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--data_dir', dest='data_dir', help='prepare to compare this image and xml',
-                        default=os.path.join(cfg.ROOT_DIR,"data","train_data"))
+                        default='')
     parser.add_argument('--package_dir', dest='package_dir', help='the compare data file name',
                         default="train_data-2018-03-07")
     parser.add_argument('--size', dest='size', help='the crop size',

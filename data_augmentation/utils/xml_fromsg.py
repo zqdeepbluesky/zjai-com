@@ -1,7 +1,7 @@
 from lxml.etree import Element, SubElement, tostring
 from xml.dom.minidom import parseString
 import os
-from morelib.utils import io_utils
+from data_augmentation.utils import io_utils
 import xml.etree.ElementTree as ET
 
 def make_xml(im_info, datas):
@@ -66,7 +66,6 @@ def set_object(datas,node_root,im_info):
         node_ymax = SubElement(node_bndbox, 'ymax')
         node_ymax.text = str(int(b[3]))
     return node_root
-
 def check_border(bbox, width, height):
     if len(bbox) <4:
         return
@@ -82,7 +81,6 @@ def check_border(bbox, width, height):
 
     if bbox[3] >= height:
         bbox[3] = height - 1
-
 def _beautifulFormat(xmlDomObject):
     if xmlDomObject:
         xmlStr = xmlDomObject.toprettyxml(indent='', newl='', encoding='utf-8')
@@ -93,23 +91,12 @@ def _beautifulFormat(xmlDomObject):
         return dom
     else:
         return False
-
 def save_annotations(save_dir, im_info, data):
     dom = make_xml(im_info, data)
     io_utils.mkdir(save_dir)
     xml_path = os.path.join(save_dir, im_info["name"].replace(".jpg",".xml"))
     with open(xml_path, 'w+') as f:
         dom.writexml(f, addindent='', newl='', encoding='utf-8')
-
-def save_data_into_xml(image,im,xml_path,result_data):
-    im_info = {"path": image}
-    print(im.shape)
-    im_info["width"] = im.shape[1]
-    im_info["height"] = im.shape[0]
-    im_info["name"] = os.path.splitext(os.path.split(image)[1])[0]+".jpg"
-    im_info["channel"] = im.shape[2]
-    save_annotations(xml_path, im_info, result_data)
-
 def get_object_infos_from_xml(xml_path):
     tree = ET.parse(xml_path)
     root = tree.getroot()
