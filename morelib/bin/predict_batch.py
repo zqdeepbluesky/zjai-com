@@ -34,7 +34,7 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="vgg16_faster_rcnn_iter_3335000.ckpt")
+                        default="vgg16_faster_rcnn_iter_880000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
@@ -69,7 +69,7 @@ def main():
     saver, net = load_model(sess, args.demo_net, tf_model, len(CLASSES))
 
     jpg_files, xml_path = load_forecast_files(os.path.join(args.predict_dir, args.package_data))
-    predict_images(sess, net, jpg_files, xml_path)
+    predict_images(sess, net, jpg_files, xml_path,CLASSES)
 
 if __name__ == '__main__':
     main()
