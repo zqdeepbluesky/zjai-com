@@ -276,7 +276,19 @@ class SolverWrapper(object):
             timer.tic()
             # Get training data, one batch at a time
             blobs = self.data_layer.forward()
+            im=blobs['data'][0,:,:,:]
+            print(im)
+            print(blobs['gt_boxes'],blobs['gt_boxes'].shape,im.shape)
+            im_info=[]
+            for i in range(blobs['gt_boxes'].shape[0]):
+                im_info.append('{},1,{},{},{},{}'.format(blobs['gt_boxes'][i,-1],int(blobs['gt_boxes'][i,0]),
+                                                    int(blobs['gt_boxes'][i,1]),int(blobs['gt_boxes'][i,2]),
+                                                    int(blobs['gt_boxes'][i, 3])))
+            from zjai_createData.check_object_bbox import show_object_cv_box
+            show_object_cv_box(im_info,im)
 
+            import time as t
+            t.sleep(1000)
             now = time.time()
             if iter == 1 or now - last_summary_time > cfg.TRAIN.SUMMARY_INTERVAL:
                 # Compute the graph with summary
@@ -347,6 +359,11 @@ def get_training_roidb(imdb):
         if len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)!=0:
             print('Appending bright-adjuest training examples...')
             imdb.append_bright_adjuest_images()
+            print('done')
+    if cfg.TRAIN.ROTATE_ADJUEST:
+        if len(cfg.TRAIN.ROTATE_ADJUEST_ANGLE)!=0:
+            print('Appending rotate-adjuest training examples...')
+            imdb.append_rotate_adjuest_images()
             print('done')
     print('Preparing training data...')
     rdl_roidb.prepare_roidb(imdb)

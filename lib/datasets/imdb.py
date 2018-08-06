@@ -11,6 +11,7 @@ from __future__ import print_function
 import os
 import os.path as osp
 import PIL
+from math import *
 from utils.cython_bbox import bbox_overlaps
 import numpy as np
 import scipy.sparse
@@ -126,7 +127,9 @@ class imdb(object):
             if 'ver_flipped' in self.roidb[i]:
                 entry['ver_flipped']=self.roidb[i]['ver_flipped']
             if 'bright_scala' in self.roidb[i]:
-                entry['bright_scala']=self.roidb[i]['bright']
+                entry['bright_scale']=self.roidb[i]['bright_scale']
+            if 'rotate_angle' in self.roidb[i]:
+                entry['rotate_angle'] = self.roidb[i]['rotate_angle']
             self.roidb.append(entry)
         self._image_index = self._image_index *2
 
@@ -151,7 +154,9 @@ class imdb(object):
             if 'hor_flipped' in self.roidb[i]:
                 entry['hor_flipped']=self.roidb[i]['hor_flipped']
             if 'bright_scala' in self.roidb[i]:
-                entry['bright_scala']=self.roidb[i]['bright']
+                entry['bright_scale']=self.roidb[i]['bright_scale']
+            if 'rotate_angle' in self.roidb[i]:
+                entry['rotate_angle'] = self.roidb[i]['rotate_angle']
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
 
@@ -167,13 +172,67 @@ class imdb(object):
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
                          'gt_classes': self.roidb[i]['gt_classes'],
-                         'bright_scala': gamma}
+                         'bright_scale': gamma}
+
                 if 'hor_flipped' in self.roidb[i]:
                     entry['hor_flipped'] = self.roidb[i]['hor_flipped']
                 if 'ver_flipped' in self.roidb[i]:
                     entry['ver_flipped'] = self.roidb[i]['ver_flipped']
+                if 'rotate_angle' in self.roidb[i]:
+                    entry['rotate_angle'] = self.roidb[i]['rotate_angle']
                 self.roidb.append(entry)
         self._image_index += self._image_index * (len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)-error_num)
+
+    def _rotate_boxes(self,boxes,size,angle):
+        def rotate_point(width, height, angle, x, y):
+            x1 = (x - (width / 2)) * cos(radians(angle)) + (y - (height / 2)) * sin(radians(angle))
+            y1 = (y - height / 2) * cos(radians(angle)) - (x - width / 2) * sin(radians(angle))
+            return int(x1), int(y1)
+        new_boxes=np.zeros(boxes.shape)
+        for i in range(boxes.shape[0]):
+            x_list = [int(boxes[i][0]),int(boxes[i][2])]
+            y_list = [int(boxes[i][1]),int(boxes[i][3])]
+            height, width = size[1],size[0]
+            heightNew = int(width * fabs(sin(radians(angle))) + height * fabs(cos(radians(angle))))
+            widthNew = int(height * fabs(sin(radians(angle))) + width * fabs(cos(radians(angle))))
+            max_x, max_y = 0, 0
+            min_x, min_y = widthNew, heightNew
+            for x in x_list:
+                for y in y_list:
+                    x1, y1 = rotate_point(width, height, angle, x, y)
+                    x1 = int(x1 + (widthNew / 2))
+                    y1 = int(y1 + (heightNew / 2))
+                    max_x = max([max_x, x1])
+                    min_x = min([min_x, x1])
+                    max_y = max([max_y, y1])
+                    min_y = min([min_y, y1])
+            new_boxes[i]=[int(min_x),int(min_y),int(max_x),int(max_y)]
+        return new_boxes
+    def append_rotate_adjuest_images(self):
+        num_images = self.num_images
+        error_num=0
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+        for angle in cfg.TRAIN.ROTATE_ADJUEST_ANGLE:
+            if angle==0 or angle==360:
+                error_num+=1
+                continue
+            for i in range(num_images):
+                boxes = self.roidb[i]['boxes'].copy()
+                size=[sizes[i][0],sizes[i][1]]
+                boxes=self._rotate_boxes(boxes, size, angle)
+                entry = {'boxes': boxes,
+                         'gt_overlaps': self.roidb[i]['gt_overlaps'],
+                         'gt_classes': self.roidb[i]['gt_classes'],
+                         'rotate_angle':angle }
+
+                if 'hor_flipped' in self.roidb[i]:
+                    entry['hor_flipped'] = self.roidb[i]['hor_flipped']
+                if 'ver_flipped' in self.roidb[i]:
+                    entry['ver_flipped'] = self.roidb[i]['ver_flipped']
+                if 'bright_scala' in self.roidb[i]:
+                    entry['bright_scale'] = self.roidb[i]['bright_scale']
+                self.roidb.append(entry)
+        self._image_index += self._image_index * (len(cfg.TRAIN.ROTATE_ADJUEST_ANGLE)-error_num)
 
 
 

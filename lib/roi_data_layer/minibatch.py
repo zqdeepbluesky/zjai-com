@@ -54,6 +54,21 @@ def _bright_adjuest(im,gamma):
     im = exposure.adjust_gamma(im, gamma)
     return im
 
+from math import *
+def _rotate_image(img,angle):
+    height,width=img.shape[0],img.shape[1]
+    heightNew = int(width * fabs(sin(radians(angle))) + height * fabs(cos(radians(angle))))
+    widthNew = int(height * fabs(sin(radians(angle))) + width * fabs(cos(radians(angle))))
+
+    matRotation = cv2.getRotationMatrix2D((width / 2, height / 2), angle, 1)
+
+    matRotation[0, 2] += (widthNew - width) / 2  # 重点在这步，目前不懂为什么加这步
+    matRotation[1, 2] += (heightNew - height) / 2  # 重点在这步
+
+    imgRotation = cv2.warpAffine(img, matRotation, (widthNew, heightNew), borderValue=(0, 0, 0))
+    return imgRotation
+
+
 def _get_image_blob(roidb, scale_inds):
     """Builds an input blob from the images in the roidb at the specified
     scales.
@@ -69,6 +84,8 @@ def _get_image_blob(roidb, scale_inds):
             im = im[::-1, :, :]
         if 'bright_scala' in roidb[i] and roidb[i]['bright_scala']!=1:
             im=_bright_adjuest(im,roidb[i]['bright_scala'])
+        if 'rotate_angle' in roidb[i] and roidb[i]['rotate_angle']!=0:
+            im=_rotate_image(im,roidb[i]['rotate_angle'])
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]  #设置size
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size, cfg.TRAIN.MAX_SIZE)   #得到缩放后的图像和缩放系数
         im_scales.append(im_scale)   #存放起缩放系数
