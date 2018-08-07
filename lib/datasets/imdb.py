@@ -108,21 +108,23 @@ class imdb(object):
 
     def append_hor_flipped_images(self):  #水平翻转
         num_images = self.num_images
-        widths = self._get_widths()
+        sizes =[PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
         print("finish get_widths")
         for i in range(num_images):
             boxes = self.roidb[i]['boxes'].copy()   #如果roidb还未加载时，会先加载，并保存,图片的object
             oldx1 = boxes[:, 0].copy()  #xmin
             oldx2 = boxes[:, 2].copy()  #xmax
-            boxes[:, 0] = widths[i] - oldx2
-            boxes[:, 2] = widths[i] - oldx1
+            boxes[:, 0] = sizes[i][0] - oldx2
+            boxes[:, 2] = sizes[i][0] - oldx1
             index=np.where(boxes[:, 2]< boxes[:, 0])
             boxes[index,0]=0
             assert (boxes[:, 2] >= boxes[:, 0]).all()
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
                      'gt_classes': self.roidb[i]['gt_classes'],
-                     'hor_flipped': True}
+                     'hor_flipped': True,
+                     'width':sizes[i][0],
+                     'height':sizes[i][1]}
 
             if 'ver_flipped' in self.roidb[i]:
                 entry['ver_flipped']=self.roidb[i]['ver_flipped']
@@ -135,21 +137,24 @@ class imdb(object):
 
     def append_ver_flipped_images(self):  #竖直翻转
         num_images = self.num_images
-        widths = [PIL.Image.open(self.image_path_at(i)).size[1] for i in range(self.num_images)]
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
         print("finish get_widths")
         for i in range(num_images):
             boxes = self.roidb[i]['boxes'].copy()   #如果roidb还未加载时，会先加载，并保存,图片的object
             oldx1 = boxes[:, 1].copy()  #ymin
             oldx2 = boxes[:, 3].copy()  #ymax
-            boxes[:, 1] = widths[i] - oldx2
-            boxes[:, 3] = widths[i] - oldx1
+            boxes[:, 1] = sizes[i][1] - oldx2
+            boxes[:, 3] = sizes[i][1] - oldx1
             index = np.where(boxes[:, 3] < boxes[:, 1])
             boxes[index, 1] = 0
             assert (boxes[:, 3] >= boxes[:, 1]).all()
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
                      'gt_classes': self.roidb[i]['gt_classes'],
-                     'ver_flipped': True}
+                     'ver_flipped': True,
+                     'width': sizes[i][0],
+                     'height': sizes[i][1]
+                     }
 
             if 'hor_flipped' in self.roidb[i]:
                 entry['hor_flipped']=self.roidb[i]['hor_flipped']
@@ -162,6 +167,7 @@ class imdb(object):
 
     def append_bright_adjuest_images(self):
         num_images = self.num_images
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
         error_num=0
         for gamma in cfg.TRAIN.BRIGHT_ADJUEST_SCALE:
             if gamma==1 or gamma<=0:
@@ -172,7 +178,10 @@ class imdb(object):
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
                          'gt_classes': self.roidb[i]['gt_classes'],
-                         'bright_scale': gamma}
+                         'bright_scale': gamma,
+                         'width': sizes[i][0],
+                         'height': sizes[i][1]
+                         }
 
                 if 'hor_flipped' in self.roidb[i]:
                     entry['hor_flipped'] = self.roidb[i]['hor_flipped']
@@ -189,12 +198,12 @@ class imdb(object):
             y1 = (y - height / 2) * cos(radians(angle)) - (x - width / 2) * sin(radians(angle))
             return int(x1), int(y1)
         new_boxes=np.zeros(boxes.shape)
+        height, width = size[1], size[0]
+        heightNew = int(width * fabs(sin(radians(angle))) + height * fabs(cos(radians(angle))))
+        widthNew = int(height * fabs(sin(radians(angle))) + width * fabs(cos(radians(angle))))
         for i in range(boxes.shape[0]):
             x_list = [int(boxes[i][0]),int(boxes[i][2])]
             y_list = [int(boxes[i][1]),int(boxes[i][3])]
-            height, width = size[1],size[0]
-            heightNew = int(width * fabs(sin(radians(angle))) + height * fabs(cos(radians(angle))))
-            widthNew = int(height * fabs(sin(radians(angle))) + width * fabs(cos(radians(angle))))
             max_x, max_y = 0, 0
             min_x, min_y = widthNew, heightNew
             for x in x_list:
@@ -207,7 +216,7 @@ class imdb(object):
                     max_y = max([max_y, y1])
                     min_y = min([min_y, y1])
             new_boxes[i]=[int(min_x),int(min_y),int(max_x),int(max_y)]
-        return new_boxes
+        return new_boxes,widthNew,heightNew
     def append_rotate_adjuest_images(self):
         num_images = self.num_images
         error_num=0
@@ -219,11 +228,13 @@ class imdb(object):
             for i in range(num_images):
                 boxes = self.roidb[i]['boxes'].copy()
                 size=[sizes[i][0],sizes[i][1]]
-                boxes=self._rotate_boxes(boxes, size, angle)
+                boxes,widthNew,heightNew=self._rotate_boxes(boxes, size, angle)
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
                          'gt_classes': self.roidb[i]['gt_classes'],
-                         'rotate_angle':angle }
+                         'rotate_angle':angle,
+                         'width': int(widthNew),
+                         'height': int(heightNew)}
 
                 if 'hor_flipped' in self.roidb[i]:
                     entry['hor_flipped'] = self.roidb[i]['hor_flipped']
