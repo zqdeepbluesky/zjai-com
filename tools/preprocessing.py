@@ -24,13 +24,22 @@ def wrote_roidbs(roidb,imdb_name):
         pickle.dump(roidb, fid, pickle.HIGHEST_PROTOCOL)
     print('wrote enhance {}roidb to {}'.format(imdb_name,roidb_file))
 
+def cal_roidb_postfix(cfg):
+    postfix=0
+    data_aug_code=[cfg.TRAIN.USE_HOR_FLIPPED,cfg.TRAIN.USE_VER_FLIPPED,cfg.TRAIN.BRIGHT_ADJUEST,cfg.TRAIN.ROTATE_ADJUEST]
+    for i in range(len(data_aug_code)):
+        postfix+=data_aug_code[i]*1*pow(10,7-i)
+    return postfix
+
 def calc_roidb(imdb_name,package_name):
     imdb = datasets.factory.get_imdb(imdb_name,package_name)
     logger.info('Loaded dataset `{:s}` for training'.format(imdb.name))
     imdb.set_proposal_method(cfg.TRAIN.PROPOSAL_METHOD)
 
     logger.info('Set proposal method: {:s}'.format(cfg.TRAIN.PROPOSAL_METHOD))
-    roidb_file = os.path.join(cfg.ROOT_DIR, "data", "cache", '{}_enhance_roidb.pkl'.format(imdb_name))
+    postfix = cal_roidb_postfix(cfg)
+    roidb_file = os.path.join(cfg.ROOT_DIR, "data", "cache", '{}_{}_enhance_roidb_{}.pkl'.format("+".join(package_name),imdb_name,postfix))
+
     if os.path.exists(roidb_file)!=1:
         roidb = model.train_val.get_training_roidb(imdb)
         wrote_roidbs(roidb, imdb_name)
