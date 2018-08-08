@@ -25,7 +25,11 @@ def get_minibatch(roidb, num_classes):
     if cfg.TRAIN.BATCH_SIZE % num_images != 0:
         print('num_images ({}) must divide BATCH_SIZE ({})'.format(num_images, cfg.TRAIN.BATCH_SIZE))
         assert(cfg.TRAIN.BATCH_SIZE % num_images == 0)
+<<<<<<< HEAD
     # assert(cfg.TRAIN.BATCH_SIZE % num_images == 0),'num_images ({}) must divide BATCH_SIZE ({})'.format(num_images, cfg.TRAIN.BATCH_SIZE)    #batchSize必须能够整除每次输入参数
+=======
+        # assert(cfg.TRAIN.BATCH_SIZE % num_images == 0),'num_images ({}) must divide BATCH_SIZE ({})'.format(num_images, cfg.TRAIN.BATCH_SIZE)    #batchSize必须能够整除每次输入参数
+>>>>>>> master
 
     # Get the input image blob, formatted for caffe
     im_blob, im_scales = _get_image_blob(roidb, random_scale_inds)   #缩放后的图像，并装在blob，缩放系数
