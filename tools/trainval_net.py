@@ -129,7 +129,7 @@ def prepare_datas(package_name):
 
 def prepare_params():
     # output directory where the models are saved
-    output_dir = get_output_dir(imdb, args.tag)
+    output_dir = get_output_dir(imdb, args.tag,args.package_name)
     logger.info('Output will be saved to `{:s}`'.format(output_dir))
 
     # tensorboard directory where the summaries are saved during training

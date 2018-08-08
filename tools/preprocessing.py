@@ -7,7 +7,7 @@ import logging
 
 import datasets.factory
 import model.train_val
-from model.config import cfg
+from model.config import cfg,cal_data_aug_code
 import os
 import pickle
 
@@ -24,12 +24,6 @@ def wrote_roidbs(roidb,imdb_name,roidb_file):
         pickle.dump(roidb, fid, pickle.HIGHEST_PROTOCOL)
     print('wrote enhance {}roidb to {}'.format(imdb_name,roidb_file))
 
-def cal_roidb_postfix(cfg):
-    postfix=0
-    data_aug_code=[cfg.TRAIN.USE_HOR_FLIPPED,cfg.TRAIN.USE_VER_FLIPPED,cfg.TRAIN.BRIGHT_ADJUEST,cfg.TRAIN.ROTATE_ADJUEST]
-    for i in range(len(data_aug_code)):
-        postfix+=data_aug_code[i]*1*pow(10,7-i)
-    return postfix
 
 def calc_roidb(imdb_name,package_name):
     imdb = datasets.factory.get_imdb(imdb_name,package_name)
@@ -37,7 +31,7 @@ def calc_roidb(imdb_name,package_name):
     imdb.set_proposal_method(cfg.TRAIN.PROPOSAL_METHOD)
 
     logger.info('Set proposal method: {:s}'.format(cfg.TRAIN.PROPOSAL_METHOD))
-    postfix = cal_roidb_postfix(cfg)
+    postfix = cal_data_aug_code(cfg)
     roidb_file = os.path.join(cfg.ROOT_DIR, "data", "cache", '{}_{}_enhance_roidb_{}.pkl'.format("+".join(package_name),imdb_name,postfix))
 
     if os.path.exists(roidb_file)!=1:

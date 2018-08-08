@@ -37,7 +37,7 @@ class SolverWrapper(object):
         self.roidb = roidb
         self.valroidb = valroidb
         self.output_dir = output_dir
-        self._save_batch_model = os.path.join(os.path.abspath(os.path.join(output_dir, "..")), "save_model")
+        self._save_batch_model = output_dir+'_batch_model'
         self.tbdir = tbdir
         # Simply put '_val' at the end to save the summaries from the validation set
         self.tbvaldir = tbdir + '_val'
