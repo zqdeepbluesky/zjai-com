@@ -36,3 +36,18 @@ def show_object_cv_box(datas,img):
         plt.subplot(plot_num)
         plt.imshow(img[y1:y2, x1:x2]), plt.axis('off')
     plt.show()
+
+
+# im=blobs['data'][0,:,:,:]
+# print(im)
+# print(blobs['gt_boxes'],blobs['gt_boxes'].shape,im.shape)
+# im_info=[]
+# for i in range(blobs['gt_boxes'].shape[0]):
+#     im_info.append('{},1,{},{},{},{}'.format(blobs['gt_boxes'][i,-1],int(blobs['gt_boxes'][i,0]),
+#                                         int(blobs['gt_boxes'][i,1]),int(blobs['gt_boxes'][i,2]),
+#                                         int(blobs['gt_boxes'][i, 3])))
+# from zjai_createData.check_object_bbox import show_object_cv_box
+# show_object_cv_box(im_info,im)
+#
+# import time as t
+# t.sleep(1000)
