@@ -126,3 +126,9 @@ lib/pycocotools/_mask.so
 data/predict_data/
 
 data/model
+
+data/cache_169/
+
+data/cfgs/com_classes_169\.txt
+
+data/demo/

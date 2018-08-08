@@ -135,7 +135,7 @@ class pascal_voc(imdb):
 
         注意：如果你再次训练的时候修改了train数据库，增加或者删除了一些数据，再想重新训练的时候，一定要先删除这个.pkl文件！！！！！！因为如果不删除的话，就会自动加载旧的pkl文件，而不会生成新的pkl文件。一定别忘了！
         """
-        cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
+        cache_file = os.path.join(self.cache_path,'{}_{}_gt_roidb.pkl'.format("+".join(self.package_name),self.name))
         if os.path.exists(cache_file):
             with open(cache_file, 'rb') as fid:
                 try:

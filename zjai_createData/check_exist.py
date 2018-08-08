@@ -1,6 +1,5 @@
 import os
 import os.path as osp
-import sys
 
 def get_all_file(dirs,fileType):
     fileList=[]

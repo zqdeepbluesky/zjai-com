@@ -1,4 +1,3 @@
-import os
 import os.path as osp
 from  zjai_createData.check_exist import get_all_file
 import PIL.Image

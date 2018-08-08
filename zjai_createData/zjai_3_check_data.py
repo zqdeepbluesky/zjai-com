@@ -11,7 +11,6 @@
 # =========================================================
 
 import os.path as osp
-import os
 import xml.etree.ElementTree as ET
 
 

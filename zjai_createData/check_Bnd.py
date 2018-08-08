@@ -1,7 +1,7 @@
 import os
 import os.path as osp
 import xml.etree.ElementTree as ET
-from data_processing.utils import io_utils
+from morelib.utils import io_utils
 import shutil
 
 def check_bnds(root_dir,dataDirs):

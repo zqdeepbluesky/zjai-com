@@ -3,10 +3,9 @@ import os.path as osp
 from  xml.etree import ElementTree
 import PIL.Image
 import argparse
-import _init_paths
-from model.config import cfg
+
 from xml.etree.ElementTree import ElementTree
-from  data_processing.utils.io_utils import mkdir
+from ..utils.io_utils import mkdir
 
 def _get_xml(data_dirs):
     xmlList=[]
@@ -61,7 +60,7 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--data_dir', dest='data_dir', help='prepare to compare this image and xml',
-                        default=os.path.join(cfg.ROOT_DIR,"data","train_data"))
+                        default='')
     parser.add_argument('--package_dir', dest='package_dir', help='the compare data file name',
                         default="test_data-2018-07-20")
     args = parser.parse_args()

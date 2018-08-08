@@ -1,13 +1,10 @@
 from PIL import Image
 import os
-import _init_paths
-from model.config import cfg
 import argparse
-from data_processing.utils import io_utils
 import matplotlib.pyplot as plt
 import numpy as np
 import xml.etree.ElementTree as ET
-from morelib.utils import xml_fromsg
+from ..utils import xml_store,io_utils
 
 def crop(img,crop_size):
     img=img.crop(crop_size)
@@ -29,7 +26,7 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--data_dir', dest='data_dir', help='prepare to compare this image and xml',
-                        default=os.path.join(cfg.ROOT_DIR,"data","train_data"))
+                        default='')
     parser.add_argument('--package_dir', dest='package_dir', help='the compare data file name',
                         default="train_data-2018-03-07")
     parser.add_argument('--size', dest='size', help='the crop size',
@@ -75,7 +72,7 @@ def save_data_into_xml(image,size,xml_path,result_data):
     im_info["height"] = size[1]
     im_info["name"] = os.path.splitext(os.path.split(image)[1])[0]
     im_info["channel"] = size[2]
-    xml_fromsg.save_annotations(xml_path, im_info, result_data)
+    xml_store.save_annotations(xml_path, im_info, result_data)
 
 def compare_obj_info(obj_info,crop_box):
     new_obj_info=[]

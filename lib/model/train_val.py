@@ -276,12 +276,10 @@ class SolverWrapper(object):
             timer.tic()
             # Get training data, one batch at a time
             blobs = self.data_layer.forward()
-
             now = time.time()
             if iter == 1 or now - last_summary_time > cfg.TRAIN.SUMMARY_INTERVAL:
                 # Compute the graph with summary
-                rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, total_loss, summary = \
-                    self.net.train_step_with_summary(sess, blobs, train_op)
+                rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, total_loss, summary =self.net.train_step_with_summary(sess, blobs, train_op)
                 self.writer.add_summary(summary, float(iter))
                 # Also check the summary on the validation set
                 blobs_val = self.data_layer_val.forward()
@@ -315,14 +313,16 @@ class SolverWrapper(object):
             if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0:  # 每100000次就保存一次模型文件
                 last_snapshot_iter = iter
                 ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
-                # if args.use_test_data:
-                #     predict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'train_data')
-                #     packages=args.package_name
-                #     test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
-                # else:
-                #     predict_dir=os.path.join(cfg.ROOT_DIR,args.test_dir)
-                #     packages=args.test_package
-                #     test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
+                if args.use_extra_test_data!=1:
+                    predict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'train_data')
+                    packages=args.package_name
+                    test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
+                else:
+                    predict_dir=os.path.join(cfg.ROOT_DIR,args.test_dir)
+                    packages = args.package_name
+                    for test_len in range(len(args.test_package)):
+                        packages.append(args.test_package[test_len])
+                    test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
 
 
             iter += 1
@@ -348,6 +348,11 @@ def get_training_roidb(imdb):
         if len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)!=0:
             print('Appending bright-adjuest training examples...')
             imdb.append_bright_adjuest_images()
+            print('done')
+    if cfg.TRAIN.ROTATE_ADJUEST:
+        if len(cfg.TRAIN.ROTATE_ADJUEST_ANGLE)!=0:
+            print('Appending rotate-adjuest training examples...')
+            imdb.append_rotate_adjuest_images()
             print('done')
     print('Preparing training data...')
     rdl_roidb.prepare_roidb(imdb)

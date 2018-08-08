@@ -15,7 +15,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import _init_paths
+from tools import _init_paths
 from model.config import cfg
 from model.test import im_detect
 from model.nms_wrapper import nms
@@ -32,25 +32,6 @@ from nets.resnet_v1 import resnetv1
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 
-# CLASSES = ('__background__',
-#            'aeroplane', 'bicycle', 'bird', 'boat',
-#            'bottle', 'bus', 'car', 'cat', 'chair',
-#            'cow', 'diningtable', 'dog', 'horse',
-#            'motorbike', 'person', 'pottedplant',
-#            'sheep', 'sofa', 'train', 'tvmonitor')
-# CLASSES=('__background__','wl-wldmj-dz-lw-106g', 'llm-llm-dz-nmcm-60g', 'ksf-ksfbg-dz-qxnmw-125g', 'htk-tls-dz-hd-288g',
-#                    'ty-hzy-pz-gw-500ml', 'ls-lssp-dz-mgjdyw-70g', 'bl-blht-dz-yw-6.7g', 'yj-pjfz-dz-sjw-100g',
-#                    'yy-yylght-gz-ht-240ml', 'qc-qckf-pz-shnt-268ml', 'tdyh-tdyhpgc-gz-pg-330ml',
-#                    'ty-tyxmtx-pz-lpqnhc-480ml', 'yl-ylhzdhmbbz-gz-hm-280g', 'ksf-ksfltscnrm-tz-scnr-82.5g',
-#                    'jdb-jdblc-gz-yw-310ml', 'ty-tyhsnrm-tz-nr-105g', 'mn-zgl-hz-cmw-250ml', 'yl-ylcnn-hz-yw-250ml',
-#                    'asm-asmnc-pz-yw-500ml', 'glg-glgblzbg-hz-mcxcw-45g', 'lzs-rnbdwhbg-hz-nlw-145g',
-#                    'wq-wqaljm-dz-al-50g', 'ys-zzyspyz-gz-yw-245ml', 'wt-wtcyl-gz-nm-310ml',
-#                    'lfe-lfeyrbttgsq-hz-yrbtr-30g', 'wwsp-wwxxs-dz-yw-60g', 'ala-alabg-hz-ywjx-116g',
-#                    'mdl-mdlbxgg-dz-bxg-80g', 'nfsq-nfsqc-pz-yzlc-500ml', 'bs-bskl-gz-yw-330ml',
-#                    'nfsq-nfsqc-pz-xymlhc-500ml', 'hzl-hzl-gz-yw-310ml', 'wwsp-wznn-hz-yw-125ml',
-#                    'wtn-wtnywdn-hz-yw-250ml', 'hwd-hwdfbm-tz-hxw-75g', 'kkkl-jcnmwqs-pz-nmw-500ml',
-#                    'kkkl-kkkl-pz-yw-600ml', 'wlj-wljlc-pz-yw-500ml', 'jb-jbjyz-dz-yw-95g',
-#                    'yd-ydmtcqscm-pz-cmw-56g', 'wlj-wljlc-hz-yw-250ml', 'hwd-hwdfbm-tz-wxnrfw-84g')
 CLASSES=('__background__','rio-rio-gz-yw-330ml', 'hzl-hzl-gz-yw-310ml', 'harbinpj-harbinpj-gz-330ml',
                    'df-dfqkl-dz-zrbdmjptgqkl-43g', 'shj-shjtysp-dz-fqw-80g', 'glg-glgbcbg-hz-qklw-48g',
                    'yd-ydwtkxt-pz-qscmw-56g', 'ty-tyhsnrm-tz-nr-105g', 'hly-hlydhp-hz-yw-138g', 'nfsq-nfsqsrc-pz-nmw-445ml',

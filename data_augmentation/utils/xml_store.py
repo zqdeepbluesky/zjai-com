@@ -1,7 +1,7 @@
 from lxml.etree import Element, SubElement, tostring
 from xml.dom.minidom import parseString
 import os
-from data_processing.utils import io_utils
+from data_augmentation.utils import io_utils
 import xml.etree.ElementTree as ET
 
 def make_xml(im_info, datas):

@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def print_args(args):
     if args is None:
@@ -36,48 +36,6 @@ def print_args(args):
     print('cfg_file:', args.cfg_file)
     print('set_cfgs:', args.set_cfgs)
     print('tag:', args.tag)
-
-# def parse_args():
-#     """
-#     Parse input arguments
-#     """
-#     parser = argparse.ArgumentParser(description='Train a Fast R-CNN network')
-#     parser.add_argument('--cfg', dest='cfg_file',
-#                         help='optional config file',
-#                         default='experiments/cfgs/res101.yml', type=str)
-#     parser.add_argument('--weight', dest='weight',
-#                         help='initialize with pretrained model weights',
-#                         default=os.path.join(cfg.ROOT_DIR, 'data/imagenet_weights/res101.ckpt'),
-#                         type=str)
-#     parser.add_argument('--imdb', dest='imdb_name',
-#                         help='dataset to train on',
-#                         default='voc_2007_trainval', type=str)
-#     parser.add_argument('--imdbval', dest='imdbval_name',
-#                         help='dataset to validate on',
-#                         default='voc_2007_test', type=str)
-#     parser.add_argument('--epochs', dest='epochs',
-#                         help='epoch of iteration to train',
-#                         default=50, type=int)
-#     parser.add_argument('--iters', dest='max_iters',
-#                         help='number of iterations to train',
-#                         default=80000, type=int)
-#     parser.add_argument('--tag', dest='tag',
-#                         help='tag of the model',
-#                         default=None, type=str)
-#     parser.add_argument('--net', dest='net',
-#                         help='vgg16, res50, res101, res152, mobile',
-#                         default='res101', type=str)
-#     parser.add_argument('--set', dest='set_cfgs',
-#                         help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[2400000]'],
-#                         nargs=argparse.REMAINDER)
-#     parser.add_argument('--package_name', dest='package_name',
-#                         help='train_data1,train_data2,train_data3',
-#                         default=['all_train_data_resize2'], type=list)
-#     args = parser.parse_args()
-#     print('*'*20)
-#     print_args(args)
-#
-#     return args
 
 def parse_args():
     """
@@ -109,7 +67,7 @@ def parse_args():
     parser.add_argument('--net', dest='net',
                         help='vgg16, res50, res101, res152, mobile',
                         default='vgg16', type=str)
-    parser.add_argument('--use_test_data', dest='use_test_data',
+    parser.add_argument('--use_extra_test_data', dest='use_test_data',
                         help='whether want to use test data to test the model',
                         default=True, type=bool)
     parser.add_argument('--set', dest='set_cfgs',
@@ -153,15 +111,19 @@ def prepare_datas(package_name):
     # also add the validation set, but with no flipping images
     hor_orgflip = cfg.TRAIN.USE_HOR_FLIPPED
     ver_orgflip = cfg.TRAIN.USE_VER_FLIPPED
-    org_bright_adjuset = cfg.TRAIN.BRIGHT_ADJUEST
+    org_bright_adjuest = cfg.TRAIN.BRIGHT_ADJUEST
+    org_rotate_adjuest = cfg.TRAIN.ROTATE_ADJUEST
     cfg.TRAIN.USE_HOR_FLIPPED = False
     cfg.TRAIN.USE_VER_FLIPPED = False
     cfg.TRAIN.BRIGHT_ADJUEST = False
+    cfg.TRAIN.ROTATE_ADJUEST = False
+
     _, valroidb = calc_roidb(args.imdbval_name,package_name)
     logger.info('{:d} validation roidb entries'.format(len(valroidb)))
     cfg.TRAIN.USE_HOR_FLIPPED = hor_orgflip
     cfg.TRAIN.USE_VER_FLIPPED = ver_orgflip
-    cfg.TRAIN.BRIGHT_ADJUEST = org_bright_adjuset
+    cfg.TRAIN.BRIGHT_ADJUEST = org_bright_adjuest
+    cfg.TRAIN.ROTATE_ADJUEST = org_rotate_adjuest
 
     return imdb, roidb, valroidb
 
@@ -179,9 +141,9 @@ def prepare_params():
 def get_setting_cfg():
     import yaml
     from easydict import EasyDict as edict
-    assert os.path.exists(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg')),'setting cfg dont exist in {}'.\
-        format(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg'))
-    with open(os.path.join(cfg.ROOT_DIR, 'data/cfgs/setting.cfg'), 'r') as f:
+    assert os.path.exists(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg')),'setting cfg dont exist in {}'.\
+        format(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg'))
+    with open(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg'), 'r') as f:
         setting_cfg = edict(yaml.load(f))
     return setting_cfg
 

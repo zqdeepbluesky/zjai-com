@@ -23,14 +23,18 @@ def prepare_roidb(imdb): #详细说明riodb的属性  利用imdb传递数据，�
     each ground-truth box. The class with maximum overlap is also
     recorded.
     """
+    import PIL
     roidb = imdb.roidb
     if not (imdb.name.startswith('coco')):   #get_widths??
-        sizes = [PIL.Image.open(imdb.image_path_at(i)).size for i in range(imdb.num_images)]
+        # sizes = [PIL.Image.open(imdb.image_path_at(i)).size for i in range(imdb.num_images)]
+        sizes=[]
     for i in range(len(imdb.image_index)):
         roidb[i]['image'] = imdb.image_path_at(i)
         if not (imdb.name.startswith('coco')):
-            roidb[i]['width'] = sizes[i][0]
-            roidb[i]['height'] = sizes[i][1]
+            if 'width' not in roidb[i] or 'height' not in roidb[i]:
+                sizes=PIL.Image.open(imdb.image_path_at(i)).size
+                roidb[i]['width'] = sizes[0]
+                roidb[i]['height'] = sizes[1]
         # need gt_overlaps as a dense array for argmax
         gt_overlaps = roidb[i]['gt_overlaps'].toarray()
         # max overlap with gt over classes (columns)

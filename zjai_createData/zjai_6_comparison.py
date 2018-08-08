@@ -13,7 +13,6 @@
 
 import xml.etree.ElementTree as ET
 import os
-from  data_processing.utils import io_utils
 
 def get_xml_label_num(xmlPath):
     '''
@@ -71,11 +70,11 @@ def compare_from_xml(xmlPath1,xmlPath2):
         #     io_utils.copy(xmlFile1,save_path)
         d_sum+=d_labelNum
         t_sum+=t_labelNum
-        print(xmlFile1,xmlFile2,tp,fp,fn,d_labelNum,t_labelNum)
+        # print(xmlFile1,xmlFile2,tp,fp,fn,d_labelNum,t_labelNum)
     prec=tp_sum/(fp_sum+tp_sum)
     recall=tp_sum/(tp_sum+fn_sum)
     print(prec,recall)
-    print(tp_sum,fp_sum,fn_sum,d_sum,t_sum)
+    # print(tp_sum,fp_sum,fn_sum,d_sum,t_sum)
     return "{},{},{},{},{},{},{}".format(prec,recall,tp_sum,fp_sum,fn_sum,d_sum,t_sum)
 
 
