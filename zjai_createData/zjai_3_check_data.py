@@ -122,7 +122,7 @@ def get_dict(dataDirs):
 
 
 
-def write_label_count1(dataSetDir,root_dir,labelCount,type):
+def write_label_count1(root_dir,labelCount,type):
     '''
         函数用于将完整的label分布情况写入到txt文件中
         :param dataSetDir: 写入txt文件的路径
@@ -134,7 +134,7 @@ def write_label_count1(dataSetDir,root_dir,labelCount,type):
     sortDict=sorted(labelCount.items(),key = lambda x:x[1],reverse = False)
     min=""
     max=""
-    with open(root_dir+"/"+"data/cfgs/labelCount_{}.txt".format(type),"w") as f:
+    with open(root_dir+"/"+"labelCount_{}.txt".format(type),"w") as f:
         dictNum=len(sortDict)
         countNum=0
         for key, value in sortDict:
@@ -152,9 +152,9 @@ def write_label_count1(dataSetDir,root_dir,labelCount,type):
     print("finish")
 
 def analysis_data(root_dir,fileType):
-    txtData = get_txt_data(dataDirs, type)
-    labelCount = get_all_xml(txtData, dataDirs)
-    write_label_count1(dataDirs, labelCount, type)
+    txtData = get_txt_data(root_dir, fileType)
+    labelCount = get_all_xml(txtData, root_dir)
+    write_label_count1(root_dir, labelCount, fileType)
 
 if __name__=="__main__":
     root_dir=osp.abspath(osp.join(osp.dirname(__file__), '..'))
@@ -162,4 +162,4 @@ if __name__=="__main__":
     type="trainval"
     txtData=get_txt_data(dataDirs,type)
     labelCount=get_all_xml(txtData,dataDirs)
-    write_label_count1(dataDirs,root_dir,labelCount,type)
+    write_label_count1(root_dir,labelCount,type)

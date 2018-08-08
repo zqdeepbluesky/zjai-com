@@ -13,11 +13,11 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
-def load_test_images_from_txt(data_dir):
+def load_test_images_from_txt(data_dir,txt_name):
     io_utils.mkdir(os.path.join(data_dir,"Annotations_test"))
     jpg_path=os.path.join(data_dir,'JPEGImages')
     xml_path=os.path.join(data_dir,"Annotations_test")
-    test_txt_file=os.path.join(data_dir,'ImageSets','Main','test.txt')
+    test_txt_file=os.path.join(data_dir,'ImageSets','Main','{}.txt'.format(txt_name))
     jpg_files=[]
     with open(test_txt_file,'r') as f:
         for line in f.readlines():
@@ -35,10 +35,10 @@ def write_report(f,prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum):
     f.write("-->model detect num : {}\n".format(d_sum))
     f.write("-->actual num : {}\n\n".format(t_sum))
 
-def get_model(imdb_name,iter,demo_net):
+def get_model(batch_model,iter,demo_net):
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
 
-    model_dir = os.path.join(cfg.ROOT_DIR, 'output', demo_net, imdb_name, 'save_model')
+    model_dir = batch_model
     model_data = "{}_faster_rcnn_iter_{}.ckpt".format(demo_net, iter)
     tf_model = prepare_model.get_tf_model(model_dir, model_data)
     print(tf_model)
@@ -54,13 +54,18 @@ def get_model(imdb_name,iter,demo_net):
     saver, net_test = prepare_model.load_model(sess_test, demo_net, tf_model, len(CLASSES))
     return sess_test,net_test,model_dir,model_data,CLASSES
 
-def test_model(imdb_name,iter,net_name,predict_dir,package_data):
+def test_model(batch_model,iter,net_name,predict_dir,test_package,extra_test_package=[]):
     test_g=tf.Graph()
     with test_g.as_default():
-        sess_test, net_test, model_dir,model_data,CLASSES=get_model(imdb_name,iter,net_name)
+        sess_test, net_test, model_dir,model_data,CLASSES=get_model(batch_model,iter,net_name)
         acc_list=[]
-        for package in package_data:
-            jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package))
+        for package in test_package:
+            jpg_files, xml_path = load_test_images_from_txt(os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package),'test')
+            predict_batch.predict_images(sess_test, net_test, jpg_files, xml_path,CLASSES)
+            acc=zjai_6_comparison.compare_from_xml(xml_path,xml_path[:-5])
+            acc_list.append(acc)
+        for package in extra_test_package:
+            jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package),'trainval')
             predict_batch.predict_images(sess_test, net_test, jpg_files, xml_path,CLASSES)
             acc=zjai_6_comparison.compare_from_xml(xml_path,xml_path[:-5])
             acc_list.append(acc)
@@ -68,7 +73,7 @@ def test_model(imdb_name,iter,net_name,predict_dir,package_data):
             f.write("-----------{} model test result------------\n\n".format(model_data))
             fp,tp,fn,act_num,detect_num=0,0,0,0,0
             for i in range(len(acc_list)):
-                f.write('test data : {}\n'.format(package_data[i]))
+                f.write('test data : {}\n'.format(test_package[i]))
                 prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum=acc_list[i].split(",")
                 write_report(f, prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum)
                 tp+=int(tp_sum)

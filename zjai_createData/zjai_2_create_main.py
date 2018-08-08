@@ -47,6 +47,9 @@ def _create_Main(dataDirs,fileList,scale):
     with open(dataDirs+'/ImageSets/Main/test.txt','w+') as f:
         f.writelines(test_images)
         print("{}, numbers:{}".format(dataDirs + '/test.txt', len(test_images)))
+    with open(dataDirs+'/ImageSets/Main/trainval.txt','w+') as f:
+        f.writelines(trainval_images)
+        f.writelines(test_images)
 
     print('total: {}'.format(len(fileList)))
     print('step: {}'.format(len(trainval_images)//2+1))

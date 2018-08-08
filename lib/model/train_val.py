@@ -315,14 +315,13 @@ class SolverWrapper(object):
                 ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
                 if args.use_extra_test_data!=1:
                     predict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'train_data')
-                    packages=args.package_name
-                    test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
+                    test_packages=args.package_name
+                    test_model_acc.test_model(self._save_batch_model, iter, args.net, predict_dir, test_packages)
                 else:
-                    predict_dir=os.path.join(cfg.ROOT_DIR,args.test_dir)
-                    packages = args.package_name
-                    for test_len in range(len(args.test_package)):
-                        packages.append(args.test_package[test_len])
-                    test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
+                    predict_dir=os.path.join(cfg.ROOT_DIR,args.extra_test_dir)
+                    test_packages = args.package_name
+                    extra_test_package=args.extra_test_package
+                    test_model_acc.test_model(self._save_batch_model, iter, args.net, predict_dir, test_packages,extra_test_package)
 
 
             iter += 1

@@ -76,10 +76,10 @@ def parse_args():
     parser.add_argument('--package_name', dest='package_name',
                         help='train_data1,train_data2,train_data3',
                         default=['all_train_data_resize2'], type=list)
-    parser.add_argument('--test_dir', dest='test_dir',
+    parser.add_argument('--extra_test_dir', dest='extra_test_dir',
                         help='train_data1,train_data2,train_data3',
                         default='data/predict_data', type=str)
-    parser.add_argument('--test_package', dest='test_package',
+    parser.add_argument('--extra_test_package', dest='extra_test_package',
                         help='train_data1,train_data2,train_data3',
                         default=['all_train_data_resize2'], type=list)
     args = parser.parse_args()
