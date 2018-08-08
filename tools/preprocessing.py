@@ -18,8 +18,8 @@ def combined_roidb(imdb_name):
     logger.warning("{}".format('The `combined_roidb` function is deprecat and will be removed after 08/2018. Use instead `calc_roidb`'))
     return calc_roidb(imdb_name)
 
-def wrote_roidbs(roidb,imdb_name):
-    roidb_file=os.path.join(cfg.ROOT_DIR,"data","cache",'{}_enhance_roidb.pkl'.format(imdb_name))
+def wrote_roidbs(roidb,imdb_name,roidb_file):
+    # roidb_file=os.path.join(cfg.ROOT_DIR,"data","cache",'{}_enhance_roidb.pkl'.format(imdb_name))
     with open(roidb_file, 'wb') as fid:
         pickle.dump(roidb, fid, pickle.HIGHEST_PROTOCOL)
     print('wrote enhance {}roidb to {}'.format(imdb_name,roidb_file))
@@ -42,7 +42,7 @@ def calc_roidb(imdb_name,package_name):
 
     if os.path.exists(roidb_file)!=1:
         roidb = model.train_val.get_training_roidb(imdb)
-        wrote_roidbs(roidb, imdb_name)
+        wrote_roidbs(roidb, imdb_name,roidb_file)
         return imdb, roidb
     else:
         with open(roidb_file, 'rb') as fid:
