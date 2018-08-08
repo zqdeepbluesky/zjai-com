@@ -14,7 +14,7 @@ import pprint
 import numpy as np
 
 from tools import _init_paths
-from model.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_output_tb_dir
+from model.config import cfg, cfg_from_file, cfg_from_list, get_output_dir, get_output_tb_dir,load_setting_cfg
 from model.train_val import train_net
 from nets.mobilenet_v1 import mobilenetv1
 from nets.resnet_v1 import resnetv1
@@ -67,7 +67,7 @@ def parse_args():
     parser.add_argument('--net', dest='net',
                         help='vgg16, res50, res101, res152, mobile',
                         default='vgg16', type=str)
-    parser.add_argument('--use_extra_test_data', dest='use_test_data',
+    parser.add_argument('--use_extra_test_data', dest='use_extra_test_data',
                         help='whether want to use test data to test the model',
                         default=True, type=bool)
     parser.add_argument('--set', dest='set_cfgs',
@@ -138,32 +138,13 @@ def prepare_params():
 
     return output_dir, tb_dir
 
-def get_setting_cfg():
-    import yaml
-    from easydict import EasyDict as edict
-    assert os.path.exists(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg')),'setting cfg dont exist in {}'.\
-        format(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg'))
-    with open(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/train_setting.cfg'), 'r') as f:
-        setting_cfg = edict(yaml.load(f))
-    return setting_cfg
-
-def load_setting_cfg(setting_cfg,args):
-    args_dict = args.__dict__
-    for k,v in setting_cfg['TRAIN'].items():
-        if k in args_dict.keys():
-            args_dict[k]=v
-    for k,v in setting_cfg['TEST'].items():
-        if k in args_dict.keys():
-            args_dict[k]=v
-    return args
 
 if __name__ == '__main__':
     args = parse_args()
 
     print('Called with args:')
     print(args)
-    setting_cfg=get_setting_cfg()
-    args=load_setting_cfg(setting_cfg, args)
+    args=load_setting_cfg(args)
     print(args)
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)

@@ -24,7 +24,7 @@ def get_minibatch(roidb, num_classes):
     random_scale_inds = npr.randint(0, high=len(cfg.TRAIN.SCALES), size=num_images)  #随机选择区间内的整数
     if cfg.TRAIN.BATCH_SIZE % num_images != 0:
         print('num_images ({}) must divide BATCH_SIZE ({})'.format(num_images, cfg.TRAIN.BATCH_SIZE))
-    assert(cfg.TRAIN.BATCH_SIZE % num_images == 0)
+        assert(cfg.TRAIN.BATCH_SIZE % num_images == 0)
     # assert(cfg.TRAIN.BATCH_SIZE % num_images == 0),'num_images ({}) must divide BATCH_SIZE ({})'.format(num_images, cfg.TRAIN.BATCH_SIZE)    #batchSize必须能够整除每次输入参数
 
     # Get the input image blob, formatted for caffe

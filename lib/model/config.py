@@ -364,6 +364,25 @@ def _merge_a_into_b(a, b):
         else:
             b[k] = v
 
+def get_setting_cfg():
+    import yaml
+    from easydict import EasyDict as edict
+    assert os.path.exists(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/args_setting.cfg')),'setting cfg dont exist in {}'.\
+        format(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/args_setting.cfg'))
+    with open(os.path.join(cfg.ROOT_DIR, 'experiments/cfgs/args_setting.cfg'), 'r') as f:
+        setting_cfg = edict(yaml.load(f))
+    return setting_cfg
+
+def load_setting_cfg(args):
+    setting_cfg = get_setting_cfg()
+    args_dict = args.__dict__
+    for k,v in setting_cfg['TRAIN'].items():
+        if k in args_dict.keys():
+            args_dict[k]=v
+    for k,v in setting_cfg['TEST'].items():
+        if k in args_dict.keys():
+            args_dict[k]=v
+    return args
 
 def cfg_from_file(filename):
     """Load a config file and merge it into the default options."""

@@ -125,7 +125,7 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   使用./zjai_createData/zjai_4_get_all_label.py文件，将统计所数据集中的所有label，并存放于./data/cfgs/com_classes.txt文件下，用于训练时读取classes；
 
 3. 修改程序配置文件中的输入参数：
-  打开 ./experiments/cfgs/train_setting.cfg 文件修改相应参数
+  打开 ./experiments/cfgs/args_setting.cfg 文件修改相应参数
   --cfg_file:是模型配置文件，若为vgg模型则为 vgg16.yml在根目录下的路径，如experiments/cfgs/vgg16.yml；
   --weight:是模型权重文件，若为vgg模型则为vgg16.ckpt 在根目录下的路径，如data/imagenet_weights/vgg16.ckpt；
   --imdb_name:是训练集数据的名称，代表某一批次数据名称；
