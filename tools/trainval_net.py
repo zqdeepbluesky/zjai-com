@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def print_args(args):
     if args is None:
@@ -67,7 +67,7 @@ def parse_args():
     parser.add_argument('--net', dest='net',
                         help='vgg16, res50, res101, res152, mobile',
                         default='vgg16', type=str)
-    parser.add_argument('--use_test_data', dest='use_test_data',
+    parser.add_argument('--use_extra_test_data', dest='use_test_data',
                         help='whether want to use test data to test the model',
                         default=True, type=bool)
     parser.add_argument('--set', dest='set_cfgs',

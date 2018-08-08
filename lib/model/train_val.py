@@ -313,13 +313,15 @@ class SolverWrapper(object):
             if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0:  # 每100000次就保存一次模型文件
                 last_snapshot_iter = iter
                 ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
-                if args.use_test_data:
+                if args.use_extra_test_data!=1:
                     predict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'train_data')
                     packages=args.package_name
                     test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
                 else:
                     predict_dir=os.path.join(cfg.ROOT_DIR,args.test_dir)
-                    packages=args.test_package
+                    packages = args.package_name
+                    for test_len in range(len(args.test_package)):
+                        packages.append(args.test_package[test_len])
                     test_model_acc.test_model(self.imdb._name, iter, args.net, predict_dir, packages)
 
 
