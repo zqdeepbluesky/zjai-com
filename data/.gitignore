@@ -5,4 +5,3 @@ VOCdevkit*
 coco*
 cache
 train_data/
-setting.cfg
