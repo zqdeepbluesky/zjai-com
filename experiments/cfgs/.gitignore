@@ -1,1 +1,2 @@
-../cfgs
+*.yml
+args_setting.cfg
