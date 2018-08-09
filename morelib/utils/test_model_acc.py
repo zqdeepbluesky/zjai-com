@@ -59,12 +59,15 @@ def test_model(batch_model,iter,net_name,predict_dir,test_package,extra_test_pac
     with test_g.as_default():
         sess_test, net_test, model_dir,model_data,CLASSES=get_model(batch_model,iter,net_name)
         acc_list=[]
+        packages=[]
         for package in test_package:
+            packages.append(package)
             jpg_files, xml_path = load_test_images_from_txt(os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package),'test')
             predict_batch.predict_images(sess_test, net_test, jpg_files, xml_path,CLASSES)
             acc=zjai_6_comparison.compare_from_xml(xml_path,xml_path[:-5])
             acc_list.append(acc)
         for package in extra_test_package:
+            packages.append(package)
             jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package),'trainval')
             predict_batch.predict_images(sess_test, net_test, jpg_files, xml_path,CLASSES)
             acc=zjai_6_comparison.compare_from_xml(xml_path,xml_path[:-5])
@@ -73,7 +76,7 @@ def test_model(batch_model,iter,net_name,predict_dir,test_package,extra_test_pac
             f.write("-----------{} model test result------------\n\n".format(model_data))
             fp,tp,fn,act_num,detect_num=0,0,0,0,0
             for i in range(len(acc_list)):
-                f.write('test data : {}\n'.format(test_package[i]))
+                f.write('test data : {}\n'.format(packages[i]))
                 prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum=acc_list[i].split(",")
                 write_report(f, prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum)
                 tp+=int(tp_sum)
