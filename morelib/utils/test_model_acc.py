@@ -5,7 +5,7 @@ import os.path as osp
 from morelib.utils.xml_store import *
 from lib.datasets import pascal_voc
 from zjai_createData import zjai_6_comparison
-from morelib.utils import io_utils,prepare_model
+from morelib.utils import io_utils,prepare_model,cal_acc
 from morelib.bin import predict_batch
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -58,37 +58,36 @@ def test_model(batch_model,iter,net_name,predict_dir,test_package,extra_test_pac
     test_g=tf.Graph()
     with test_g.as_default():
         sess_test, net_test, model_dir,model_data,CLASSES=get_model(batch_model,iter,net_name)
-        acc_list=[]
-        packages=[]
-        for package in test_package:
-            packages.append(package)
-            jpg_files, xml_path = load_test_images_from_txt(os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package),'test')
-            predict_batch.predict_images(sess_test, net_test, jpg_files, xml_path,CLASSES)
-            acc=zjai_6_comparison.compare_from_xml(xml_path,xml_path[:-5])
-            acc_list.append(acc)
-        for package in extra_test_package:
-            packages.append(package)
-            jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package),'trainval')
-            predict_batch.predict_images(sess_test, net_test, jpg_files, xml_path,CLASSES)
-            acc=zjai_6_comparison.compare_from_xml(xml_path,xml_path[:-5])
-            acc_list.append(acc)
-        with open(osp.join(model_dir,'{}_model_test.log'.format(net_name)),'a+') as f:
-            f.write("-----------{} model test result------------\n\n".format(model_data))
-            fp,tp,fn,act_num,detect_num=0,0,0,0,0
-            for i in range(len(acc_list)):
-                f.write('test data : {}\n'.format(packages[i]))
-                prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum=acc_list[i].split(",")
-                write_report(f, prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum)
-                tp+=int(tp_sum)
-                fp+=int(fp_sum)
-                fn+=int(fn_sum)
-                act_num+=int(t_sum)
-                detect_num+=int(d_sum)
-            precsion=tp/(fp+tp)
-            recall=tp/(tp+fn)
-            f.write('total :\n')
-            write_report(f,precsion,recall,tp,fp,fn,detect_num,act_num)
-        print("finish test model {}".format(model_data))
+        test_model(sess_test, net_test, model_dir, model_data, CLASSES, predict_dir, test_package,
+                   extra_test_package)
+
+def test_model(sess_test, net_test, model_dir,model_data,CLASSES,predict_dir,test_package,extra_test_package):
+    test_infos = []
+    packages = []
+    for package in test_package:
+        packages.append(package)
+        jpg_files, xml_path = load_test_images_from_txt(os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package),
+                                                        'test')
+        predict_batch.predict_images(sess_test, net_test, jpg_files, xml_path, CLASSES)
+        test_xml_path = os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package, 'Annotations_test')
+        true_xml_path = os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package, 'Annotations')
+        test_info = cal_acc.cal_model_acc(test_xml_path, true_xml_path)
+        test_info = "{},{},".format(model_data.split(".")[0], package) + test_info
+        test_infos.append(test_info)
+    for package in extra_test_package:
+        packages.append(package)
+        jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package), 'trainval')
+        predict_batch.predict_images(sess_test, net_test, jpg_files, xml_path, CLASSES)
+        test_xml_path = os.path.join(predict_dir, package, 'Annotations_test')
+        true_xml_path = os.path.join(predict_dir, package, 'Annotations')
+        test_info = cal_acc.cal_model_acc(test_xml_path, true_xml_path)
+        test_info = "{},{},".format(model_data.split(".")[0], package) + test_info
+        test_infos.append(test_info)
+    tb = cal_acc.get_tabs(test_infos)
+    tb = cal_acc.summary_tb(tb, test_infos)
+    txt_save_path = os.path.join(model_dir, model_data.split(".")[0] + "_test_result")
+    cal_acc.save_tb_in_txt(txt_save_path, tb)
+    cal_acc.save_tb_in_xml(txt_save_path, tb)
 
 # imdb_name='voc_2007_trainval'
 # iter='160020'

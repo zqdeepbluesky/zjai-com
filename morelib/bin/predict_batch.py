@@ -11,7 +11,7 @@ import os.path as osp
 
 from lib.datasets import pascal_voc
 
-from morelib.utils import predict
+from morelib.utils import predict,cal_acc
 from morelib.utils.prepare_model import *
 from morelib.utils.xml_store import *
 
@@ -34,11 +34,11 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="vgg16_faster_rcnn_iter_880000.ckpt")
+                        default="vgg16_faster_rcnn_iter_460000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
-                        default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
+                        default=osp.join(cfg.ROOT_DIR, "data","train_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
-                        default="predict_data-2018-07-30")
+                        default=["random_choice_data_1000","random_choice_data_500"],type=list)
     args = parser.parse_args()
 
     return args
@@ -53,7 +53,7 @@ def predict_images(sess,net,jpg_files,xml_path,CLASSES):
         save_data_into_xml(image,im,xml_path,result_data)
 
 args = parse_args()
-CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes.txt".format(args.set_name)))
+CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes_169.txt".format(args.set_name)))
 
 def main():
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
@@ -67,9 +67,22 @@ def main():
     sess = tf.Session(config=tfconfig)
     # load network
     saver, net = load_model(sess, args.demo_net, tf_model, len(CLASSES))
+    test_infos=[]
+    for package in args.package_data:
+        jpg_files, xml_path = load_forecast_files(os.path.join(args.predict_dir, package))
+        predict_images(sess, net, jpg_files, xml_path,CLASSES)
+        true_xml_path=os.path.join(args.predict_dir,package,'Annotations')
+        test_xml_path = os.path.join(args.predict_dir, package, 'Annotations_test')
+        test_info=cal_acc.cal_model_acc(test_xml_path,true_xml_path)
+        test_info="{},{},".format(args.model_data.split(".")[0],package)+test_info
+        test_infos.append(test_info)
+    tb = cal_acc.get_tabs(test_infos)
+    tb=cal_acc.summary_tb(tb,test_infos)
+    txt_save_path=os.path.join(args.predict_dir,args.model_data.split(".")[0]+"_test_result")
+    cal_acc.save_tb_in_txt(txt_save_path,tb)
+    cal_acc.save_tb_in_xml(txt_save_path,tb)
 
-    jpg_files, xml_path = load_forecast_files(os.path.join(args.predict_dir, args.package_data))
-    predict_images(sess, net, jpg_files, xml_path,CLASSES)
+
 
 if __name__ == '__main__':
     main()
