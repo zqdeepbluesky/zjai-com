@@ -26,7 +26,7 @@ class SerializeArgparse:
 
         self.args[name] = {
             "type": type,
-            "dest":dest,
+            "dest": dest,
             "default": default,
             "save": save
         }
