@@ -179,4 +179,6 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
   参数意义：在config.py文件中参数ROTATE_ADJUEST为设定是否执行旋转操作的参数；参数ROTATE_ADJUEST_ANGLE为设定旋转角度的参数；
   参数设定：ROTATE_ADJUEST=TRUE时数据集执行旋转操作；参数ROTATE_ADJUEST_ANGLE=[90,180]为对图像旋转90度和180度，为0或360的倍数时不做操作；
 
-
+## 关于config.py文件使用说明
+config.py文件不允许修改赋值，如需添加函数，变量，需通过审核。
+如程序需要修改config中的值，可通过修改*.yml文件，覆盖config中的默认值。
