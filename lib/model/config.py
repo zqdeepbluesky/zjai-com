@@ -314,6 +314,9 @@ def get_output_dir(imdb, weights_filename,package_name):
         weights_filename = 'default'
     data_aug_code=cal_data_aug_code(__C)
     outdir = osp.join(outdir, weights_filename,str(data_aug_code))
+
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
     if os.path.exists(os.path.join(outdir,"log.txt"))!=1:
         with open(os.path.join(outdir,"log.txt"),'w+') as f:
             f.write("--------------\n")
@@ -321,17 +324,14 @@ def get_output_dir(imdb, weights_filename,package_name):
             aug_code=['USE_HOR_FLIPPED','USE_VER_FLIPPED','BRIGHT_ADJUEST','ROTATE_ADJUEST']
             for i in range(len(aug_code)):
                 f.write('{} : {}\n'.format(aug_code[i],str(data_aug_code)[i]=='1'))
-
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
     return outdir
 
 def cal_data_aug_code(cfg):
-    postfix=0
+    postfix=list('00000000')
     data_aug_code=[cfg.TRAIN.USE_HOR_FLIPPED,cfg.TRAIN.USE_VER_FLIPPED,cfg.TRAIN.BRIGHT_ADJUEST,cfg.TRAIN.ROTATE_ADJUEST]
     for i in range(len(data_aug_code)):
-        postfix+=data_aug_code[i]*1*pow(10,7-i)
-    return postfix
+        postfix[i]=str(data_aug_code[i]*1)
+    return ''.join(postfix)
 
 def get_output_tb_dir(imdb, weights_filename):
     """Return the directory where tensorflow summaries are placed.
