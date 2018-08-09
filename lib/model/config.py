@@ -327,11 +327,11 @@ def get_output_dir(imdb, weights_filename,package_name):
     return outdir
 
 def cal_data_aug_code(cfg):
-    postfix=0
+    postfix=list('00000000')
     data_aug_code=[cfg.TRAIN.USE_HOR_FLIPPED,cfg.TRAIN.USE_VER_FLIPPED,cfg.TRAIN.BRIGHT_ADJUEST,cfg.TRAIN.ROTATE_ADJUEST]
     for i in range(len(data_aug_code)):
-        postfix+=data_aug_code[i]*1*pow(10,7-i)
-    return postfix
+        postfix[i]=str(data_aug_code[i]*1)
+    return ''.join(postfix)
 
 def get_output_tb_dir(imdb, weights_filename):
     """Return the directory where tensorflow summaries are placed.
