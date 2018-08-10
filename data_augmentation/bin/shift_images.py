@@ -30,21 +30,25 @@ def parse_args():
     return args
 
 def adjuest_obj_info(obj_info, offset, size):
+    new_obj_info=[]
     for obj in obj_info:
         classes, _, xmin, ymin, xmax, ymax = obj.split(",")
-        xmin = int(int(xmin) + offset[0])
-        ymin = int(int(ymin) + offset[1])
-        xmax = int(int(xmax) + offset[0])
-        ymax = int(int(ymax) + offset[1])
-        if offset[0] >= 0:
-            if xmin >= 0 and xmin <= size[0] - offset[0]:
-                if xmax >= size[0] - offset[0]:
-                    xmax = size[0] - offset[0]
-            else:
-                continue
-        else:
-            if xmin >= fabs(offset[0]) and xmin
-        if offset[1] >= 0
+        xmin = fix_new_key(int(int(xmin) + offset[0]),offset[0],size[1])
+        ymin = fix_new_key(int(int(ymin) + offset[1]),offset[1],size[0])
+        xmax = fix_new_key(int(int(xmax) + offset[0]),offset[0],size[1])
+        ymax = fix_new_key(int(int(ymax) + offset[1]),offset[1],size[0])
+        if xmax-xmin!=0 and ymax-ymin!=0:
+            new_obj_info.append("{},1,{},{},{},{}".format(classes,xmin,ymin,xmax,ymax))
+    return new_obj_info
+
+
+
+def fix_new_key(key,offset,bound):
+    if offset>=0:
+        key=min(key,bound)
+    else:
+        key=max(0,key)
+    return key
 
 
 def shift_and_save_images(offset, data_dir):
@@ -63,7 +67,7 @@ def shift_and_save_images(offset, data_dir):
             show_object_cv_box(object_infos, img)
             img_shift = translateit(img, offset)
             new_obj_infos = adjuest_obj_info(object_infos, offset, img.shape[:2])
-            show_object_cv_box(object_infos, img_shift)
+            show_object_cv_box(new_obj_infos, img_shift)
 
 
 args = parse_args()
