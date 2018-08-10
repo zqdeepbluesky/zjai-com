@@ -20,7 +20,7 @@ class SerializeArgparse:
         self.parsed = None
 
     def add_argument(self, name, type, dest="", default=None, help="", save=True):
-        self.parser.add_argument(name, type=type, dest="", default=None, help=help)
+        self.parser.add_argument(name, type=type, dest=dest, default=None, help=help)
         if name[0] == '-':
             name = name[1:]
 
