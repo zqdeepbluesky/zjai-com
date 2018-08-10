@@ -7,7 +7,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import argparse
 import logging
 import os
 import pprint
@@ -20,6 +19,7 @@ from nets.mobilenet_v1 import mobilenetv1
 from nets.resnet_v1 import resnetv1
 from nets.vgg16 import vgg16
 from tools.preprocessing import calc_roidb
+from morelib.utils.serialize_argparse import SerializeArgparse
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -41,7 +41,13 @@ def parse_args():
     """
     Parse input arguments
     """
-    parser = argparse.ArgumentParser(description='Train a Fast R-CNN network')
+    parser = SerializeArgparse(description='FRCNN trainer.')
+    parser.add_argument('--load_args_json', dest='load_args_json',
+                        help='if load args json',
+                        default=False, type=bool)
+    parser.add_argument('--args_json_dir', dest='args_json_dir',
+                        help='args json path',
+                        default='data/args_parse/args_json', type=str)
     parser.add_argument('--cfg', dest='cfg_file',
                         help='optional config file',
                         default='experiments/cfgs/vgg16.yml', type=str)
@@ -72,7 +78,7 @@ def parse_args():
                         default=True, type=bool)
     parser.add_argument('--set', dest='set_cfgs',
                         help='set config keys', default=['ANCHOR_SCALES', '[8,16,32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'TRAIN.STEPSIZE', '[2400000]'],
-                        type=list,nargs=argparse.REMAINDER)
+                        type=list)
     parser.add_argument('--package_name', dest='package_name',
                         help='train_data1,train_data2,train_data3',
                         default=['all_train_data_resize2'], type=list)
@@ -82,10 +88,7 @@ def parse_args():
     parser.add_argument('--extra_test_package', dest='extra_test_package',
                         help='train_data1,train_data2,train_data3',
                         default=['all_train_data_resize2'], type=list)
-    args = parser.parse_args()
-    print('*'*20)
-    print_args(args)
-    return args
+    return parser
 
 def load_base_network():
     if args.net == 'vgg16':
@@ -140,16 +143,22 @@ def prepare_params():
 
 
 if __name__ == '__main__':
-    args = parse_args()
+    parser = parse_args()
+    args = parser.parse_args()
+    print('*'*20)
+    print_args(args)
 
     print('Called with args:')
     print(args)
     args=load_setting_cfg(args)
     print(args)
+
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
         cfg_from_list(args.set_cfgs)
+
+    args=parser.reload_or_save_args(cfg,args)
 
     print('Using config:')
     pprint.pprint(cfg)

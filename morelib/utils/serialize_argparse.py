@@ -11,6 +11,9 @@ import os
 import json
 import argparse
 
+from morelib.utils import io_utils
+from model.config import cal_data_aug_code
+
 
 class SerializeArgparse:
     def __init__(self, description):
@@ -24,7 +27,7 @@ class SerializeArgparse:
         if name[0] == '-':
             name = name[1:]
 
-        self.args[name] = {
+        self.args[dest] = {
             "type": type,
             "dest": dest,
             "default": default,
@@ -63,3 +66,20 @@ class SerializeArgparse:
 
             self.do_parse_args(data)
         return self.parsed
+
+    def reload_or_save_args(self,cfg,args):
+        if args.load_args_json:
+            args = self.load(os.path.join(cfg.ROOT_DIR, args.args_json_dir))
+        else:
+            if args.tag == None:
+                data_name = 'default'
+            else:
+                data_name = args.tag
+            postfix = cal_data_aug_code(cfg)
+
+            args_parse_path = os.path.join(cfg.ROOT_DIR, 'data', 'args_parse', cfg.EXP_DIR, data_name)
+            io_utils.mkdir(args_parse_path)
+
+            self.save(os.path.join(args_parse_path, "{}_{}.json".format("+".join(args.package_name), postfix)))
+            print("args save in {}".format(os.path.join(args_parse_path, "{}_{}.json".format("+".join(args.package_name), postfix))))
+        return args
