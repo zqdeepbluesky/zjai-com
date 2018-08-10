@@ -4,7 +4,7 @@ import os
 import argparse
 from math import *
 from data_augmentation.utils.xml_utils import show_object_cv_box
-from data_augmentation.utils import io_utils, xml_store
+from data_augmentation.utils import io_utils, xml_store,xml_utils
 
 from tools import _init_paths
 from model.config import cfg
@@ -69,6 +69,15 @@ def shift_and_save_images(offset, data_dir):
             new_obj_infos = adjuest_obj_info(object_infos, offset, img.shape[:2])
             show_object_cv_box(new_obj_infos, img_shift)
 
+            new_img_name = a + "_shift_{}_{}.jpg".format(offset[0],offset[1])
+            new_img_path = os.path.join(data_dir + '_shift_{}_{}'.format(offset[0],offset[1]), 'JPEGImages', new_img_name)
+
+            im_info = xml_utils.create_image_info(img_shift, new_img_path, img_shift.shape[1],
+                                                  img_shift.shape[0], img_shift.shape[2])
+            new_xml_path = os.path.join(data_dir + '_shift_{}_{}'.format(offset[0],offset[1]), 'Annotations')
+
+            cv2.imwrite(new_img_path, img_shift)
+            xml_store.save_annotations(new_xml_path, im_info, new_obj_infos)
 
 args = parse_args()
 
