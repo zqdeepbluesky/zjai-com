@@ -356,6 +356,11 @@ def get_training_roidb(imdb):
             print('Appending rotate-adjuest training examples...')
             imdb.append_rotate_adjuest_images()
             print('done')
+    if cfg.TRAIN.SHIFT_ADJUEST:
+        if cfg.TRAIN.SHIFT_ADJUEST_X!=0 or cfg.TRAIN.SHIFT_ADJUEST_Y!=0:
+            print('Appending shift-adjuest training examples...')
+            imdb.append_shift_adjuest_images()
+            print('done')
     print('Preparing training data...')
     rdl_roidb.prepare_roidb(imdb)
     print('done')

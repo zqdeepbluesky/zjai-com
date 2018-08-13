@@ -5,6 +5,8 @@ from model.config import cfg
 from datasets import pascal_voc
 
 import pickle
+import PIL
+from PIL import Image
 import argparse
 import random
 import cv2
@@ -17,13 +19,20 @@ def parse_args():
     parser.add_argument('--cache_dir', dest='cache_dir', help='Network to use [vgg16 res101]',
                         default=os.path.join(cfg.ROOT_DIR,"data","cache"))
     parser.add_argument('--roidb_name', dest='roidb_name', help='Trained dataset [pascal_voc pascal_voc_0712]',
-                        default='voc_2007_trainval_enhance_roidb.pkl')
+                        default='fusion_2018-08-06_voc_2007_trainval_enhance_roidb_00001000.pkl')
     parser.add_argument('--root_dir', dest='root_dir', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         default=os.path.join(cfg.ROOT_DIR,"data"))
     args = parser.parse_args()
 
     return args
 
+def read_image_rgb(path):
+    try:
+        image = np.asarray(PIL.Image.open(path).convert('RGB'))
+    except Exception as ex:
+        print('{}'.format(path))
+
+    return image.copy()
 
 def get_roidb(cache_dir,roidb_name):
     roidb_file=os.path.join(cache_dir,roidb_name)
@@ -52,13 +61,18 @@ def _rotate_image(img,angle):
     imgRotation = cv2.warpAffine(img, matRotation, (widthNew, heightNew), borderValue=(0, 0, 0))
     return imgRotation
 
+def _translateit(image, offset, isseg=False):
+    from scipy.ndimage.interpolation import shift
+    order = 0
+    return shift(image, (int(offset[0]), int(offset[1]), 0), order=order, mode='nearest')
+
 def draw_roidb(roidb):
     print(roidb)
     image_path=roidb['image']
     print(image_path)
     boxes=roidb['boxes']
     classes=roidb['gt_classes']
-    im=cv2.imread(image_path)
+    im=read_image_rgb(image_path)
     if 'ver_flipped' in roidb and roidb['ver_flipped']==True:
         im = im[::-1, :, :]
     if 'hor_flipped' in roidb and roidb['hor_flipped']==True:
@@ -67,6 +81,9 @@ def draw_roidb(roidb):
         im = _bright_adjuest(im, roidb['bright_scala'])
     if 'rotate_angle' in roidb and roidb['rotate_angle'] != 0:
         im = _rotate_image(im, roidb['rotate_angle'])
+    if 'shift_x' in roidb and 'shift_y' in roidb:
+        offset=(int(roidb['shift_x']),int(roidb['shift_y']))
+        im = _translateit(im, offset)
     fig, ax = plt.subplots(figsize=(12, 12))
     ax.imshow(im, aspect='equal')
     for i in range(len(classes)):
@@ -88,7 +105,7 @@ def draw_roidb(roidb):
 
 
 args=parse_args()
-CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","com_classes_169.txt"))
+CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","com_classes.txt"))
 
 if __name__=="__main__":
     roidb=get_roidb(args.cache_dir,args.roidb_name)

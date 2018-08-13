@@ -132,13 +132,16 @@ class imdb(object):
                 entry['bright_scale']=self.roidb[i]['bright_scale']
             if 'rotate_angle' in self.roidb[i]:
                 entry['rotate_angle'] = self.roidb[i]['rotate_angle']
+            if 'shift_x' in self.roidb[i]:
+                entry['shift_x'] = self.roidb[i]['shift_x']
+            if 'shift_y' in self.roidb[i]:
+                entry['shift_y'] = self.roidb[i]['shift_y']
             self.roidb.append(entry)
         self._image_index = self._image_index *2
 
     def append_ver_flipped_images(self):  #竖直翻转
         num_images = self.num_images
         sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
-        print("finish get_widths")
         for i in range(num_images):
             boxes = self.roidb[i]['boxes'].copy()   #如果roidb还未加载时，会先加载，并保存,图片的object
             oldx1 = boxes[:, 1].copy()  #ymin
@@ -162,6 +165,10 @@ class imdb(object):
                 entry['bright_scale']=self.roidb[i]['bright_scale']
             if 'rotate_angle' in self.roidb[i]:
                 entry['rotate_angle'] = self.roidb[i]['rotate_angle']
+            if 'shift_x' in self.roidb[i]:
+                entry['shift_x'] = self.roidb[i]['shift_x']
+            if 'shift_y' in self.roidb[i]:
+                entry['shift_y'] = self.roidb[i]['shift_y']
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
 
@@ -189,6 +196,10 @@ class imdb(object):
                     entry['ver_flipped'] = self.roidb[i]['ver_flipped']
                 if 'rotate_angle' in self.roidb[i]:
                     entry['rotate_angle'] = self.roidb[i]['rotate_angle']
+                if 'shift_x' in self.roidb[i]:
+                    entry['shift_x'] = self.roidb[i]['shift_x']
+                if 'shift_y' in self.roidb[i]:
+                    entry['shift_y'] = self.roidb[i]['shift_y']
                 self.roidb.append(entry)
         self._image_index += self._image_index * (len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)-error_num)
 
@@ -242,10 +253,64 @@ class imdb(object):
                     entry['ver_flipped'] = self.roidb[i]['ver_flipped']
                 if 'bright_scala' in self.roidb[i]:
                     entry['bright_scale'] = self.roidb[i]['bright_scale']
+                if 'shift_x' in self.roidb[i]:
+                    entry['shift_x'] = self.roidb[i]['shift_x']
+                if 'shift_y' in self.roidb[i]:
+                    entry['shift_y'] = self.roidb[i]['shift_y']
                 self.roidb.append(entry)
         self._image_index += self._image_index * (len(cfg.TRAIN.ROTATE_ADJUEST_ANGLE)-error_num)
 
+    def _shift_boxes(self,boxes,size,offset):
+        def fix_new_key(key, offset, bound):
+            if offset >= 0:
+                key = min(key, bound)
+            else:
+                key = max(0, key)
+            return key
+        new_boxes = np.zeros(boxes.shape)
+        box_count=0
+        for i in range(len(boxes)):
+            xmin, ymin, xmax, ymax=boxes[i][0],boxes[i][1],boxes[i][2],boxes[i][3]
+            xmin = fix_new_key(int(int(xmin) + offset[0]), offset[0], size[0])
+            ymin = fix_new_key(int(int(ymin) + offset[1]), offset[1], size[1])
+            xmax = fix_new_key(int(int(xmax) + offset[0]), offset[0], size[0])
+            ymax = fix_new_key(int(int(ymax) + offset[1]), offset[1], size[1])
+            if xmax - xmin != 0 and ymax - ymin != 0:
+                new_boxes[box_count]=[xmin,ymin,xmax,ymax]
+                box_count+=1
+        return new_boxes[:box_count]
 
+    def append_shift_adjuest_images(self):
+        num_images = self.num_images
+        this_image_index=self._image_index
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+        offset=(cfg.TRAIN.SHIFT_ADJUEST_X,cfg.TRAIN.SHIFT_ADJUEST_Y)
+        for i in range(num_images):
+            boxes = self.roidb[i]['boxes'].copy()
+            size = [sizes[i][0], sizes[i][1]]
+            boxes = self._shift_boxes(boxes,size,offset)
+            if len(boxes)==0:
+                this_image_index.remove(this_image_index[i])
+                continue
+
+            entry = {'boxes': boxes,
+                     'gt_overlaps': self.roidb[i]['gt_overlaps'],
+                     'gt_classes': self.roidb[i]['gt_classes'],
+                     'shift_x':offset[0],
+                     'shift_y':offset[1],
+                     'width': size[0],
+                     'height': size[1]}
+
+            if 'hor_flipped' in self.roidb[i]:
+                entry['hor_flipped'] = self.roidb[i]['hor_flipped']
+            if 'ver_flipped' in self.roidb[i]:
+                entry['ver_flipped'] = self.roidb[i]['ver_flipped']
+            if 'bright_scala' in self.roidb[i]:
+                entry['bright_scale'] = self.roidb[i]['bright_scale']
+            if 'rotate_angle' in self.roidb[i]:
+                entry['rotate_angle'] = self.roidb[i]['rotate_angle']
+            self.roidb.append(entry)
+        self._image_index += this_image_index
 
     def evaluate_recall(self, candidate_boxes=None, thresholds=None, area='all', limit=None):
         """Evaluate detection proposal recall metrics.

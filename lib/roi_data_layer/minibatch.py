@@ -67,6 +67,10 @@ def _rotate_image(img,angle):
     imgRotation = cv2.warpAffine(img, matRotation, (widthNew, heightNew), borderValue=(0, 0, 0))
     return imgRotation
 
+def _translateit(image, offset, isseg=False):
+    from scipy.ndimage.interpolation import shift
+    order = 0
+    return shift(image, (int(offset[0]), int(offset[1]), 0), order=order, mode='nearest')
 
 def _get_image_blob(roidb, scale_inds):
     """Builds an input blob from the images in the roidb at the specified
@@ -85,6 +89,9 @@ def _get_image_blob(roidb, scale_inds):
             im=_bright_adjuest(im,roidb[i]['bright_scala'])
         if 'rotate_angle' in roidb[i] and roidb[i]['rotate_angle']!=0:
             im=_rotate_image(im,roidb[i]['rotate_angle'])
+        if 'shift_x' in roidb and 'shift_y' in roidb:
+            offset = (int(roidb['shift_x']), int(roidb['shift_y']))
+            im = _translateit(im, offset)
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]  #设置size
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size, cfg.TRAIN.MAX_SIZE)   #得到缩放后的图像和缩放系数
         im_scales.append(im_scale)   #存放起缩放系数

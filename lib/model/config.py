@@ -96,6 +96,11 @@ __C.TRAIN.BRIGHT_ADJUEST_SCALE=[0.8, 1.2]
 __C.TRAIN.ROTATE_ADJUEST = False
 __C.TRAIN.ROTATE_ADJUEST_ANGLE=[90,180,270]
 
+# Use shift images during training?
+__C.TRAIN.SHIFT_ADJUEST = False
+__C.TRAIN.SHIFT_ADJUEST_X=100
+__C.TRAIN.SHIFT_ADJUEST_Y=100
+
 # Train bounding-box regressors
 __C.TRAIN.BBOX_REG = True
 
@@ -325,7 +330,8 @@ def get_output_dir(imdb, weights_filename,package_name):
 
 def cal_data_aug_code(cfg):
     postfix=list('00000000')
-    data_aug_code=[cfg.TRAIN.USE_HOR_FLIPPED,cfg.TRAIN.USE_VER_FLIPPED,cfg.TRAIN.BRIGHT_ADJUEST,cfg.TRAIN.ROTATE_ADJUEST]
+    data_aug_code=[cfg.TRAIN.USE_HOR_FLIPPED,cfg.TRAIN.USE_VER_FLIPPED,cfg.TRAIN.BRIGHT_ADJUEST,cfg.TRAIN.ROTATE_ADJUEST,
+                   cfg.TRAIN.SHIFT_ADJUEST]
     for i in range(len(data_aug_code)):
         postfix[i]=str(data_aug_code[i]*1)
     return ''.join(postfix)

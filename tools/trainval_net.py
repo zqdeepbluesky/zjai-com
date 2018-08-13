@@ -116,10 +116,12 @@ def prepare_datas(package_name):
     ver_orgflip = cfg.TRAIN.USE_VER_FLIPPED
     org_bright_adjuest = cfg.TRAIN.BRIGHT_ADJUEST
     org_rotate_adjuest = cfg.TRAIN.ROTATE_ADJUEST
+    org_shift_adjuest = cfg.TRAIN.SHIFT_ADJUEST
     cfg.TRAIN.USE_HOR_FLIPPED = False
     cfg.TRAIN.USE_VER_FLIPPED = False
     cfg.TRAIN.BRIGHT_ADJUEST = False
     cfg.TRAIN.ROTATE_ADJUEST = False
+    cfg.TRAIN.SHIFT_ADJUEST = False
 
     _, valroidb = calc_roidb(args.imdbval_name,package_name)
     logger.info('{:d} validation roidb entries'.format(len(valroidb)))
@@ -127,6 +129,7 @@ def prepare_datas(package_name):
     cfg.TRAIN.USE_VER_FLIPPED = ver_orgflip
     cfg.TRAIN.BRIGHT_ADJUEST = org_bright_adjuest
     cfg.TRAIN.ROTATE_ADJUEST = org_rotate_adjuest
+    cfg.TRAIN.SHIFT_ADJUEST = org_shift_adjuest
 
     return imdb, roidb, valroidb
 
