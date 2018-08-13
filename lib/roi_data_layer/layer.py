@@ -27,7 +27,7 @@ class RoIDataLayer(object):
         self._num_classes = num_classes
         # Also set a random flag
         self._random = random
-        self._shuffle_roidb_inds()
+        self._shuffle_roidb_inds()   #赋值 打乱下标的roidb,当前下标值
 
     def _shuffle_roidb_inds(self):
         """Randomly permute the training roidb."""
@@ -63,12 +63,12 @@ class RoIDataLayer(object):
 
     def _get_next_minibatch_inds(self):
         """Return the roidb indices for the next minibatch."""
-        if self._cur + cfg.TRAIN.IMS_PER_BATCH >= len(self._roidb):  #roidb小于输入图像个数
+        if self._cur + cfg.TRAIN.IMS_PER_BATCH >= len(self._roidb):  #如果大于一轮，则重新打乱
             self._shuffle_roidb_inds()
 
-        db_inds = self._perm[self._cur:self._cur + cfg.TRAIN.IMS_PER_BATCH]
+        db_inds = self._perm[self._cur:self._cur + cfg.TRAIN.IMS_PER_BATCH]  #得到新的下标
         #print(self._perm)     #打乱之后的roidb下标
-        self._cur += cfg.TRAIN.IMS_PER_BATCH
+        self._cur += cfg.TRAIN.IMS_PER_BATCH    #更新当前状态
 
         return db_inds
 

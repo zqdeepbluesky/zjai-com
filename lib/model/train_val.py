@@ -7,7 +7,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from model.config import cfg
+from model.config import cfg,cal_data_aug_code
 import roi_data_layer.roidb as rdl_roidb
 from roi_data_layer.layer import RoIDataLayer
 from utils.timer import Timer
@@ -99,10 +99,13 @@ class SolverWrapper(object):
             last_snapshot_iter = pickle.load(fid)
 
             np.random.set_state(st0)
-            self.data_layer._cur = cur
-            # self.data_layer._perm = perm
-            self.data_layer_val._cur = cur_val
-            # self.data_layer_val._perm = perm_val
+
+            if len(perm)==len(self.data_layer._perm):
+                self.data_layer._cur = cur
+                self.data_layer._perm = perm
+            if len(perm_val)==len(self.data_layer_val._perm):
+                self.data_layer_val._cur = cur_val
+                self.data_layer_val._perm = perm_val
 
         return last_snapshot_iter
 
