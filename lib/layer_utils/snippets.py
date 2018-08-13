@@ -30,20 +30,21 @@ def generate_anchors_pre(height, width, feat_stride, anchor_scales=(8,16,32), an
     return anchors, length
 
 def generate_anchors_pre_tf(height, width, feat_stride=16, anchor_scales=(8, 16, 32), anchor_ratios=(0.5, 1, 2)):
-    shift_x = tf.range(width) * feat_stride # width
-    shift_y = tf.range(height) * feat_stride # height
+    #生成候选框的思路是计算基础框的9个范围，然后通过加法作为偏移，得到9K个候选框
+    shift_x = tf.range(width) * feat_stride #x偏移量
+    shift_y = tf.range(height) * feat_stride  #y偏移量
     shift_x, shift_y = tf.meshgrid(shift_x, shift_y)
     sx = tf.reshape(shift_x, shape=(-1,))
     sy = tf.reshape(shift_y, shape=(-1,))
-    shifts = tf.transpose(tf.stack([sx, sy, sx, sy]))
-    K = tf.multiply(width, height)
+    shifts = tf.transpose(tf.stack([sx, sy, sx, sy]))  #增加一维
+    K = tf.multiply(width, height)      #像素点总数
     shifts = tf.transpose(tf.reshape(shifts, shape=[1, K, 4]), perm=(1, 0, 2))
 
-    anchors = generate_anchors(ratios=np.array(anchor_ratios), scales=np.array(anchor_scales))
-    A = anchors.shape[0]
+    anchors = generate_anchors(ratios=np.array(anchor_ratios), scales=np.array(anchor_scales)) #9个候选框
+    A = anchors.shape[0]  #A=9,共9个候选框
     anchor_constant = tf.constant(anchors.reshape((1, A, 4)), dtype=tf.int32)
 
-    length = K * A
+    length = K * A  #共9×K个候选框
     anchors_tf = tf.reshape(tf.add(anchor_constant, shifts), shape=(length, 4))
 
     return tf.cast(anchors_tf, dtype=tf.float32), length

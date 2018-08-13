@@ -112,13 +112,12 @@ def _ratio_enum(anchor, ratios):
     :return:
     """
 
-    w, h, x_ctr, y_ctr = _whctrs(anchor)
+    w, h, x_ctr, y_ctr = _whctrs(anchor)  #计算候选框的宽高，中心点
     size = w * h  # size:16*16=256
     size_ratios = size / ratios  # 256/ratios[0.5,1,2]=[512,256,128]
     # round()方法返回x的四舍五入的数字，sqrt()方法返回数字x的平方根
     ws = np.round(np.sqrt(size_ratios))  # ws:[23 16 11]
     hs = np.round(ws * ratios)  # hs:[12 16 22],ws和hs一一对应。as:23&12
-
     # 给定一组宽高向量，输出各个预测窗口，也就是将（宽，高，中心点横坐标，中心点纵坐标）的形式，转成四个坐标值的形式
     anchors = _mkanchors(ws, hs, x_ctr, y_ctr)
 

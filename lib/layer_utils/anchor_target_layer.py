@@ -33,7 +33,7 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
         (all_anchors[:, 1] >= -_allowed_border) &
         (all_anchors[:, 2] < im_info[1] + _allowed_border) &  # width
         (all_anchors[:, 3] < im_info[0] + _allowed_border)  # height
-    )[0]
+    )[0] #超过边界的剔除
 
     # keep only inside anchors
     anchors = all_anchors[inds_inside, :]
@@ -46,7 +46,7 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
     # overlaps (ex, gt)
     overlaps = bbox_overlaps( np.ascontiguousarray(anchors, dtype=np.float), np.ascontiguousarray(gt_boxes, dtype=np.float))
     argmax_overlaps = overlaps.argmax(axis=1)
-    max_overlaps = overlaps[np.arange(len(inds_inside)), argmax_overlaps]
+    max_overlaps = overlaps[np.arange(len(inds_inside)), argmax_overlaps] #提取 max_overlaps
     gt_argmax_overlaps = overlaps.argmax(axis=0)
     gt_max_overlaps = overlaps[gt_argmax_overlaps, np.arange(overlaps.shape[1])]
     gt_argmax_overlaps = np.where(overlaps == gt_max_overlaps)[0]
@@ -69,7 +69,7 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
     # subsample positive labels if we have too many
     num_fg = int(cfg.TRAIN.RPN_FG_FRACTION * cfg.TRAIN.RPN_BATCHSIZE)
     fg_inds = np.where(labels == 1)[0]
-    if len(fg_inds) > num_fg:
+    if len(fg_inds) > num_fg:   #提取 200个前景，正样本
         disable_inds = npr.choice(fg_inds, size=(len(fg_inds) - num_fg), replace=False)
         labels[disable_inds] = -1
 
@@ -79,7 +79,7 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
     if len(bg_inds) > num_bg:
         disable_inds = npr.choice(bg_inds, size=(len(bg_inds) - num_bg), replace=False)
         labels[disable_inds] = -1
-
+    #前景，背景label数目一致
     bbox_targets = np.zeros((len(inds_inside), 4), dtype=np.float32)
     bbox_targets = _compute_targets(anchors, gt_boxes[argmax_overlaps, :])
 

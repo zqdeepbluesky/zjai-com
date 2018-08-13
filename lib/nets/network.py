@@ -114,7 +114,7 @@ class Network(object):
                     self._feat_stride,
                     self._anchors,
                     self._num_anchors
-                )
+                )  #筛选超越边界的候选框，进行nms处理，得到前6k个候选框
             else:
                 rois, rpn_scores = tf.py_func(proposal_layer,
                                               [rpn_cls_prob, rpn_bbox_pred, self._im_info, self._mode,
@@ -206,8 +206,8 @@ class Network(object):
     def _anchor_component(self):
         with tf.variable_scope('ANCHOR_' + self._tag) as scope:
             # just to get the shape right
-            height = tf.to_int32(tf.ceil(self._im_info[0] / np.float32(self._feat_stride[0])))
-            width = tf.to_int32(tf.ceil(self._im_info[1] / np.float32(self._feat_stride[0])))
+            height = tf.to_int32(tf.ceil(self._im_info[0] / np.float32(self._feat_stride[0])))  #blob图像高除以16
+            width = tf.to_int32(tf.ceil(self._im_info[1] / np.float32(self._feat_stride[0])))   #blob图像宽除以16
             if cfg.USE_E2E_TF:
                 anchors, anchor_length = generate_anchors_pre_tf(
                     height,
@@ -239,7 +239,7 @@ class Network(object):
         net_conv = self._image_to_head(is_training)
         with tf.variable_scope(self._scope, self._scope):
             # build the anchors for the image
-            self._anchor_component()
+            self._anchor_component()    #得到9×k个候选框
             # region proposal network
             rois = self._region_proposal(net_conv, is_training, initializer)
             # region of interest pooling
@@ -313,21 +313,21 @@ class Network(object):
 
     def _region_proposal(self, net_conv, is_training, initializer):
         rpn = slim.conv2d(net_conv, cfg.RPN_CHANNELS, [3, 3], trainable=is_training, weights_initializer=initializer,
-                          scope="rpn_conv/3x3")
+                          scope="rpn_conv/3x3")  #[1,w,h,256]
         self._act_summaries.append(rpn)
         rpn_cls_score = slim.conv2d(rpn, self._num_anchors * 2, [1, 1], trainable=is_training,
                                     weights_initializer=initializer,
-                                    padding='VALID', activation_fn=None, scope='rpn_cls_score')
+                                    padding='VALID', activation_fn=None, scope='rpn_cls_score') #[1,w,h,9*2]
         # change it so that the score has 2 as its channel size
-        rpn_cls_score_reshape = self._reshape_layer(rpn_cls_score, 2, 'rpn_cls_score_reshape')
-        rpn_cls_prob_reshape = self._softmax_layer(rpn_cls_score_reshape, "rpn_cls_prob_reshape")
-        rpn_cls_pred = tf.argmax(tf.reshape(rpn_cls_score_reshape, [-1, 2]), axis=1, name="rpn_cls_pred")
-        rpn_cls_prob = self._reshape_layer(rpn_cls_prob_reshape, self._num_anchors * 2, "rpn_cls_prob")
+        rpn_cls_score_reshape = self._reshape_layer(rpn_cls_score, 2, 'rpn_cls_score_reshape')  #[18,w,h,2]
+        rpn_cls_prob_reshape = self._softmax_layer(rpn_cls_score_reshape, "rpn_cls_prob_reshape") #[18,w,h,2]
+        rpn_cls_pred = tf.argmax(tf.reshape(rpn_cls_score_reshape, [-1, 2]), axis=1, name="rpn_cls_pred") #[18,w,h,1]
+        rpn_cls_prob = self._reshape_layer(rpn_cls_prob_reshape, self._num_anchors * 2, "rpn_cls_prob") #[1,w,h,9*2]
         rpn_bbox_pred = slim.conv2d(rpn, self._num_anchors * 4, [1, 1], trainable=is_training,
                                     weights_initializer=initializer,
-                                    padding='VALID', activation_fn=None, scope='rpn_bbox_pred')
+                                    padding='VALID', activation_fn=None, scope='rpn_bbox_pred') #[1,w,h,9*4]
         if is_training:
-            rois, roi_scores = self._proposal_layer(rpn_cls_prob, rpn_bbox_pred, "rois")
+            rois, roi_scores = self._proposal_layer(rpn_cls_prob, rpn_bbox_pred, "rois") #筛选超越边界的候选框，进行nms处理，得到前6k个候选框
             rpn_labels = self._anchor_target_layer(rpn_cls_score, "anchor")
             # Try to have a deterministic order for the computing graph, for reproducibility
             with tf.control_dependencies([rpn_labels]):
