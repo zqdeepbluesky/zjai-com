@@ -122,30 +122,53 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
 
 2. 创建训练集和测试集
   使用./zjai_createData/zjai_2_create_main.py文件，将数据集按9:1的比例分割成训练集和测试集，并生成trainval.txt和test.txt；
+
   使用./zjai_createData/zjai_4_get_all_label.py文件，将统计所数据集中的所有label，并存放于./data/cfgs/com_classes.txt文件下，用于训练时读取classes；
 
-3. 修改程序配置文件中的输入参数：
+3. 修改模型配置文件：
+  打开 ./experiments/cfgs/{net}.yml 文件修改相应参数，其中{net}代表你需要使用的模型，如vgg16或resnet
+  所需 数据增强方式 是在此文件进行设置的，如USE_HOR_FLIPPED、USE_VER_FLIPPED、BRIGHT_ADJUEST、ROTATE_ADJUEST、SHIFT_ADJUEST；
+
+4. 修改程序参数配置文件：
   打开 ./experiments/cfgs/args_setting.cfg 文件修改相应参数
+
+  --load_args_json:是否加载指定args_json文件中的参数值；其中文件中的参数与args_setting.cfg参数类型一致；为正时，指定文件中的参数将覆盖当前加载的参数，为负时，继续加载args_setting.cfg的参数；
+
+  --args_json_dir:所需要加载指定args_json文件的路径，load_args_json为true才生效；
+
   --cfg_file:是模型配置文件，若为vgg模型则为 vgg16.yml在根目录下的路径，如experiments/cfgs/vgg16.yml；
+
   --weight:是模型权重文件，若为vgg模型则为vgg16.ckpt 在根目录下的路径，如data/imagenet_weights/vgg16.ckpt；
+
   --imdb_name:是训练集数据的名称，代表某一批次数据名称；
+
   --imdbval_name:是测试集数据的名称，
+
   --epochs:是训练循环轮数的意义；
+
   --max_iters:是一轮最大iter数的意义，最终程序训练到epochs*max_iters将会终止；
+
   --tag:是存放模型文件的文件夹名，默认为空时，模型文件夹名为default;
+
   --net:分类网络的名称；
+
   --set_cfgs:重设config.py文件中的部分参数；
+
   --package_name:是本次所需加载的数据包名，需要放置在./data/train_data文件夹下，支持多个数据包，如：['fusion_2018-08-06','fusion_2018-08-07']
+
   --use_extra_test_data:含义为是否使用额外的数据包进行测试模型，程序每训练10W iter将会另外保存模型文件，并对其进行数据集测试，若参数为False，则使用默认的测试集进行测试，否则在原本的测试集基础上加载额外指定的数据包
+
   --test_dir:是使用额外测试集在程序根目录下的路径，如:data/predict_data代表在xxxx/zjai-com/data/predict_data路径下；
+
   --test_package:是指定test_dir路径下的测试数据包的文件名，同样支持多个测试数据包
+
   **注意**:额外指定的数据包中，必须在数据包./ImageSets/Main/路径下存在test.txt，用于指定测试数据；
 
-4. 运行程序开始训练
+5. 运行程序开始训练
   **注意**:目前代码只支持单GPU训练，若需要多GPU训练，请看https://github.com/endernewton/tf-faster-rcnn/issues/121
   **注意**:./data/cache文件下放置的是加载数据过程中产生的roidb数据，若在训练前，roidb数据已存在并能够正常读取，程序将直接开始训练，减少重复数据准备工作；roidb文件的命名方式为：数据包+数据增强操作
 
-5. 使用tensorbroad可视化
+6. 使用tensorbroad可视化
   ```shell
   tensorboard --logdir=tensorboard/vgg16/voc_2007_trainval/ --port=7001 &
   tensorboard --logdir=tensorboard/vgg16/coco_2014_train+coco_2014_valminusminival/ --port=7002 &
@@ -165,19 +188,28 @@ A Tensorflow implementation of faster RCNN detection framework by Xinlei Chen (x
 # 数据增强
 1. 水平翻转
   参数意义：在config.py文件中参数USE_HOR_FLIPPED为设定是否执行水平翻转操作的参数；
+  
   参数设定：USE_HOR_FLIPPED=TRUE时数据集加倍，否则不做操作；
 
 2. 竖直翻转
   参数意义：在config.py文件中参数USE_VER_FLIPPED为设定是否执行竖直翻转操作的参数；
+  
   参数设定：USE_VER_FLIPPED=TRUE时数据集加倍，否则不做操作；
 
 3. 调整亮度
   参数意义：在config.py文件中参数BRIGHT_ADJUEST为设定是否执行调整亮度操作的参数；参数BRIGHT_ADJUEST_SCALE为设定调整亮度程度的参数；
+  
   参数设定：BRIGHT_ADJUEST=TRUE时数据集执行亮度调整操作；参数BRIGHT_ADJUEST_SCALE=[0.8,1.2]为对图像调整亮度是原本的0.8和1.2倍，为1或为空时不做操作；
 
 4. 旋转
   参数意义：在config.py文件中参数ROTATE_ADJUEST为设定是否执行旋转操作的参数；参数ROTATE_ADJUEST_ANGLE为设定旋转角度的参数；
+  
   参数设定：ROTATE_ADJUEST=TRUE时数据集执行旋转操作；参数ROTATE_ADJUEST_ANGLE=[90,180]为对图像旋转90度和180度，为0或360的倍数时不做操作；
+
+5. 水平移动
+  参数意义：在config.py文件中参数SHIFT_ADJUEST为设定是否执行旋转操作的参数；参数SHIFT_ADJUEST_X、SHIFT_ADJUEST_Y为设定平移沿x、y平移距离的参数；
+  
+  参数设定：SHIFT_ADJUEST=TRUE时数据集执行旋转操作；参数SHIFT_ADJUEST_X=100,SHIFT_ADJUEST_Y=100为图像向右平移100个像素点、向下平移100个像素点；
 
 ## 关于config.py文件使用说明
 config.py文件不允许修改赋值，如需添加函数，变量，需通过审核。
