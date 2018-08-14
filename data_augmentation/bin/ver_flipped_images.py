@@ -1,23 +1,20 @@
-import PIL
-import cv2
-import numpy as np
 import os
 import argparse
-from scipy.ndimage import interpolation
-
+import cv2
+from data_augmentation.utils.xml_utils import show_object_cv_box
+from data_augmentation.utils import xml_store,io_utils
+from math import *
 from tools import _init_paths
 from model.config import cfg
-from morelib.utils import xml_store
-from data_augmentation.utils.xml_utils import show_object_cv_box
-
-
-def zoom_images_and_save(scales,data_dir):
+from data_augmentation.utils import xml_utils
+def ver_flipped_images_and_save(use_ver_flipped,data_dir):
     jpg_path=os.path.join(data_dir,"JPEGImages")
     annot_path=os.path.join(data_dir,"Annotations")
 
-    for scale in scales:
-        # io_utils.mkdir(os.path.join( data_dir+'_zoom_{}'.format(scale),'JPEGImages'))
+    if use_ver_flipped:
+        io_utils.mkdir(os.path.join( data_dir+'_ver_flipped','JPEGImages'))
         for i in os.listdir(jpg_path):
+            print(i)
             a, b = os.path.splitext(i)
             if b == ".jpg":
                 img_path = os.path.join(jpg_path, i)
@@ -26,29 +23,28 @@ def zoom_images_and_save(scales,data_dir):
                 xml_path = os.path.join(annot_path, a + ".xml")
                 object_infos = xml_store.get_object_infos_from_xml(xml_path)
                 show_object_cv_box(object_infos, img)
-                zoom_img = scaleit(img,scale)
-                # object_infos_rotate=rotate_xml(object_infos,img,angle,rotated_img)
-                show_object_cv_box(object_infos, zoom_img)
+                ver_flipped_img = ver_flipped_image(img)
+                object_infos_rotate=rotate_xml(object_infos,img)
+                show_object_cv_box(object_infos_rotate, rotated_img)
                 break
 
                 new_img_name=a + "_rotate_" + str(angle) + ".jpg"
-                new_img_path=os.path.join( data_dir+'_zoom_{}'.format(angle),'JPEGImages', new_img_name)
+                new_img_path=os.path.join( data_dir+'_rotate_{}'.format(angle),'JPEGImages', new_img_name)
 
 
                 # print(object_infos)
                 # show_object_cv_box(object_infos, rotated_img)
                 # print(rotated_img.shape)
                 im_info=xml_utils.create_image_info(new_img_name,new_img_path,rotated_img.shape[1],rotated_img.shape[0],rotated_img.shape[2])
-                new_xml_path=os.path.join( data_dir+'_zoom_{}'.format(angle),'Annotations')
+                new_xml_path=os.path.join( data_dir+'_rotate_{}'.format(angle),'Annotations')
 
 
                 cv2.imwrite(new_img_path, rotated_img)
                 xml_store.save_annotations(new_xml_path, im_info, object_infos_rotate)
 
-def scaleit(image, factor_x,factor_y=1, isseg=False):
-    order = 0 if isseg == True else 3
-    newimg = interpolation.zoom(image, (float(factor_x), float(factor_y), 1.0), order=order, mode='nearest')
-    return newimg
+def ver_flipped_image(im):
+    im = im[::-1, :, :]
+    return im
 
 def rotate_xml(object_infos,img,angle,img_rotate):
     rotate_obj_infos=[]
@@ -70,7 +66,14 @@ def rotate_xml(object_infos,img,angle,img_rotate):
                 min_y = min([min_y, y1])
         rotate_obj_infos.append("{},1,{},{},{},{}".format(class_name,min_x,min_y,max_x,max_y))
     return rotate_obj_infos
-
+# def rotate_point(width, angle, x, y):
+#     x1 = fabs(sin(radians(angle))) * int(y) + fabs(cos(radians(angle))) * int(x)
+#     y1 = fabs(sin(radians(angle))) * (width - int(x)) + fabs(cos(radians(angle))) * int(y)
+#     return int(x1), int(y1)
+def rotate_point(width,height,angle,x,y):
+    x1=(x-(width/2))*cos(radians(angle))+(y-(height/2))*sin(radians(angle))
+    y1=(y-height/2)*cos(radians(angle))-(x-width/2)*sin(radians(angle))
+    return int(x1),int(y1)
 
 def parse_args():
     """Parse input arguments."""
@@ -79,8 +82,8 @@ def parse_args():
                         default=os.path.join(cfg.ROOT_DIR,'data','train_data'))
     parser.add_argument('--package_dir', dest='package_dir', help='the compare data file name',
                         default="train_data-2018-03-07")
-    parser.add_argument('--zoom_scale', dest='zoom_scale', help='how many the num you want to split',
-                        default=[2])
+    parser.add_argument('--use_ver_flipped', dest='use_ver_flipped', help='how many the num you want to split',
+                        default=True)
     args = parser.parse_args()
 
     return args
@@ -89,4 +92,4 @@ args = parse_args()
 
 
 if __name__=="__main__":
-    zoom_images_and_save(args.zoom_scale,os.path.join(args.data_dir,args.package_dir))
+    ver_flipped_images_and_save(args.use_ver_flipped,os.path.join(args.data_dir,args.package_dir))

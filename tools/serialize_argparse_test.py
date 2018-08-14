@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from morelib.utils.serialize_argparse import SerializeArgparse
+from lib.someUtils.serialize_argparse import SerializeArgparse
 import os
 from model.config import cfg
 

@@ -11,7 +11,7 @@ from model.config import cfg,cal_data_aug_code
 import roi_data_layer.roidb as rdl_roidb
 from roi_data_layer.layer import RoIDataLayer
 from utils.timer import Timer
-from morelib.utils import test_model_acc
+from tools import evaluate_net
 try:
     import cPickle as pickle
 except ImportError:
@@ -319,12 +319,12 @@ class SolverWrapper(object):
                 if args.use_extra_test_data!=1:
                     predict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'train_data')
                     test_packages=args.package_name
-                    test_model_acc.test_model(self._save_batch_model, iter, args.net, predict_dir, test_packages)
+                    evaluate_net.test_model(self._save_batch_model, iter, args.net, predict_dir, test_packages)
                 else:
                     predict_dir=os.path.join(cfg.ROOT_DIR,args.extra_test_dir)
                     test_packages = args.package_name
                     extra_test_package=args.extra_test_package
-                    test_model_acc.test_model(self._save_batch_model, iter, args.net, predict_dir, test_packages,extra_test_package)
+                    evaluate_net.test_model(self._save_batch_model, iter, args.net, predict_dir, test_packages,extra_test_package)
 
 
             iter += 1

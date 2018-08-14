@@ -11,9 +11,10 @@ import os.path as osp
 
 from lib.datasets import pascal_voc
 
-from morelib.utils import predict,cal_acc
+from morelib.utils import cal_acc
 from morelib.utils.prepare_model import *
 from morelib.utils.xml_store import *
+from tools.evaluate_net import predict_images
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -44,13 +45,6 @@ def parse_args():
     return args
 
 
-def predict_images(sess,net,jpg_files,xml_path,CLASSES):
-    for image in jpg_files:
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print('Demo for {}'.format(image))
-        im = cv2.imread(image)
-        result_data= predict.predict_image(sess, net, im, CLASSES)
-        save_data_into_xml(image,im,xml_path,result_data)
 
 args = parse_args()
 CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs',"{}_classes_169.txt".format(args.set_name)))
