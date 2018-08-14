@@ -53,7 +53,7 @@ def predict_images(sess,net,jpg_files,xml_path,CLASSES):
         save_data_into_xml(image,im,xml_path,result_data)
 
 args = parse_args()
-CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","{}_classes_169.txt".format(args.set_name)))
+CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs',"{}_classes_169.txt".format(args.set_name)))
 
 def main():
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
