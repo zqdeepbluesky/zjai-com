@@ -1,9 +1,7 @@
 from lib.model.config import cfg
 import cv2
 import tensorflow as tf
-import os.path as osp
 from lib.someUtils.xml_store import *
-from lib.datasets import pascal_voc
 from lib.someUtils import io_utils,cal_acc
 from tools import predict
 
@@ -34,7 +32,7 @@ def write_report(f,prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum):
     f.write("-->model detect num : {}\n".format(d_sum))
     f.write("-->actual num : {}\n\n".format(t_sum))
 
-def get_model(batch_model,iter,demo_net):
+def get_model(batch_model,iter,demo_net,CLASSES):
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
 
     model_dir = batch_model
@@ -48,25 +46,22 @@ def get_model(batch_model,iter,demo_net):
     # init session
     sess_test = tf.Session(config=tfconfig)
     # load network
-    CLASSES = pascal_voc.read_classes(osp.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', 'com_classes_169.txt'))
-    print(len(CLASSES))
     saver, net_test = predict.load_model(sess_test, demo_net, tf_model, len(CLASSES))
-    return sess_test,net_test,model_dir,model_data,CLASSES
+    return sess_test,net_test,model_dir,model_data
 
-def test_model(batch_model,iter,net_name,predict_dir,test_package,extra_test_package=[]):
+def eval_net(batch_model,iter,CLASSES,net_name,predict_dir,test_package,extra_test_package=[]):
     test_g=tf.Graph()
     with test_g.as_default():
-        sess_test, net_test, model_dir,model_data,CLASSES=get_model(batch_model,iter,net_name)
-        test_model(sess_test, net_test, model_dir, model_data, CLASSES, predict_dir, test_package,
+        sess_test, net_test, model_dir,model_data=get_model(batch_model,iter,net_name,CLASSES)
+        evaluate_model(sess_test, net_test, model_dir, model_data, CLASSES, predict_dir, test_package,
                    extra_test_package)
 
-def test_model(sess_test, net_test, model_dir,model_data,CLASSES,predict_dir,test_package,extra_test_package):
+def evaluate_model(sess_test, net_test, model_dir,model_data,CLASSES,predict_dir,test_package,extra_test_package):
     test_infos = []
     packages = []
     for package in test_package:
         packages.append(package)
-        jpg_files, xml_path = load_test_images_from_txt(os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package),
-                                                        'test')
+        jpg_files, xml_path = load_test_images_from_txt(os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package),'test')
         predict_images(sess_test, net_test, jpg_files, xml_path, CLASSES)
         test_xml_path = os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package, 'Annotations_test')
         true_xml_path = os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package, 'Annotations')

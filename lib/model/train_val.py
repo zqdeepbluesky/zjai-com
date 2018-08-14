@@ -243,6 +243,7 @@ class SolverWrapper(object):
             ss_paths.remove(sfile)
 
     def train_model(self, sess, max_iters,args):
+        CLASSES = self.imdb.classes
         # Build data layers for both training and validation set
         self.data_layer = RoIDataLayer(self.roidb, self.imdb.num_classes)
         self.data_layer_val = RoIDataLayer(self.valroidb, self.imdb.num_classes, random=True)
@@ -313,18 +314,19 @@ class SolverWrapper(object):
                 if len(np_paths) > cfg.TRAIN.SNAPSHOT_KEPT:
                     self.remove_snapshot(np_paths, ss_paths)
 
-            if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0:  # 每100000次就保存一次模型文件
+            # if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0:  # 每100000次就保存一次模型文件
+            if iter ==20:
                 last_snapshot_iter = iter
                 ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
                 if args.use_extra_test_data!=1:
                     predict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'train_data')
                     test_packages=args.package_name
-                    evaluate_net.test_model(self._save_batch_model, iter, args.net, predict_dir, test_packages)
+                    evaluate_net.eval_net(self._save_batch_model, iter,CLASSES, args.net, predict_dir, test_packages)
                 else:
                     predict_dir=os.path.join(cfg.ROOT_DIR,args.extra_test_dir)
                     test_packages = args.package_name
                     extra_test_package=args.extra_test_package
-                    evaluate_net.test_model(self._save_batch_model, iter, args.net, predict_dir, test_packages,extra_test_package)
+                    evaluate_net.eval_net(self._save_batch_model, iter,CLASSES, args.net, predict_dir, test_packages,extra_test_package)
 
 
             iter += 1
