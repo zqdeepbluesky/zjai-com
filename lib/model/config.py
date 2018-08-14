@@ -101,6 +101,15 @@ __C.TRAIN.SHIFT_ADJUEST = False
 __C.TRAIN.SHIFT_ADJUEST_X=100
 __C.TRAIN.SHIFT_ADJUEST_Y=100
 
+# Use zoom images during training?
+__C.TRAIN.ZOOM_ADJUEST = False
+__C.TRAIN.ZOOM_ADJUEST_SCALE=[(0.9,0.9)]
+
+# Use random crop images during training?
+__C.TRAIN.CROP_IMAGES = False
+__C.TRAIN.RESIZE_SCALE=1000
+__C.TRAIN.CROP_SIZE=[(800,800)]
+
 # Train bounding-box regressors
 __C.TRAIN.BBOX_REG = True
 
@@ -331,7 +340,7 @@ def get_output_dir(imdb, weights_filename,package_name):
 def cal_data_aug_code(cfg):
     postfix=list('00000000')
     data_aug_code=[cfg.TRAIN.USE_HOR_FLIPPED,cfg.TRAIN.USE_VER_FLIPPED,cfg.TRAIN.BRIGHT_ADJUEST,cfg.TRAIN.ROTATE_ADJUEST,
-                   cfg.TRAIN.SHIFT_ADJUEST]
+                   cfg.TRAIN.SHIFT_ADJUEST,cfg.TRAIN.ZOOM_ADJUEST,cfg.TRAIN.CROP_IMAGES]
     for i in range(len(data_aug_code)):
         postfix[i]=str(data_aug_code[i]*1)
     return ''.join(postfix)

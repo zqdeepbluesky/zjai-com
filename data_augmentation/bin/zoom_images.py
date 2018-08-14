@@ -27,6 +27,7 @@ def zoom_images_and_save(scales,data_dir):
                 object_infos = xml_store.get_object_infos_from_xml(xml_path)
                 show_object_cv_box(object_infos, img)
                 zoom_img = zoom_image(img,scale[0],scale[1])
+                print(zoom_img.shape,img.shape)
                 new_object_infos=zoom_xml(object_infos,img,scale)
                 show_object_cv_box(new_object_infos, zoom_img)
                 break

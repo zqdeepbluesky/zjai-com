@@ -16,6 +16,7 @@ from utils.cython_bbox import bbox_overlaps
 import numpy as np
 import scipy.sparse
 from model.config import cfg
+from lib.datasets import data_augment
 
 
 class imdb(object):
@@ -126,16 +127,9 @@ class imdb(object):
                      'width':sizes[i][0],
                      'height':sizes[i][1]}
 
-            if 'ver_flipped' in self.roidb[i]:
-                entry['ver_flipped']=self.roidb[i]['ver_flipped']
-            if 'bright_scala' in self.roidb[i]:
-                entry['bright_scale']=self.roidb[i]['bright_scale']
-            if 'rotate_angle' in self.roidb[i]:
-                entry['rotate_angle'] = self.roidb[i]['rotate_angle']
-            if 'shift_x' in self.roidb[i]:
-                entry['shift_x'] = self.roidb[i]['shift_x']
-            if 'shift_y' in self.roidb[i]:
-                entry['shift_y'] = self.roidb[i]['shift_y']
+            for key in self.roidb[i].keys():
+                if key not in entry.keys():
+                    entry[key] = self.roidb[i][key]
             self.roidb.append(entry)
         self._image_index = self._image_index *2
 
@@ -159,16 +153,9 @@ class imdb(object):
                      'height': sizes[i][1]
                      }
 
-            if 'hor_flipped' in self.roidb[i]:
-                entry['hor_flipped']=self.roidb[i]['hor_flipped']
-            if 'bright_scala' in self.roidb[i]:
-                entry['bright_scale']=self.roidb[i]['bright_scale']
-            if 'rotate_angle' in self.roidb[i]:
-                entry['rotate_angle'] = self.roidb[i]['rotate_angle']
-            if 'shift_x' in self.roidb[i]:
-                entry['shift_x'] = self.roidb[i]['shift_x']
-            if 'shift_y' in self.roidb[i]:
-                entry['shift_y'] = self.roidb[i]['shift_y']
+            for key in self.roidb[i].keys():
+                if key not in entry.keys():
+                    entry[key] = self.roidb[i][key]
             self.roidb.append(entry)
         self._image_index = self._image_index * 2
 
@@ -190,44 +177,12 @@ class imdb(object):
                          'height': sizes[i][1]
                          }
 
-                if 'hor_flipped' in self.roidb[i]:
-                    entry['hor_flipped'] = self.roidb[i]['hor_flipped']
-                if 'ver_flipped' in self.roidb[i]:
-                    entry['ver_flipped'] = self.roidb[i]['ver_flipped']
-                if 'rotate_angle' in self.roidb[i]:
-                    entry['rotate_angle'] = self.roidb[i]['rotate_angle']
-                if 'shift_x' in self.roidb[i]:
-                    entry['shift_x'] = self.roidb[i]['shift_x']
-                if 'shift_y' in self.roidb[i]:
-                    entry['shift_y'] = self.roidb[i]['shift_y']
+                for key in self.roidb[i].keys():
+                    if key not in entry.keys():
+                        entry[key] = self.roidb[i][key]
                 self.roidb.append(entry)
         self._image_index += self._image_index * (len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)-error_num)
 
-    def _rotate_boxes(self,boxes,size,angle):
-        def rotate_point(width, height, angle, x, y):
-            x1 = (x - (width / 2)) * cos(radians(angle)) + (y - (height / 2)) * sin(radians(angle))
-            y1 = (y - height / 2) * cos(radians(angle)) - (x - width / 2) * sin(radians(angle))
-            return int(x1), int(y1)
-        new_boxes=np.zeros(boxes.shape)
-        height, width = size[1], size[0]
-        heightNew = int(width * fabs(sin(radians(angle))) + height * fabs(cos(radians(angle))))
-        widthNew = int(height * fabs(sin(radians(angle))) + width * fabs(cos(radians(angle))))
-        for i in range(boxes.shape[0]):
-            x_list = [int(boxes[i][0]),int(boxes[i][2])]
-            y_list = [int(boxes[i][1]),int(boxes[i][3])]
-            max_x, max_y = 0, 0
-            min_x, min_y = widthNew, heightNew
-            for x in x_list:
-                for y in y_list:
-                    x1, y1 = rotate_point(width, height, angle, x, y)
-                    x1 = int(x1 + (widthNew / 2))
-                    y1 = int(y1 + (heightNew / 2))
-                    max_x = max([max_x, x1])
-                    min_x = min([min_x, x1])
-                    max_y = max([max_y, y1])
-                    min_y = min([min_y, y1])
-            new_boxes[i]=[int(min_x),int(min_y),int(max_x),int(max_y)]
-        return new_boxes,widthNew,heightNew
     def append_rotate_adjuest_images(self):
         num_images = self.num_images
         error_num=0
@@ -239,7 +194,7 @@ class imdb(object):
             for i in range(num_images):
                 boxes = self.roidb[i]['boxes'].copy()
                 size=[sizes[i][0],sizes[i][1]]
-                boxes,widthNew,heightNew=self._rotate_boxes(boxes, size, angle)
+                boxes,widthNew,heightNew=data_augment._rotate_boxes(boxes, size, angle)
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
                          'gt_classes': self.roidb[i]['gt_classes'],
@@ -247,38 +202,11 @@ class imdb(object):
                          'width': int(widthNew),
                          'height': int(heightNew)}
 
-                if 'hor_flipped' in self.roidb[i]:
-                    entry['hor_flipped'] = self.roidb[i]['hor_flipped']
-                if 'ver_flipped' in self.roidb[i]:
-                    entry['ver_flipped'] = self.roidb[i]['ver_flipped']
-                if 'bright_scala' in self.roidb[i]:
-                    entry['bright_scale'] = self.roidb[i]['bright_scale']
-                if 'shift_x' in self.roidb[i]:
-                    entry['shift_x'] = self.roidb[i]['shift_x']
-                if 'shift_y' in self.roidb[i]:
-                    entry['shift_y'] = self.roidb[i]['shift_y']
+                for key in self.roidb[i].keys():
+                    if key not in entry.keys():
+                        entry[key] = self.roidb[i][key]
                 self.roidb.append(entry)
         self._image_index += self._image_index * (len(cfg.TRAIN.ROTATE_ADJUEST_ANGLE)-error_num)
-
-    def _shift_boxes(self,boxes,size,offset):
-        def fix_new_key(key, offset, bound):
-            if offset >= 0:
-                key = min(key, bound)
-            else:
-                key = max(0, key)
-            return key
-        new_boxes = np.zeros(boxes.shape)
-        box_count=0
-        for i in range(len(boxes)):
-            xmin, ymin, xmax, ymax=boxes[i][0],boxes[i][1],boxes[i][2],boxes[i][3]
-            xmin = fix_new_key(int(int(xmin) + offset[0]), offset[0], size[0])
-            ymin = fix_new_key(int(int(ymin) + offset[1]), offset[1], size[1])
-            xmax = fix_new_key(int(int(xmax) + offset[0]), offset[0], size[0])
-            ymax = fix_new_key(int(int(ymax) + offset[1]), offset[1], size[1])
-            if xmax - xmin != 0 and ymax - ymin != 0:
-                new_boxes[box_count]=[xmin,ymin,xmax,ymax]
-                box_count+=1
-        return new_boxes[:box_count]
 
     def append_shift_adjuest_images(self):
         num_images = self.num_images
@@ -288,7 +216,7 @@ class imdb(object):
         for i in range(num_images):
             boxes = self.roidb[i]['boxes'].copy()
             size = [sizes[i][0], sizes[i][1]]
-            boxes = self._shift_boxes(boxes,size,offset)
+            boxes = data_augment._shift_boxes(boxes,size,offset)
             if len(boxes)==0:
                 this_image_index.remove(this_image_index[i])
                 continue
@@ -301,16 +229,39 @@ class imdb(object):
                      'width': size[0],
                      'height': size[1]}
 
-            if 'hor_flipped' in self.roidb[i]:
-                entry['hor_flipped'] = self.roidb[i]['hor_flipped']
-            if 'ver_flipped' in self.roidb[i]:
-                entry['ver_flipped'] = self.roidb[i]['ver_flipped']
-            if 'bright_scala' in self.roidb[i]:
-                entry['bright_scale'] = self.roidb[i]['bright_scale']
-            if 'rotate_angle' in self.roidb[i]:
-                entry['rotate_angle'] = self.roidb[i]['rotate_angle']
+            for key in self.roidb[i].keys():
+                if key not in entry.keys():
+                    entry[key] = self.roidb[i][key]
             self.roidb.append(entry)
         self._image_index += this_image_index
+
+    def append_zoom_adjuest_images(self):
+        num_images = self.num_images
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+        scales=cfg.TRAIN.ZOOM_ADJUEST_SCALE
+        error_num=0
+        for scale in scales:
+            if scale[0]==1 and scale[1]==1:
+                error_num+=1
+                continue
+            for i in range(num_images):
+                boxes = self.roidb[i]['boxes'].copy()
+                size = [sizes[i][0], sizes[i][1]]
+                boxes = data_augment._zoom_boxes(boxes,scale)
+
+                entry = {'boxes': boxes,
+                         'gt_overlaps': self.roidb[i]['gt_overlaps'],
+                         'gt_classes': self.roidb[i]['gt_classes'],
+                         'zoom_x':scale[0],
+                         'zoom_y':scale[1],
+                         'width': int(size[0]*scale[0]),
+                         'height': int(size[1]*scale[1])}
+
+                for key in self.roidb[i].keys():
+                    if key not in entry.keys():
+                        entry[key] = self.roidb[i][key]
+                self.roidb.append(entry)
+        self._image_index += self._image_index * (len(cfg.TRAIN.ZOOM_ADJUEST_SCALE) - error_num)
 
     def evaluate_recall(self, candidate_boxes=None, thresholds=None, area='all', limit=None):
         """Evaluate detection proposal recall metrics.

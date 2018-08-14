@@ -362,6 +362,16 @@ def get_training_roidb(imdb):
             print('Appending shift-adjuest training examples...')
             imdb.append_shift_adjuest_images()
             print('done')
+    if cfg.TRAIN.ZOOM_ADJUEST:
+        if len(cfg.TRAIN.ZOOM_ADJUEST_SCALE)!=0:
+            print('Appending zoom-adjuest training examples...')
+            imdb.append_zoom_adjuest_images()
+            print('done')
+    # if cfg.TRAIN.CROP_IMAGES:
+    #     if len(cfg.TRAIN.CROP_SIZE)!=0 and cfg.TRAIN.RESIZE_SCALE >=800:
+    #         print('Appending random-crop training examples...')
+    #         imdb.append_random_crop_images()
+    #         print('done')
     print('Preparing training data...')
     rdl_roidb.prepare_roidb(imdb)
     print('done')
