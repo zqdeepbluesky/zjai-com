@@ -49,7 +49,7 @@ def get_model(batch_model,iter,demo_net):
     # init session
     sess_test = tf.Session(config=tfconfig)
     # load network
-    CLASSES = pascal_voc.read_classes(osp.join(cfg.ROOT_DIR, 'data', 'cfgs', 'com_classes.txt'))
+    CLASSES = pascal_voc.read_classes(osp.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', 'com_classes_169.txt'))
     print(len(CLASSES))
     saver, net_test = prepare_model.load_model(sess_test, demo_net, tf_model, len(CLASSES))
     return sess_test,net_test,model_dir,model_data,CLASSES
