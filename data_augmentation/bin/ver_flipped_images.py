@@ -12,9 +12,8 @@ def ver_flipped_images_and_save(use_ver_flipped,data_dir):
     annot_path=os.path.join(data_dir,"Annotations")
 
     if use_ver_flipped:
-        io_utils.mkdir(os.path.join( data_dir+'_ver_flipped','JPEGImages'))
+        # io_utils.mkdir(os.path.join( data_dir+'_ver_flipped','JPEGImages'))
         for i in os.listdir(jpg_path):
-            print(i)
             a, b = os.path.splitext(i)
             if b == ".jpg":
                 img_path = os.path.join(jpg_path, i)
@@ -24,56 +23,35 @@ def ver_flipped_images_and_save(use_ver_flipped,data_dir):
                 object_infos = xml_store.get_object_infos_from_xml(xml_path)
                 show_object_cv_box(object_infos, img)
                 ver_flipped_img = ver_flipped_image(img)
-                object_infos_rotate=rotate_xml(object_infos,img)
-                show_object_cv_box(object_infos_rotate, rotated_img)
+                new_object_infos=ver_flipped_xml(object_infos,img)
+                show_object_cv_box(new_object_infos, ver_flipped_img)
+
                 break
+                new_img_name=a + "_ver_flipped.jpg"
+                new_img_path=os.path.join( data_dir+'_ver_flipped','JPEGImages', new_img_name)
 
-                new_img_name=a + "_rotate_" + str(angle) + ".jpg"
-                new_img_path=os.path.join( data_dir+'_rotate_{}'.format(angle),'JPEGImages', new_img_name)
-
-
-                # print(object_infos)
-                # show_object_cv_box(object_infos, rotated_img)
-                # print(rotated_img.shape)
-                im_info=xml_utils.create_image_info(new_img_name,new_img_path,rotated_img.shape[1],rotated_img.shape[0],rotated_img.shape[2])
-                new_xml_path=os.path.join( data_dir+'_rotate_{}'.format(angle),'Annotations')
+                im_info=xml_utils.create_image_info(new_img_name,new_img_path,ver_flipped_img.shape[1],ver_flipped_img.shape[0],ver_flipped_img.shape[2])
+                new_xml_path=os.path.join( data_dir+'_ver_flipped','Annotations')
 
 
-                cv2.imwrite(new_img_path, rotated_img)
-                xml_store.save_annotations(new_xml_path, im_info, object_infos_rotate)
+                cv2.imwrite(new_img_path, ver_flipped_img)
+                xml_store.save_annotations(new_xml_path, im_info, new_object_infos)
 
 def ver_flipped_image(im):
     im = im[::-1, :, :]
     return im
 
-def rotate_xml(object_infos,img,angle,img_rotate):
-    rotate_obj_infos=[]
+def ver_flipped_xml(object_infos,img):
+    new_obj_infos=[]
+    width=img.shape[1]
+    height=img.shape[0]
     for object_info in object_infos:
         class_name,_,xmin, ymin, xmax, ymax = object_info.split(",")
-        x_list=[int(xmin),int(xmax)]
-        y_list=[int(ymin),int(ymax)]
-        height, width = img.shape[0], img.shape[1]
-        max_x,max_y=0,0
-        min_x,min_y=width,height
-        for x in x_list:
-            for y in y_list:
-                x1, y1 = rotate_point(width,height, angle, x, y)
-                x1 =int(x1+(img_rotate.shape[1]/2))
-                y1 =int(y1+(img_rotate.shape[0]/2))
-                max_x = max([max_x, x1])
-                min_x = min([min_x, x1])
-                max_y = max([max_y, y1])
-                min_y = min([min_y, y1])
-        rotate_obj_infos.append("{},1,{},{},{},{}".format(class_name,min_x,min_y,max_x,max_y))
-    return rotate_obj_infos
-# def rotate_point(width, angle, x, y):
-#     x1 = fabs(sin(radians(angle))) * int(y) + fabs(cos(radians(angle))) * int(x)
-#     y1 = fabs(sin(radians(angle))) * (width - int(x)) + fabs(cos(radians(angle))) * int(y)
-#     return int(x1), int(y1)
-def rotate_point(width,height,angle,x,y):
-    x1=(x-(width/2))*cos(radians(angle))+(y-(height/2))*sin(radians(angle))
-    y1=(y-height/2)*cos(radians(angle))-(x-width/2)*sin(radians(angle))
-    return int(x1),int(y1)
+        min_y = height - int(ymax)
+        max_y = height - int(ymin)
+        min_y =0 if min_y> max_y else min_y
+        new_obj_infos.append("{},1,{},{},{},{}".format(class_name,xmin, min_y, xmax, max_y))
+    return new_obj_infos
 
 def parse_args():
     """Parse input arguments."""

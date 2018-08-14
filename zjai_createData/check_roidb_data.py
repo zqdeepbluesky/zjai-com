@@ -17,7 +17,7 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Tensorflow Faster R-CNN demo')
     parser.add_argument('--cache_dir', dest='cache_dir', help='Network to use [vgg16 res101]',
-                        default=os.path.join(cfg.ROOT_DIR,"data","cache"))
+                        default=os.path.join(cfg.ROOT_DIR, "data", "cache"))
     parser.add_argument('--roidb_name', dest='roidb_name', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         default='fusion_2018-08-06_voc_2007_trainval_enhance_roidb_00001000.pkl')
     parser.add_argument('--root_dir', dest='root_dir', help='Trained dataset [pascal_voc pascal_voc_0712]',
@@ -105,7 +105,7 @@ def draw_roidb(roidb):
 
 
 args=parse_args()
-CLASSES = pascal_voc.read_classes(os.path.join(args.root_dir,"cfgs","com_classes.txt"))
+CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,"experiments",'classes_cfgs',"com_classes_169.txt"))
 
 if __name__=="__main__":
     roidb=get_roidb(args.cache_dir,args.roidb_name)
