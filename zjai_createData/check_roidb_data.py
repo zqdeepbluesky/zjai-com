@@ -67,6 +67,7 @@ def _translateit(image, offset, isseg=False):
     return shift(image, (int(offset[0]), int(offset[1]), 0), order=order, mode='nearest')
 
 def draw_roidb(roidb):
+    from lib.datasets import data_augment
     print(roidb)
     image_path=roidb['image']
     print(image_path)
@@ -84,6 +85,14 @@ def draw_roidb(roidb):
     if 'shift_x' in roidb and 'shift_y' in roidb:
         offset=(int(roidb['shift_x']),int(roidb['shift_y']))
         im = _translateit(im, offset)
+    if 'zoom_x' in roidb and 'zoom_y' in roidb:
+        factor_x, factor_y = int(roidb['zoom_x']), int(roidb['zoom_y'])
+        im = data_augment._zoom_image(im, factor_x, factor_y)
+    if 'position' in roidb and 'crop_size_width' in roidb and 'crop_size_height' in roidb:
+        crop_size = (roidb['crop_size_width'], roidb['crop_size_height'])
+        scale = cfg.TRAIN.RESIZE_SCALE
+        position = roidb['position']
+        im = data_augment.random_crop_image(im, crop_size, scale, position)
     fig, ax = plt.subplots(figsize=(12, 12))
     ax.imshow(im, aspect='equal')
     for i in range(len(classes)):

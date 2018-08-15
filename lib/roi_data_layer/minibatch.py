@@ -63,15 +63,20 @@ def _get_image_blob(roidb, scale_inds):
         if 'ver_flipped' in roidb[i] and roidb[i]['ver_flipped']:
             im = im[::-1, :, :]
         if 'bright_scala' in roidb[i] and roidb[i]['bright_scala']!=1:
-            im=data_augment._bright_adjuest(im,roidb[i]['bright_scala'])
+            im=data_augment._bright_adjuest(im, roidb[i]['bright_scala'])
         if 'rotate_angle' in roidb[i] and roidb[i]['rotate_angle']!=0:
-            im=data_augment._rotate_image(im,roidb[i]['rotate_angle'])
-        if 'shift_x' in roidb and 'shift_y' in roidb:
+            im=data_augment._rotate_image(im, roidb[i]['rotate_angle'])
+        if 'shift_x' in roidb[i] and 'shift_y' in roidb[i]:
             offset = (int(roidb['shift_x']), int(roidb['shift_y']))
             im = data_augment._shift_image(im, offset)
-        if 'zoom_x' in roidb and 'zoom_y' in roidb:
+        if 'zoom_x' in roidb[i] and 'zoom_y' in roidb[i]:
             factor_x,factor_y=int(roidb['zoom_x']),int(roidb['zoom_y'])
             im = data_augment._zoom_image(im, factor_x, factor_y)
+        if 'position' in roidb[i] and 'crop_size_width' in roidb[i] and 'crop_size_height' in roidb[i]:
+            crop_size =(roidb[i]['crop_size_width'],roidb[i]['crop_size_height'])
+            scale = cfg.TRAIN.RESIZE_SCALE
+            position=roidb[i]['position']
+            im=data_augment.random_crop_image(im, crop_size, scale, position)
         target_size = cfg.TRAIN.SCALES[scale_inds[i]]  #设置size
         im, im_scale = prep_im_for_blob(im, cfg.PIXEL_MEANS, target_size, cfg.TRAIN.MAX_SIZE)   #得到缩放后的图像和缩放系数
         im_scales.append(im_scale)   #存放起缩放系数
