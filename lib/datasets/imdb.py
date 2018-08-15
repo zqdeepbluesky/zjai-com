@@ -216,7 +216,7 @@ class imdb(object):
         for i in range(num_images):
             boxes = self.roidb[i]['boxes'].copy()
             size = [sizes[i][0], sizes[i][1]]
-            boxes = data_augment._shift_boxes(boxes,size,offset)
+            boxes = data_augment._shift_boxes(boxes, size, offset)
             if len(boxes)==0:
                 this_image_index.remove(this_image_index[i])
                 continue
@@ -247,7 +247,7 @@ class imdb(object):
             for i in range(num_images):
                 boxes = self.roidb[i]['boxes'].copy()
                 size = [sizes[i][0], sizes[i][1]]
-                boxes = data_augment._zoom_boxes(boxes,scale)
+                boxes = data_augment._zoom_boxes(boxes, scale)
 
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
@@ -262,6 +262,44 @@ class imdb(object):
                         entry[key] = self.roidb[i][key]
                 self.roidb.append(entry)
         self._image_index += self._image_index * (len(cfg.TRAIN.ZOOM_ADJUEST_SCALE) - error_num)
+
+    def append_random_crop_images(self):
+        num_images=self.num_images
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+        crop_sizes=cfg.TRAIN.CROP_SIZE
+        scale=cfg.TRAIN.RESIZE_SCALE
+        this_image_index=[]
+        for crop_size in crop_sizes:
+            for i in range(num_images):
+                boxes = self.roidb[i]['boxes'].copy()
+                resize_scale = data_augment.cal_scale(sizes[i], scale)
+                img_size = (int(sizes[i][0] / resize_scale), int(sizes[i][1] / resize_scale))
+                boxes = data_augment.resize_box(boxes, resize_scale)
+                print(img_size,crop_size,resize_scale)
+                if img_size[0] >= crop_size[0] and img_size[1] >= crop_size[1] and resize_scale>=1:
+                    position_list = ['lu', 'ld', 'ru', 'rd', 'm']
+                    crop_bboxs = data_augment.create_crop_bbox(img_size, crop_size)
+                    for j in range(len(crop_bboxs)):
+                        new_boxes = data_augment.cal_random_crop_box(boxes, crop_bboxs[j])
+                        if len(new_boxes)==0:
+                            continue
+                        entry = {'boxes': new_boxes,
+                                 'gt_overlaps': self.roidb[i]['gt_overlaps'],
+                                 'gt_classes': self.roidb[i]['gt_classes'],
+                                 'position':position_list[j],
+                                 'crop_size_width':crop_size[0],
+                                 'crop_size_height':crop_size[1],
+                                 'width': crop_bboxs[j].shape[1],
+                                 'height': crop_bboxs[j].shape[0]}
+                        for key in self.roidb[i].keys():
+                            if key not in entry.keys():
+                                entry[key] = self.roidb[i][key]
+                        self.roidb.append(entry)
+                        this_image_index.append(self._image_index[i])
+        self._image_index+=this_image_index
+
+
+
 
     def evaluate_recall(self, candidate_boxes=None, thresholds=None, area='all', limit=None):
         """Evaluate detection proposal recall metrics.

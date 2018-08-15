@@ -145,10 +145,6 @@ def crop_images(data_dir,crop_size):
         obj_info = get_info_from_xml(xml_path)
         image=image.resize((int(image.size[0]/scale),int(image.size[1]/scale)))
         obj_info = resize_box(obj_info, scale)
-        # min_box,obj_info=get_min_box(obj_info)
-        # image=crop(image,min_box)
-        # plt.imshow(image)
-        # plt.show()
         img_size = image.size
         # count=161
         if img_size[0]>crop_size[0] and img_size[1]>crop_size[1]:
