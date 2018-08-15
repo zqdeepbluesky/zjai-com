@@ -19,7 +19,7 @@ from nets.mobilenet_v1 import mobilenetv1
 from nets.resnet_v1 import resnetv1
 from nets.vgg16 import vgg16
 from tools.preprocessing import calc_roidb
-from lib.someUtils.serialize_argparse import SerializeArgparse
+from lib.extra_utils.serialize_argparse import SerializeArgparse
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
