@@ -70,7 +70,7 @@ def evaluate_model(sess_test, net_test, model_dir,model_data,CLASSES,predict_dir
         test_infos.append(test_info)
     for package in extra_test_package:
         packages.append(package)
-        jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package), 'trainval')
+        jpg_files, xml_path = load_test_images_from_txt(os.path.join(predict_dir, package), 'trainval_test')
         predict_images(sess_test, net_test, jpg_files, xml_path, CLASSES)
         test_xml_path = os.path.join(predict_dir, package, 'Annotations_test')
         true_xml_path = os.path.join(predict_dir, package, 'Annotations')
