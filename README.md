@@ -208,3 +208,31 @@ fn_num -->漏识别的物体总数；
 ## 关于config.py文件使用说明
 config.py文件不允许修改赋值，如需添加函数，变量，需通过审核。<br>
 如程序需要修改config中的值，可通过修改*.yml文件，覆盖config中的默认值。<br>
+
+## 关于训练过程中间产物汇总
+  ```shell
+  ImageSet/Main中的
+  trainval.txt --存放数据包中训练数据集中的图片文件名称，用于模型训练
+  test.txt --存放数据包中测试数据集中的图片文件名称，用于模型测试
+  trainval_test.txt --存放数据包中的所有数据集的图片文件名称，用于模型测试；
+  all.txt --存放数据包中的所有数据集的图片文件名称，后续看到可以修正为trainval_test.txt；
+  train.txt --同trainval.txt ，后续看到可以修正为trainval.txt
+
+  ./data/cache文件中
+  data1+data2xxx_voc_2007_trainval_enhance_11111110.pkl --用于存放数据包data1，data2通过数据增强操作生成的roidb，
+  其中11111110代表执行了7种数据增强操作，其顺序为：【水平翻转、竖直翻转、调整亮度、旋转、平移、膨胀、随机裁剪】，0代表未执行操作，1代表执行该操作。
+
+  ./data/args_parse文件中，用于存放参数文件
+  ./data/args_parse/vgg16/fusion_xx-xx-xx/data1_11111110.json --用于存放训练数据包data1时执行数据增强方式11111110时输入的参数；
+
+  ./data/train_data/xxxx_dict.log --用于存放模型训练时，图片文件名与所在数据包路径之间的映射关系
+
+  ./experiments/classes_cfgs/ --用于存放classes_xx.txt，其中后缀为169的为存放169个类别物体的classes.txt
+
+  ./experiments/cfgs/args_setting.cfg 为程序参数文件，用于设定运行参数和建立模型
+
+  ./experiments/cfg/xxx.yml 为xxx模型的配置文件，用于配置模型架构参数和数据增强操作设定
+
+  xxx_model_test_result.txt 以及 xxx_model_test_result.xml为xxx模型的模型测试结果
+
+  ```
