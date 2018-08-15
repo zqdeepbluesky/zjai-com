@@ -275,7 +275,6 @@ class imdb(object):
                 resize_scale = data_augment.cal_scale(sizes[i], scale)
                 img_size = (int(sizes[i][0] / resize_scale), int(sizes[i][1] / resize_scale))
                 boxes = data_augment.resize_box(boxes, resize_scale)
-                print(img_size,crop_size,resize_scale)
                 if img_size[0] >= crop_size[0] and img_size[1] >= crop_size[1] and resize_scale>=1:
                     position_list = ['lu', 'ld', 'ru', 'rd', 'm']
                     crop_bboxs = data_augment.create_crop_bbox(img_size, crop_size)
