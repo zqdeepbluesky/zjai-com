@@ -1,8 +1,8 @@
 from lib.model.config import cfg
 import cv2
 import tensorflow as tf
-from lib.someUtils.xml_store import *
-from lib.someUtils import io_utils,cal_acc
+from lib.extra_utils.xml_store import *
+from lib.extra_utils import io_utils,cal_acc
 from tools import predict
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
