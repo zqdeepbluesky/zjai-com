@@ -284,7 +284,7 @@ class SolverWrapper(object):
             if iter == 1 or now - last_summary_time > cfg.TRAIN.SUMMARY_INTERVAL:
                 # Compute the graph with summary
                 rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, total_loss, summary =self.net.train_step_with_summary(sess, blobs, train_op)
-                self.writer.add_summary(summary, float(iter))
+                self.writer.add_summary(summary, float(iter))  #记录一次
                 # Also check the summary on the validation set
                 blobs_val = self.data_layer_val.forward()
                 summary_val = self.net.get_summary(sess, blobs_val)
