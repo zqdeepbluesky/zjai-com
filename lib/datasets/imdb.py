@@ -107,11 +107,10 @@ class imdb(object):
     def _get_widths(self):
         return [PIL.Image.open(self.image_path_at(i)).size[0] for i in range(self.num_images)]
 
-    def append_hor_flipped_images(self):  #水平翻转
-        num_images = self.num_images
-        sizes =[PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+    def append_hor_flipped_images(self,ori_num_images):  #水平翻转
+        sizes =[PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         print("finish get_widths")
-        for i in range(num_images):
+        for i in range(ori_num_images):
             boxes = self.roidb[i]['boxes'].copy()   #如果roidb还未加载时，会先加载，并保存,图片的object
             oldx1 = boxes[:, 0].copy()  #xmin
             oldx2 = boxes[:, 2].copy()  #xmax
@@ -131,12 +130,11 @@ class imdb(object):
                 if key not in entry.keys():
                     entry[key] = self.roidb[i][key]
             self.roidb.append(entry)
-        self._image_index = self._image_index *2
+        self._image_index +=  self._image_index[:ori_num_images]
 
-    def append_ver_flipped_images(self):  #竖直翻转
-        num_images = self.num_images
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
-        for i in range(num_images):
+    def append_ver_flipped_images(self,ori_num_images):  #竖直翻转
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
+        for i in range(ori_num_images):
             boxes = self.roidb[i]['boxes'].copy()   #如果roidb还未加载时，会先加载，并保存,图片的object
             oldx1 = boxes[:, 1].copy()  #ymin
             oldx2 = boxes[:, 3].copy()  #ymax
@@ -157,17 +155,16 @@ class imdb(object):
                 if key not in entry.keys():
                     entry[key] = self.roidb[i][key]
             self.roidb.append(entry)
-        self._image_index = self._image_index * 2
+        self._image_index += self._image_index[:ori_num_images]
 
-    def append_bright_adjuest_images(self):
-        num_images = self.num_images
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+    def append_bright_adjuest_images(self,ori_num_images):
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         error_num=0
         for gamma in cfg.TRAIN.BRIGHT_ADJUEST_SCALE:
             if gamma==1 or gamma<=0:
                 error_num+=1
                 continue
-            for i in range(num_images):
+            for i in range(ori_num_images):
                 boxes = self.roidb[i]['boxes'].copy()
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
@@ -181,17 +178,16 @@ class imdb(object):
                     if key not in entry.keys():
                         entry[key] = self.roidb[i][key]
                 self.roidb.append(entry)
-        self._image_index += self._image_index * (len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)-error_num)
+        self._image_index +=  self._image_index[:ori_num_images] * (len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)-error_num)
 
-    def append_rotate_adjuest_images(self):
-        num_images = self.num_images
+    def append_rotate_adjuest_images(self,ori_num_images):
         error_num=0
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         for angle in cfg.TRAIN.ROTATE_ADJUEST_ANGLE:
             if angle==0 or angle==360:
                 error_num+=1
                 continue
-            for i in range(num_images):
+            for i in range(ori_num_images):
                 boxes = self.roidb[i]['boxes'].copy()
                 size=[sizes[i][0],sizes[i][1]]
                 boxes,widthNew,heightNew=data_augment._rotate_boxes(boxes, size, angle)
@@ -206,14 +202,13 @@ class imdb(object):
                     if key not in entry.keys():
                         entry[key] = self.roidb[i][key]
                 self.roidb.append(entry)
-        self._image_index += self._image_index * (len(cfg.TRAIN.ROTATE_ADJUEST_ANGLE)-error_num)
+        self._image_index += self._image_index[:ori_num_images] * (len(cfg.TRAIN.ROTATE_ADJUEST_ANGLE)-error_num)
 
-    def append_shift_adjuest_images(self):
-        num_images = self.num_images
-        this_image_index=self._image_index
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+    def append_shift_adjuest_images(self,ori_num_images):
+        this_image_index=self._image_index[:ori_num_images]
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         offset=(cfg.TRAIN.SHIFT_ADJUEST_X,cfg.TRAIN.SHIFT_ADJUEST_Y)
-        for i in range(num_images):
+        for i in range(ori_num_images):
             boxes = self.roidb[i]['boxes'].copy()
             size = [sizes[i][0], sizes[i][1]]
             boxes = data_augment._shift_boxes(boxes, size, offset)
@@ -235,16 +230,15 @@ class imdb(object):
             self.roidb.append(entry)
         self._image_index += this_image_index
 
-    def append_zoom_adjuest_images(self):
-        num_images = self.num_images
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+    def append_zoom_adjuest_images(self,ori_num_images):
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         scales=cfg.TRAIN.ZOOM_ADJUEST_SCALE
         error_num=0
         for scale in scales:
             if scale[0]==1 and scale[1]==1:
                 error_num+=1
                 continue
-            for i in range(num_images):
+            for i in range(ori_num_images):
                 boxes = self.roidb[i]['boxes'].copy()
                 size = [sizes[i][0], sizes[i][1]]
                 boxes = data_augment._zoom_boxes(boxes, scale)
@@ -261,16 +255,15 @@ class imdb(object):
                     if key not in entry.keys():
                         entry[key] = self.roidb[i][key]
                 self.roidb.append(entry)
-        self._image_index += self._image_index * (len(cfg.TRAIN.ZOOM_ADJUEST_SCALE) - error_num)
+        self._image_index += self._image_index[:ori_num_images] * (len(cfg.TRAIN.ZOOM_ADJUEST_SCALE) - error_num)
 
-    def append_random_crop_images(self):
-        num_images=self.num_images
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(self.num_images)]
+    def append_random_crop_images(self,ori_num_images):
+        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         crop_sizes=cfg.TRAIN.CROP_SIZE
         scale=cfg.TRAIN.RESIZE_SCALE
         this_image_index=[]
         for crop_size in crop_sizes:
-            for i in range(num_images):
+            for i in range(ori_num_images):
                 boxes = self.roidb[i]['boxes'].copy()
                 resize_scale = data_augment.cal_scale(sizes[i], scale)
                 img_size = (int(sizes[i][0] / resize_scale), int(sizes[i][1] / resize_scale))

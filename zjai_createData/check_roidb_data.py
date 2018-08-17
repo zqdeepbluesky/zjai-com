@@ -86,7 +86,8 @@ def draw_roidb(roidb):
         offset=(int(roidb['shift_x']),int(roidb['shift_y']))
         im = _translateit(im, offset)
     if 'zoom_x' in roidb and 'zoom_y' in roidb:
-        factor_x, factor_y = int(roidb['zoom_x']), int(roidb['zoom_y'])
+        factor_x, factor_y = roidb['zoom_x'], roidb['zoom_y']
+        print(factor_x,factor_y)
         im = data_augment._zoom_image(im, factor_x, factor_y)
     if 'position' in roidb and 'crop_size_width' in roidb and 'crop_size_height' in roidb:
         crop_size = (roidb['crop_size_width'], roidb['crop_size_height'])
@@ -119,6 +120,5 @@ CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,"experiments",'class
 if __name__=="__main__":
     roidb=get_roidb(args.cache_dir,args.roidb_name)
     for i in range(len(roidb)):
-        if 'position' in roidb[i]:
-            num=random.randint(0,len(roidb))
-            draw_roidb(roidb[i])
+        num=random.randint(0,len(roidb))
+        draw_roidb(roidb[num])
