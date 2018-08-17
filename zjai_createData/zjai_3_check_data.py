@@ -159,7 +159,7 @@ def analysis_data(root_dir,fileType):
 if __name__=="__main__":
     root_dir=osp.abspath(osp.join(osp.dirname(__file__), '..'))
     dataDirs = osp.join(root_dir, 'data', 'test_data')
-    dataDirs = '/home/hyl/data/ljk/github-pro/zjai-com/data/train_data/random_choice_data_3000'
+    dataDirs = '/home/hyl/data/ljk/github-pro/zjai-com/data/train_data/train_data-2018-08-15_resize'
     root_dir = dataDirs
     type="trainval"
     txtData=get_txt_data(dataDirs,type)

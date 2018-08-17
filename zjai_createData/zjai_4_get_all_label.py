@@ -28,6 +28,7 @@ def get_all_label(type,root_dir,setname):
 if __name__=="__main__":
     root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
     fileType = 'trainval'
+    root_dir = '/home/hyl/data/ljk/github-pro/zjai-com/data/train_data/train_data-2018-08-15_resize'
     setname="voc"
-    zjai_createData.zjai_3_checkData.analysis_data(root_dir,fileType)
+    zjai_createData.zjai_3_check_data.analysis_data(root_dir,fileType)
     get_all_label(fileType,root_dir,setname)

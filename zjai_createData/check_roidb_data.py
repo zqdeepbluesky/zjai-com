@@ -19,7 +19,7 @@ def parse_args():
     parser.add_argument('--cache_dir', dest='cache_dir', help='Network to use [vgg16 res101]',
                         default=os.path.join(cfg.ROOT_DIR, "data", "cache"))
     parser.add_argument('--roidb_name', dest='roidb_name', help='Trained dataset [pascal_voc pascal_voc_0712]',
-                        default='fusion_2018-08-06_voc_2007_trainval_enhance_roidb_00001000.pkl')
+                        default='train_data-2018-08-15_resize_voc_2007_trainval_enhance_roidb_11111110.pkl')
     parser.add_argument('--root_dir', dest='root_dir', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         default=os.path.join(cfg.ROOT_DIR,"data"))
     args = parser.parse_args()
@@ -114,10 +114,11 @@ def draw_roidb(roidb):
 
 
 args=parse_args()
-CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,"experiments",'classes_cfgs',"com_classes_169.txt"))
+CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,"experiments",'classes_cfgs',"com_classes_21.txt"))
 
 if __name__=="__main__":
     roidb=get_roidb(args.cache_dir,args.roidb_name)
-    for i in range(10):
-        num=random.randint(0,len(roidb))
-        draw_roidb(roidb[num])
+    for i in range(len(roidb)):
+        if 'position' in roidb[i]:
+            num=random.randint(0,len(roidb))
+            draw_roidb(roidb[i])

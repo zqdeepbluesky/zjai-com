@@ -288,8 +288,8 @@ class imdb(object):
                                  'position':position_list[j],
                                  'crop_size_width':crop_size[0],
                                  'crop_size_height':crop_size[1],
-                                 'width': crop_bboxs[j].shape[1],
-                                 'height': crop_bboxs[j].shape[0]}
+                                 'width': crop_bboxs[j][2]-crop_bboxs[j][0],
+                                 'height': crop_bboxs[j][3]-crop_bboxs[j][1]}
                         for key in self.roidb[i].keys():
                             if key not in entry.keys():
                                 entry[key] = self.roidb[i][key]

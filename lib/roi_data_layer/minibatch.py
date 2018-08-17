@@ -67,10 +67,10 @@ def _get_image_blob(roidb, scale_inds):
         if 'rotate_angle' in roidb[i] and roidb[i]['rotate_angle']!=0:
             im=data_augment._rotate_image(im, roidb[i]['rotate_angle'])
         if 'shift_x' in roidb[i] and 'shift_y' in roidb[i]:
-            offset = (int(roidb['shift_x']), int(roidb['shift_y']))
+            offset = (int(roidb[i]['shift_x']), int(roidb[i]['shift_y']))
             im = data_augment._shift_image(im, offset)
         if 'zoom_x' in roidb[i] and 'zoom_y' in roidb[i]:
-            factor_x,factor_y=int(roidb['zoom_x']),int(roidb['zoom_y'])
+            factor_x,factor_y=roidb[i]['zoom_x'],roidb[i]['zoom_y']
             im = data_augment._zoom_image(im, factor_x, factor_y)
         if 'position' in roidb[i] and 'crop_size_width' in roidb[i] and 'crop_size_height' in roidb[i]:
             crop_size =(roidb[i]['crop_size_width'],roidb[i]['crop_size_height'])

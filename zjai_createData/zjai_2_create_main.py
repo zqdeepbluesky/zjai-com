@@ -41,13 +41,13 @@ def _create_Main(dataDirs,fileList,scale):
             s=s.replace(dataDirs + "/", "")
         test_images.append(s.split('.')[0] + '\n')
 
-    with open(dataDirs+'/ImageSets/Main/train.txt','w+') as f:
+    with open(dataDirs+'/ImageSets/Main/trainval.txt','w+') as f:
         f.writelines(trainval_images)
         print("{}, numbers:{}".format(dataDirs + '/trainval.txt', len(trainval_images)))
     with open(dataDirs+'/ImageSets/Main/test.txt','w+') as f:
         f.writelines(test_images)
         print("{}, numbers:{}".format(dataDirs + '/test.txt', len(test_images)))
-    with open(dataDirs+'/ImageSets/Main/trainval.txt','w+') as f:
+    with open(dataDirs+'/ImageSets/Main/trainval_test.txt','w+') as f:
         f.writelines(trainval_images)
         f.writelines(test_images)
 
@@ -79,13 +79,13 @@ def _create_Main_new(dataDirs,fileList,scale):
         test_images.append(filename + '\n')
         fileDict[filename] = parentDir
 
-    with open(dataDirs+'/ImageSets/Main/train.txt','w+') as f:
+    with open(dataDirs+'/ImageSets/Main/trainval.txt','w+') as f:
         f.writelines(trainval_images)
         print("{}, numbers:{}".format(dataDirs + '/trainval.txt', len(trainval_images)))
     with open(dataDirs+'/ImageSets/Main/test.txt','w+') as f:
         f.writelines(test_images)
         print("{}, numbers:{}".format(dataDirs + '/test.txt', len(test_images)))
-    with open(dataDirs+'/ImageSets/Main/trainval.txt','w+') as f:
+    with open(dataDirs+'/ImageSets/Main/trainval_test.txt','w+') as f:
         f.writelines(trainval_images)
         f.writelines(test_images)
     with open(dataDirs+'/ImageSets/Main/filedict.txt','w+') as f:
@@ -101,7 +101,7 @@ def create_package_main(data_dir,scale):
 if __name__=="__main__":
     root_dir = osp.abspath(osp.join(osp.dirname(__file__), '..'))
     dataDirs = osp.join(root_dir, 'data', 'predict_data',"test_data-2018-07-24")
-    dataDirs = '/home/hyl/data/ljk/github-pro/zjai-com/data/train_data/random_choice_data_3000'
+    dataDirs = '/home/hyl/data/ljk/github-pro/zjai-com/data/train_data/train_data-2018-08-15_resize'
     scale = 9
     fileList=get_all_file(dataDirs,fileType="jpg")
     _create_Main_new(dataDirs,fileList,scale)
