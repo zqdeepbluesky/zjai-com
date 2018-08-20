@@ -255,11 +255,17 @@ class SolverWrapper(object):
         lsf, nfiles, sfiles = self.find_previous()
 
         # Initialize the variables or restore them from the last snapshot
-        if lsf == 0:
-            rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.initialize(sess)
-        else:
-            rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.restore(sess,  str(sfiles[-1]), str(nfiles[-1]))
+        if args.snapshot and os.path.exists(args.snapshot_dir+'.meta'):
+            sfiles=[args.snapshot_dir]
+            nfiles=[args.snapshot_dir[:-5]+'.pkl']
+            rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.restore(sess, str(sfiles[-1]),str(nfiles[-1]))
             sess.run(tf.assign(lr, cfg.TRAIN.LEARNING_RATE))
+        else:
+            if lsf == 0:
+                rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.initialize(sess)
+            else:
+                rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.restore(sess,  str(sfiles[-1]), str(nfiles[-1]))
+                sess.run(tf.assign(lr, cfg.TRAIN.LEARNING_RATE))
 
         timer = Timer()
         iter = last_snapshot_iter + 1

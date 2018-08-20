@@ -27,7 +27,6 @@ logger = logging.getLogger(__name__)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 def print_args(args):
     if args is None:
@@ -42,6 +41,15 @@ def parse_args():
     Parse input arguments
     """
     parser = SerializeArgparse(description='FRCNN trainer.')
+    parser.add_argument('--gpu', dest='gpu',
+                        help='use gpu id',
+                        default='0', type=str)
+    parser.add_argument('--snapshot', dest='snapshot',
+                        help='whether fine tune',
+                        default=False, type=bool)
+    parser.add_argument('--snapshot_dir', dest='snapshot_dir',
+                        help='fine tune dir',
+                        default='', type=str)
     parser.add_argument('--load_args_json', dest='load_args_json',
                         help='if load args json',
                         default=False, type=bool)
@@ -161,6 +169,7 @@ if __name__ == '__main__':
     print(args)
     args=load_setting_cfg(args)
     print(args)
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
