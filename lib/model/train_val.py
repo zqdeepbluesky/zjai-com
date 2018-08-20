@@ -339,38 +339,39 @@ class SolverWrapper(object):
 
 def get_training_roidb(imdb):
     """Returns a roidb (Region of Interest database) for use in training."""
+    ori_num_images=len(imdb.roidb)
     if cfg.TRAIN.USE_HOR_FLIPPED:
         print('Appending horizontally-flipped training examples...')
-        imdb.append_hor_flipped_images()
+        imdb.append_hor_flipped_images(ori_num_images)
         print('done')
     if cfg.TRAIN.USE_VER_FLIPPED:
         print('Appending vertical-flipped training examples...')
-        imdb.append_ver_flipped_images()
+        imdb.append_ver_flipped_images(ori_num_images)
         print('done')
     if cfg.TRAIN.BRIGHT_ADJUEST:
         if len(cfg.TRAIN.BRIGHT_ADJUEST_SCALE)!=0:
             print('Appending bright-adjuest training examples...')
-            imdb.append_bright_adjuest_images()
+            imdb.append_bright_adjuest_images(ori_num_images)
             print('done')
     if cfg.TRAIN.ROTATE_ADJUEST:
         if len(cfg.TRAIN.ROTATE_ADJUEST_ANGLE)!=0:
             print('Appending rotate-adjuest training examples...')
-            imdb.append_rotate_adjuest_images()
+            imdb.append_rotate_adjuest_images(ori_num_images)
             print('done')
     if cfg.TRAIN.SHIFT_ADJUEST:
         if cfg.TRAIN.SHIFT_ADJUEST_X!=0 or cfg.TRAIN.SHIFT_ADJUEST_Y!=0:
             print('Appending shift-adjuest training examples...')
-            imdb.append_shift_adjuest_images()
+            imdb.append_shift_adjuest_images(ori_num_images)
             print('done')
     if cfg.TRAIN.ZOOM_ADJUEST:
         if len(cfg.TRAIN.ZOOM_ADJUEST_SCALE)!=0:
             print('Appending zoom-adjuest training examples...')
-            imdb.append_zoom_adjuest_images()
+            imdb.append_zoom_adjuest_images(ori_num_images)
             print('done')
     if cfg.TRAIN.CROP_IMAGES:
         if len(cfg.TRAIN.CROP_SIZE)!=0 and cfg.TRAIN.RESIZE_SCALE >=800:
             print('Appending random-crop training examples...')
-            imdb.append_random_crop_images()
+            imdb.append_random_crop_images(ori_num_images)
             print('done')
     print('Preparing training data...')
     rdl_roidb.prepare_roidb(imdb)

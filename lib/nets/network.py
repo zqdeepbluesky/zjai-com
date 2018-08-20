@@ -84,17 +84,10 @@ class Network(object):
     def _proposal_top_layer(self, rpn_cls_prob, rpn_bbox_pred, name):
         with tf.variable_scope(name) as scope:
             if cfg.USE_E2E_TF:
-                rois, rpn_scores = proposal_top_layer_tf(
-                    rpn_cls_prob,
-                    rpn_bbox_pred,
-                    self._im_info,
-                    self._feat_stride,
-                    self._anchors,
-                    self._num_anchors
-                )
+                rois, rpn_scores = proposal_top_layer_tf(rpn_cls_prob,rpn_bbox_pred,self._im_info,self._feat_stride,
+                    self._anchors,self._num_anchors)
             else:
-                rois, rpn_scores = tf.py_func(proposal_top_layer,
-                                              [rpn_cls_prob, rpn_bbox_pred, self._im_info,
+                rois, rpn_scores = tf.py_func(proposal_top_layer,[rpn_cls_prob, rpn_bbox_pred, self._im_info,
                                                self._feat_stride, self._anchors, self._num_anchors],
                                               [tf.float32, tf.float32], name="proposal_top")
 
@@ -106,33 +99,22 @@ class Network(object):
     def _proposal_layer(self, rpn_cls_prob, rpn_bbox_pred, name):
         with tf.variable_scope(name) as scope:
             if cfg.USE_E2E_TF:
-                rois, rpn_scores = proposal_layer_tf(
-                    rpn_cls_prob,
-                    rpn_bbox_pred,
-                    self._im_info,
-                    self._mode,
-                    self._feat_stride,
-                    self._anchors,
-                    self._num_anchors
-                )  #筛选超越边界的候选框，进行nms处理，得到前6k个候选框
+                rois, rpn_scores = proposal_layer_tf(rpn_cls_prob,rpn_bbox_pred,self._im_info,self._mode,self._feat_stride,
+                    self._anchors,self._num_anchors)  #筛选超越边界的候选框，进行nms处理，得到前6k个候选框
             else:
-                rois, rpn_scores = tf.py_func(proposal_layer,
-                                              [rpn_cls_prob, rpn_bbox_pred, self._im_info, self._mode,
+                rois, rpn_scores = tf.py_func(proposal_layer,[rpn_cls_prob, rpn_bbox_pred, self._im_info, self._mode,
                                                self._feat_stride, self._anchors, self._num_anchors],
                                               [tf.float32, tf.float32], name="proposal")
 
-            rois.set_shape([None, 5])
-            rpn_scores.set_shape([None, 1])
+            rois.set_shape([None, 5])  #[w*h*9,5]
+            rpn_scores.set_shape([None, 1])  #[w*h*9,1]
 
         return rois, rpn_scores
 
     # Only use it if you have roi_pooling op written in tf.image
     def _roi_pool_layer(self, bootom, rois, name):
         with tf.variable_scope(name) as scope:
-            return tf.image.roi_pooling(bootom, rois,
-                                        pooled_height=cfg.POOLING_SIZE,
-                                        pooled_width=cfg.POOLING_SIZE,
-                                        spatial_scale=1. / 16.)[0]
+            return tf.image.roi_pooling(bootom, rois,pooled_height=cfg.POOLING_SIZE,pooled_width=cfg.POOLING_SIZE,spatial_scale=1. / 16.)[0]
 
     def _crop_pool_layer(self, bottom, rois, name):
         with tf.variable_scope(name) as scope:
@@ -150,7 +132,7 @@ class Network(object):
             pre_pool_size = cfg.POOLING_SIZE * 2
             crops = tf.image.crop_and_resize(bottom, bboxes, tf.to_int32(batch_ids), [pre_pool_size, pre_pool_size], name="crops")
 
-        return slim.max_pool2d(crops, [2, 2], padding='SAME')
+        return slim.max_pool2d(crops, [2, 2], padding='SAME') #最大池化层
 
     def _dropout_layer(self, bottom, name, ratio=0.5):
         return tf.nn.dropout(bottom, ratio, name=name)
@@ -162,11 +144,12 @@ class Network(object):
                 [rpn_cls_score, self._gt_boxes, self._im_info, self._feat_stride, self._anchors, self._num_anchors],
                 [tf.float32, tf.float32, tf.float32, tf.float32],
                 name="anchor_target")
+            # 剔除越出边界的roi,计算边界偏移值,选出前后景,初始化权重
 
-            rpn_labels.set_shape([1, 1, None, None])
-            rpn_bbox_targets.set_shape([1, None, None, self._num_anchors * 4])
-            rpn_bbox_inside_weights.set_shape([1, None, None, self._num_anchors * 4])
-            rpn_bbox_outside_weights.set_shape([1, None, None, self._num_anchors * 4])
+            rpn_labels.set_shape([1, 1, None, None]) #[1,1,h,w]
+            rpn_bbox_targets.set_shape([1, None, None, self._num_anchors * 4]) #[1,h,w,9*4]
+            rpn_bbox_inside_weights.set_shape([1, None, None, self._num_anchors * 4])#[1,h,w,9*4]
+            rpn_bbox_outside_weights.set_shape([1, None, None, self._num_anchors * 4])#[1,h,w,9*4]
 
             rpn_labels = tf.to_int32(rpn_labels, name="to_int32")
             self._anchor_targets['rpn_labels'] = rpn_labels
@@ -179,6 +162,7 @@ class Network(object):
         return rpn_labels
 
     def _proposal_target_layer(self, rois, roi_scores, name):
+        #选出batchsize的候选框,计算真实偏移量
         with tf.variable_scope(name) as scope:
             rois, roi_scores, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = tf.py_func(
                 proposal_target_layer,
@@ -209,17 +193,9 @@ class Network(object):
             height = tf.to_int32(tf.ceil(self._im_info[0] / np.float32(self._feat_stride[0])))  #blob图像高除以16
             width = tf.to_int32(tf.ceil(self._im_info[1] / np.float32(self._feat_stride[0])))   #blob图像宽除以16
             if cfg.USE_E2E_TF:
-                anchors, anchor_length = generate_anchors_pre_tf(
-                    height,
-                    width,
-                    self._feat_stride,
-                    self._anchor_scales,
-                    self._anchor_ratios
-                )
+                anchors, anchor_length = generate_anchors_pre_tf(height,width,self._feat_stride,self._anchor_scales,self._anchor_ratios)
             else:
-                anchors, anchor_length = tf.py_func(generate_anchors_pre,
-                                                    [height, width,
-                                                     self._feat_stride, self._anchor_scales, self._anchor_ratios],
+                anchors, anchor_length = tf.py_func(generate_anchors_pre,[height, width,self._feat_stride, self._anchor_scales, self._anchor_ratios],
                                                     [tf.float32, tf.int32], name="generate_anchors")
             anchors.set_shape([None, 4])
             anchor_length.set_shape([])
@@ -239,9 +215,9 @@ class Network(object):
         net_conv = self._image_to_head(is_training)
         with tf.variable_scope(self._scope, self._scope):
             # build the anchors for the image
-            self._anchor_component()    #得到9×k个候选框
+            self._anchor_component()    #得到9*w*h/256个候选框
             # region proposal network
-            rois = self._region_proposal(net_conv, is_training, initializer)
+            rois = self._region_proposal(net_conv, is_training, initializer) #得到batchsize的roi,最多一半的前景
             # region of interest pooling
             if cfg.POOLING_MODE == 'crop':
                 pool5 = self._crop_pool_layer(net_conv, rois, "pool5")
@@ -271,10 +247,10 @@ class Network(object):
     def _add_losses(self, sigma_rpn=3.0):
         with tf.variable_scope('LOSS_' + self._tag) as scope:
             # RPN, class loss
-            rpn_cls_score = tf.reshape(self._predictions['rpn_cls_score_reshape'], [-1, 2])
-            rpn_label = tf.reshape(self._anchor_targets['rpn_labels'], [-1])
-            rpn_select = tf.where(tf.not_equal(rpn_label, -1))
-            rpn_cls_score = tf.reshape(tf.gather(rpn_cls_score, rpn_select), [-1, 2])
+            rpn_cls_score = tf.reshape(self._predictions['rpn_cls_score_reshape'], [-1, 2]) #前后景分数
+            rpn_label = tf.reshape(self._anchor_targets['rpn_labels'], [-1]) #标签
+            rpn_select = tf.where(tf.not_equal(rpn_label, -1)) #不等于-1的小标
+            rpn_cls_score = tf.reshape(tf.gather(rpn_cls_score, rpn_select), [-1, 2]) #重整
             rpn_label = tf.reshape(tf.gather(rpn_label, rpn_select), [-1])
             rpn_cross_entropy = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=rpn_cls_score, labels=rpn_label))
 
@@ -317,21 +293,21 @@ class Network(object):
         self._act_summaries.append(rpn)
         rpn_cls_score = slim.conv2d(rpn, self._num_anchors * 2, [1, 1], trainable=is_training,
                                     weights_initializer=initializer,
-                                    padding='VALID', activation_fn=None, scope='rpn_cls_score') #[1,w,h,9*2]
+                                    padding='VALID', activation_fn=None, scope='rpn_cls_score') #[1,h,w,9*2]
         # change it so that the score has 2 as its channel size
-        rpn_cls_score_reshape = self._reshape_layer(rpn_cls_score, 2, 'rpn_cls_score_reshape')  #[18,w,h,2]
-        rpn_cls_prob_reshape = self._softmax_layer(rpn_cls_score_reshape, "rpn_cls_prob_reshape") #[18,w,h,2]
-        rpn_cls_pred = tf.argmax(tf.reshape(rpn_cls_score_reshape, [-1, 2]), axis=1, name="rpn_cls_pred") #[18,w,h,1]
-        rpn_cls_prob = self._reshape_layer(rpn_cls_prob_reshape, self._num_anchors * 2, "rpn_cls_prob") #[1,w,h,9*2]
+        rpn_cls_score_reshape = self._reshape_layer(rpn_cls_score, 2, 'rpn_cls_score_reshape')  #[1,9*h,e,2]
+        rpn_cls_prob_reshape = self._softmax_layer(rpn_cls_score_reshape, "rpn_cls_prob_reshape") #[1,9*h,e,2]
+        rpn_cls_pred = tf.argmax(tf.reshape(rpn_cls_score_reshape, [-1, 2]), axis=1, name="rpn_cls_pred") #[1,9*h,w,1]
+        rpn_cls_prob = self._reshape_layer(rpn_cls_prob_reshape, self._num_anchors * 2, "rpn_cls_prob") #[1,h,e,9*2]
         rpn_bbox_pred = slim.conv2d(rpn, self._num_anchors * 4, [1, 1], trainable=is_training,
                                     weights_initializer=initializer,
-                                    padding='VALID', activation_fn=None, scope='rpn_bbox_pred') #[1,w,h,9*4]
+                                    padding='VALID', activation_fn=None, scope='rpn_bbox_pred') #[1,h,w,9*4]
         if is_training:
-            rois, roi_scores = self._proposal_layer(rpn_cls_prob, rpn_bbox_pred, "rois") #筛选超越边界的候选框，进行nms处理，得到前6k个候选框
-            rpn_labels = self._anchor_target_layer(rpn_cls_score, "anchor")
+            rois, roi_scores = self._proposal_layer(rpn_cls_prob, rpn_bbox_pred, "rois") #根据预测偏移值,计算边界，根据nms筛选2k，并重构blob
+            rpn_labels = self._anchor_target_layer(rpn_cls_score, "anchor")  #剔除越出边界的roi,计算边界偏移值,选出前后景,初始化权重,self._anchor_targets
             # Try to have a deterministic order for the computing graph, for reproducibility
-            with tf.control_dependencies([rpn_labels]):
-                rois, _ = self._proposal_target_layer(rois, roi_scores, "rpn_rois")
+            with tf.control_dependencies([rpn_labels]):  #控制依赖关系,先运行完rpn_labels,才由下面
+                rois, _ = self._proposal_target_layer(rois, roi_scores, "rpn_rois") #选出batchsize的候选框,计算真实偏移量
         else:
             if cfg.TEST.MODE == 'nms':
                 rois, _ = self._proposal_layer(rpn_cls_prob, rpn_bbox_pred, "rois")
@@ -353,13 +329,13 @@ class Network(object):
         cls_score = slim.fully_connected(fc7, self._num_classes,
                                          weights_initializer=initializer,
                                          trainable=is_training,
-                                         activation_fn=None, scope='cls_score')
-        cls_prob = self._softmax_layer(cls_score, "cls_prob")
-        cls_pred = tf.argmax(cls_score, axis=1, name="cls_pred")
+                                         activation_fn=None, scope='cls_score')#全连接层,输出[None,7]
+        cls_prob = self._softmax_layer(cls_score, "cls_prob") #softmax预测类别
+        cls_pred = tf.argmax(cls_score, axis=1, name="cls_pred") #最大可能性类别
         bbox_pred = slim.fully_connected(fc7, self._num_classes * 4,
                                          weights_initializer=initializer_bbox,
                                          trainable=is_training,
-                                         activation_fn=None, scope='bbox_pred')
+                                         activation_fn=None, scope='bbox_pred') #全连接层,输出[None,4]
 
         self._predictions["cls_score"] = cls_score
         self._predictions["cls_pred"] = cls_pred
@@ -408,11 +384,11 @@ class Network(object):
                        weights_regularizer=weights_regularizer,
                        biases_regularizer=biases_regularizer,
                        biases_initializer=tf.constant_initializer(0.0)):
-            rois, cls_prob, bbox_pred = self._build_network(training)
+            rois, cls_prob, bbox_pred = self._build_network(training) #返回候选框,对应标签类别,对应边界偏移值
 
         layers_to_output = {'rois': rois}
 
-        for var in tf.trainable_variables():
+        for var in tf.trainable_variables(): #返回需要训练的变量列表
             self._train_summaries.append(var)
 
         if testing:

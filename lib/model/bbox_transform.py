@@ -11,18 +11,18 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
-def bbox_transform(ex_rois, gt_rois):
-    ex_widths = ex_rois[:, 2] - ex_rois[:, 0] + 1.0
+def bbox_transform(ex_rois, gt_rois):   #ex_rois:[w*h*9/256,4]候选框,gt_rois:[w*h*9/256,5]真实,计算真实偏移量
+    ex_widths = ex_rois[:, 2] - ex_rois[:, 0] + 1.0 #候选框
     ex_heights = ex_rois[:, 3] - ex_rois[:, 1] + 1.0
     ex_ctr_x = ex_rois[:, 0] + 0.5 * ex_widths
     ex_ctr_y = ex_rois[:, 1] + 0.5 * ex_heights
 
-    gt_widths = gt_rois[:, 2] - gt_rois[:, 0] + 1.0
+    gt_widths = gt_rois[:, 2] - gt_rois[:, 0] + 1.0 #真实框
     gt_heights = gt_rois[:, 3] - gt_rois[:, 1] + 1.0
     gt_ctr_x = gt_rois[:, 0] + 0.5 * gt_widths
     gt_ctr_y = gt_rois[:, 1] + 0.5 * gt_heights
 
-    targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
+    targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths #目标偏移值
     targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
     targets_dw = np.log(gt_widths / ex_widths)
     targets_dh = np.log(gt_heights / ex_heights)
@@ -82,28 +82,28 @@ def clip_boxes(boxes, im_shape):
 
 
 def bbox_transform_inv_tf(boxes, deltas):
-    boxes = tf.cast(boxes, deltas.dtype)
-    widths = tf.subtract(boxes[:, 2], boxes[:, 0]) + 1.0
-    heights = tf.subtract(boxes[:, 3], boxes[:, 1]) + 1.0
-    ctr_x = tf.add(boxes[:, 0], widths * 0.5)
-    ctr_y = tf.add(boxes[:, 1], heights * 0.5)
+    boxes = tf.cast(boxes, deltas.dtype)  #[9,4]
+    widths = tf.subtract(boxes[:, 2], boxes[:, 0]) + 1.0  #[w*h*9],宽
+    heights = tf.subtract(boxes[:, 3], boxes[:, 1]) + 1.0 #[w*h*9],高
+    ctr_x = tf.add(boxes[:, 0], widths * 0.5)  #[w*h*9],中心点x
+    ctr_y = tf.add(boxes[:, 1], heights * 0.5) #[w*h*9],中心点y
 
     dx = deltas[:, 0]
     dy = deltas[:, 1]
     dw = deltas[:, 2]
     dh = deltas[:, 3]
 
-    pred_ctr_x = tf.add(tf.multiply(dx, widths), ctr_x)
+    pred_ctr_x = tf.add(tf.multiply(dx, widths), ctr_x) # Gx=Aw*Ax+tx [w*h*9]
     pred_ctr_y = tf.add(tf.multiply(dy, heights), ctr_y)
-    pred_w = tf.multiply(tf.exp(dw), widths)
-    pred_h = tf.multiply(tf.exp(dh), heights)
+    pred_w = tf.multiply(tf.exp(dw), widths)  #e^tw*Aw
+    pred_h = tf.multiply(tf.exp(dh), heights) #e^th*Ah
 
-    pred_boxes0 = tf.subtract(pred_ctr_x, pred_w * 0.5)
+    pred_boxes0 = tf.subtract(pred_ctr_x, pred_w * 0.5) #pxmin,pxmax,pymin,pymax  预测结果
     pred_boxes1 = tf.subtract(pred_ctr_y, pred_h * 0.5)
     pred_boxes2 = tf.add(pred_ctr_x, pred_w * 0.5)
     pred_boxes3 = tf.add(pred_ctr_y, pred_h * 0.5)
 
-    return tf.stack([pred_boxes0, pred_boxes1, pred_boxes2, pred_boxes3], axis=1)
+    return tf.stack([pred_boxes0, pred_boxes1, pred_boxes2, pred_boxes3], axis=1) #[w*h*9] *4 ->[w*h*9,4]
 
 
 def clip_boxes_tf(boxes, im_info):

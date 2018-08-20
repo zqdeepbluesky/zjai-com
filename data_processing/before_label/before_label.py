@@ -13,7 +13,7 @@ import zipfile
 
 import cv2
 import io
-import io_utils
+from data_processing.utils import io_utils
 
 import numpy as np
 import datetime
@@ -46,13 +46,12 @@ def rot90(parent_dir, image_dir): #旋转90度
                 image = image.copy()
             else:
                 image = img
-            name = image_file.split('\\')[-1]
+            name = image_file.split('/')[-1]
             save_path = os.path.join(imgs_out_path, name)
 
             # don't need resize
             # image = cv2.resize(image, (int(image.shape[1] * 0.5), int(image.shape[0]*0.5)), interpolation=cv2.INTER_CUBIC)
             # print('resize:{}'.format(image.shape))
-
             cv2.imwrite(save_path, image)
 
             #print(save_path)
@@ -82,7 +81,7 @@ def rename_image(parent_dir, image_dir_name): #重命名
     return data_rename_dir
 
 def copy_to_JPEGImages(src_dir): #把处理好的图片放到JPEGImages
-    target_dir = os.path.join(args.parent_dir, 'JPEGImages\\')
+    target_dir = os.path.join(args.parent_dir, 'JPEGImages/')
     io_utils.mkdir(target_dir)
     io_utils.remove_all(target_dir)
 
@@ -105,8 +104,8 @@ def create_subs(src_dir):
     folder = 10
     for s in os.listdir(src_dir):
         if idx % 200 == 0:
-            JPEGImages_dir = os.path.join(args.parent_dir + '-{}'.format(folder), 'JPEGImages\\')
-            Annotations_dir = os.path.join(args.parent_dir + '-{}'.format(folder), 'Annotations\\')
+            JPEGImages_dir = os.path.join(args.parent_dir + '-{}'.format(folder), 'JPEGImages/')
+            Annotations_dir = os.path.join(args.parent_dir + '-{}'.format(folder), 'Annotations/')
             io_utils.mkdir(JPEGImages_dir)
             io_utils.mkdir(Annotations_dir)
             io_utils.remove_all(JPEGImages_dir)
@@ -137,7 +136,7 @@ def create_zip(src_dir,parent_dir): #分包加压缩
                 zip_dir(parent, parent_zip)
 
             temp_dir=os.path.join(parent_dir,str_date[0:4]+'-'+str_date[4:6]+'-'+str_date[6:8])
-            JPEGImages_dir = os.path.join(temp_dir + '-{}'.format(folder), 'JPEGImages\\')
+            JPEGImages_dir = os.path.join(temp_dir + '-{}'.format(folder), 'JPEGImages/')
             #Annotations_dir = os.path.join(temp_dir + '-{}'.format(folder), 'Annotations\\')
             io_utils.mkdir(JPEGImages_dir)
             #io_utils.mkdir(Annotations_dir)
@@ -181,23 +180,23 @@ def zip_dir(file_path,zfile_path):
         zf.write(tar,arcname)
     zf.close()
 
-str_date = '{year}{month}{day}'.format(year='2018', month='05', day='21')  #改这里，日期
+str_date = '{year}{month}{day}'.format(year='2018', month='08', day='17')  #改这里，日期
 parser = argparse.ArgumentParser(description='Get the data info')
 #parser.add_argument('-p', '--parent_dir',help='the parent folder of image', default='C:\\Users\\Administrator\\Desktop\\train_data-2018-04-12\\')  #windows系统下用\\
-parser.add_argument('-p', '--parent_dir',help='the parent folder of image', default='D:\\all_data\\predict_data-'+str_date[0:4]+'-'+str_date[4:6]+'-'+str_date[6:8])  #windows系统下用\\  改文件目录
+parser.add_argument('-p', '--parent_dir',help='the parent folder of image', default='/home/hyl/data/data/predict_data/predict_data-'+str_date[0:4]+'-'+str_date[4:6]+'-'+str_date[6:8])  #windows系统下用\\  改文件目录
 parser.add_argument('-d', '--folder_name',help='the origin folder of image', default='origin')
 args = parser.parse_args()
 
 
 if __name__  == '__main__':
     if args.parent_dir and args.folder_name:
-        #create_origin(args.parent_dir, args.folder_name)
-        #new_dir = rot90(args.parent_dir, args.folder_name)
-        #rename_dir = rename_image(args.parent_dir,'D:\\all_data\\predict_data-'+str_date[0:4]+'-'+str_date[4:6]+'-'+str_date[6:8]+'\\origin_with_rot90') #改文件目录
-        #做完上面三步就跑open_image.py
+        create_origin(args.parent_dir, args.folder_name)
+        new_dir = rot90(args.parent_dir, args.folder_name)
+        rename_dir = rename_image(args.parent_dir,'/home/hyl/data/data/predict_data/predict_data-'+str_date[0:4]+'-'+str_date[4:6]+'-'+str_date[6:8]+'/origin_with_rot90') #改文件目录
+        # 做完上面三步就跑open_image.py
         #create_zip(args.parent_dir + '\\origin_with_rot90_rename', args.parent_dir)
 
-        create_zip(args.parent_dir + '\\JPEGImages', args.parent_dir)#做这一步的时候，用#注释掉前面三步
+        # create_zip(args.parent_dir + '\\JPEGImages', args.parent_dir)#做这一步的时候，用#注释掉前面三步
 
 
 # if __name__  == '__main__':

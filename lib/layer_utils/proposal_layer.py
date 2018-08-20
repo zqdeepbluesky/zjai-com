@@ -61,24 +61,24 @@ def proposal_layer_tf(rpn_cls_prob, rpn_bbox_pred, im_info, cfg_key, _feat_strid
     nms_thresh = cfg[cfg_key].RPN_NMS_THRESH
 
     # Get the scores and bounding boxes
-    scores = rpn_cls_prob[:, :, :, num_anchors:]  #取出前景分数
-    scores = tf.reshape(scores, shape=(-1,))
-    rpn_bbox_pred = tf.reshape(rpn_bbox_pred, shape=(-1, 4))
+    scores = rpn_cls_prob[:, :, :, num_anchors:]  #取出前景分数 [1,w,h,18]->[1,w,h,9]
+    scores = tf.reshape(scores, shape=(-1,)) #[1,w,h,9] ->[w*h*9,1]
+    rpn_bbox_pred = tf.reshape(rpn_bbox_pred, shape=(-1, 4))  #[1,w,h,9*4]->[w*h*9,4]
 
-    proposals = bbox_transform_inv_tf(anchors, rpn_bbox_pred)
-    proposals = clip_boxes_tf(proposals, im_info[:2])  #越过边界的补边界
+    proposals = bbox_transform_inv_tf(anchors, rpn_bbox_pred) #根据预测的偏移量计算边界
+    proposals = clip_boxes_tf(proposals, im_info[:2])  #调整边界,使得不超过边界
 
     # Non-maximal suppression
-    indices = tf.image.non_max_suppression(proposals, scores, max_output_size=post_nms_topN, iou_threshold=nms_thresh)
+    indices = tf.image.non_max_suppression(proposals, scores, max_output_size=post_nms_topN, iou_threshold=nms_thresh) #nms筛选,最大输出2000的下标
 
     boxes = tf.gather(proposals, indices) #选出对应下标的物体框
     boxes = tf.to_float(boxes)
     scores = tf.gather(scores, indices) #选出对应下标的前景分数
-    scores = tf.reshape(scores, shape=(-1, 1))
+    scores = tf.reshape(scores, shape=(-1, 1)) #[w*h*9,1]
 
     # Only support single image as input
     batch_inds = tf.zeros((tf.shape(indices)[0], 1), dtype=tf.float32)
-    blob = tf.concat([batch_inds, boxes], 1) #重新连接，重构blob
+    blob = tf.concat([batch_inds, boxes], 1) #重新连接，重构blob  [0,xmin,ymin,xmax,ymax]
 
     return blob, scores
 
