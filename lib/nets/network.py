@@ -138,6 +138,7 @@ class Network(object):
         return tf.nn.dropout(bottom, ratio, name=name)
 
     def _anchor_target_layer(self, rpn_cls_score, name):
+        #根据候选框计算实际偏移量,用于计算误差
         with tf.variable_scope(name) as scope:
             rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights = tf.py_func(
                 anchor_target_layer,
@@ -163,6 +164,7 @@ class Network(object):
 
     def _proposal_target_layer(self, rois, roi_scores, name):
         #选出batchsize的候选框,计算真实偏移量
+        #根据预测边界计算的实际偏移量
         with tf.variable_scope(name) as scope:
             rois, roi_scores, labels, bbox_targets, bbox_inside_weights, bbox_outside_weights = tf.py_func(
                 proposal_target_layer,
@@ -289,16 +291,16 @@ class Network(object):
 
     def _region_proposal(self, net_conv, is_training, initializer):
         rpn = slim.conv2d(net_conv, cfg.RPN_CHANNELS, [3, 3], trainable=is_training, weights_initializer=initializer,
-                          scope="rpn_conv/3x3")  #[1,w,h,256]
+                          scope="rpn_conv/3x3")  #[1,h,w,256]
         self._act_summaries.append(rpn)
         rpn_cls_score = slim.conv2d(rpn, self._num_anchors * 2, [1, 1], trainable=is_training,
                                     weights_initializer=initializer,
                                     padding='VALID', activation_fn=None, scope='rpn_cls_score') #[1,h,w,9*2]
         # change it so that the score has 2 as its channel size
-        rpn_cls_score_reshape = self._reshape_layer(rpn_cls_score, 2, 'rpn_cls_score_reshape')  #[1,9*h,e,2]
-        rpn_cls_prob_reshape = self._softmax_layer(rpn_cls_score_reshape, "rpn_cls_prob_reshape") #[1,9*h,e,2]
-        rpn_cls_pred = tf.argmax(tf.reshape(rpn_cls_score_reshape, [-1, 2]), axis=1, name="rpn_cls_pred") #[1,9*h,w,1]
-        rpn_cls_prob = self._reshape_layer(rpn_cls_prob_reshape, self._num_anchors * 2, "rpn_cls_prob") #[1,h,e,9*2]
+        rpn_cls_score_reshape = self._reshape_layer(rpn_cls_score, 2, 'rpn_cls_score_reshape')  #[1,9*h,w,2]
+        rpn_cls_prob_reshape = self._softmax_layer(rpn_cls_score_reshape, "rpn_cls_prob_reshape") #[1,9*h,w,2]
+        rpn_cls_pred = tf.argmax(tf.reshape(rpn_cls_score_reshape, [-1, 2]), axis=1, name="rpn_cls_pred") #[1,9*h,w,1],得到窗口是前景还是后景
+        rpn_cls_prob = self._reshape_layer(rpn_cls_prob_reshape, self._num_anchors * 2, "rpn_cls_prob") #[1,h,w,9*2]
         rpn_bbox_pred = slim.conv2d(rpn, self._num_anchors * 4, [1, 1], trainable=is_training,
                                     weights_initializer=initializer,
                                     padding='VALID', activation_fn=None, scope='rpn_bbox_pred') #[1,h,w,9*4]

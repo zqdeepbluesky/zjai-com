@@ -54,6 +54,7 @@ def proposal_layer(rpn_cls_prob, rpn_bbox_pred, im_info, cfg_key, _feat_stride, 
 
 
 def proposal_layer_tf(rpn_cls_prob, rpn_bbox_pred, im_info, cfg_key, _feat_stride, anchors, num_anchors):
+    #根据预测偏移量计算预测边界
     if type(cfg_key) == bytes:
         cfg_key = cfg_key.decode('utf-8')
     pre_nms_topN = cfg[cfg_key].RPN_PRE_NMS_TOP_N
@@ -61,8 +62,8 @@ def proposal_layer_tf(rpn_cls_prob, rpn_bbox_pred, im_info, cfg_key, _feat_strid
     nms_thresh = cfg[cfg_key].RPN_NMS_THRESH
 
     # Get the scores and bounding boxes
-    scores = rpn_cls_prob[:, :, :, num_anchors:]  #取出前景分数 [1,w,h,18]->[1,w,h,9]
-    scores = tf.reshape(scores, shape=(-1,)) #[1,w,h,9] ->[w*h*9,1]
+    scores = rpn_cls_prob[:, :, :, num_anchors:]  #取出前景分数 [1,h,w,18]->[1,h,w,9]
+    scores = tf.reshape(scores, shape=(-1,)) #[1,h,w,9] ->[w*h*9,1]
     rpn_bbox_pred = tf.reshape(rpn_bbox_pred, shape=(-1, 4))  #[1,w,h,9*4]->[w*h*9,4]
 
     proposals = bbox_transform_inv_tf(anchors, rpn_bbox_pred) #根据预测的偏移量计算边界
