@@ -1,4 +1,4 @@
-from lib.model.config import cfg
+from lib.model.config import cfg,cal_data_aug_code
 import cv2
 import tensorflow as tf
 from lib.extra_utils.xml_store import *
@@ -79,7 +79,11 @@ def evaluate_model(sess_test, net_test, model_dir,model_data,CLASSES,predict_dir
         test_infos.append(test_info)
     tb = cal_acc.get_tabs(test_infos)
     tb = cal_acc.summary_tb(tb, test_infos)
-    txt_save_path = os.path.join(model_dir, model_data.split(".")[0] + "_test_result")
+    aug_code=cal_data_aug_code(cfg)
+    txt_save_path = os.path.abspath(os.path.join(model_dir,'..','..','{}_batch_test_result'.format(aug_code)))
+    if not os.path.exists(txt_save_path):
+        io_utils.mkdir(txt_save_path)
+    txt_save_path = os.path.join(txt_save_path, model_data.split(".")[0] + "_test_result")
     cal_acc.save_tb_in_txt(txt_save_path, tb)
     cal_acc.save_tb_in_xml(txt_save_path, tb)
 
