@@ -146,6 +146,22 @@ def prepare_datas(package_name):
     cfg.TRAIN.CROP_IMAGES = org_crop_images
 
     return imdb, roidb, valroidb
+def print_key_args(args):
+    print('*'*20)
+
+    print('Called with key args:')
+    train_package=[os.path.join(cfg.ROOT_DIR,package) for package in args.package_name]
+    print('--use training package : {}'.format(train_package))
+    print('--whether use fine tune : {}'.format(args.snapshot))
+    if args.snapshot:
+        print('--use fine tune model : {}'.format(args.snapshot_dir))
+    print('--use net : {}'.format(args.net))
+    test_package=[os.path.join(cfg.ROOT_DIR,package) for package in args.package_name]
+    if args.use_extra_test_data:
+        for extra_test in args.extra_test_package:
+            test_package.append(os.path.join(cfg.ROOT_DIR,extra_test))
+    print('--use test package : {}'.format(test_package))
+    print('*' * 20)
 
 def prepare_params():
     # output directory where the models are saved
@@ -162,13 +178,10 @@ def prepare_params():
 if __name__ == '__main__':
     parser = parse_args()
     args = parser.parse_args()
-    print('*'*20)
-    print_args(args)
 
-    print('Called with args:')
-    print(args)
     args=load_setting_cfg(args)
-    print(args)
+    print_key_args(args)
+
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 
     if args.cfg_file is not None:
@@ -178,8 +191,8 @@ if __name__ == '__main__':
 
     args=parser.reload_or_save_args(cfg,args)
 
-    print('Using config:')
-    pprint.pprint(cfg)
+    # print('Using config:')
+    # pprint.pprint(cfg)
 
     np.random.seed(cfg.RNG_SEED)
 
