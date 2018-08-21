@@ -142,25 +142,33 @@ def prepare_datas(package_name):
     cfg.TRAIN.CROP_IMAGES = org_crop_images
 
     return imdb, roidb, valroidb
-def print_key_args(args):
+def print_args(args,verbose=1):
     print('*'*20)
-
     print('Called with key args:')
-    train_package=[os.path.join(cfg.ROOT_DIR,package) for package in args.package_name]
+    if verbose==1:
+        show_key_args(args)
+    if verbose==2:
+        print(args)
+    if verbose==3:
+        print(args)
+        pprint(cfg)
+    print('*' * 20)
+
+def show_key_args(args):
+    train_package = [os.path.join(cfg.ROOT_DIR, package) for package in args.package_name]
     print('--input training package : {}'.format(train_package))
     print('--whether use fine tune : {}'.format(args.snapshot))
     if args.snapshot:
         print('--use fine tune model : {}'.format(args.snapshot_dir))
     print('--use net : {}'.format(args.net))
-    test_package=[os.path.join(cfg.ROOT_DIR,'data','train_data',package) for package in args.package_name]
+    test_package = [os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package) for package in args.package_name]
     print('--input test package : {}'.format(test_package))
     if args.use_extra_test_data:
-        extra_test_package = [os.path.join(cfg.ROOT_DIR, args.extra_test_dir,package) for package in args.extra_test_package]
+        extra_test_package = [os.path.join(cfg.ROOT_DIR, args.extra_test_dir, package) for package in
+                              args.extra_test_package]
         print('--input extra test package : {}'.format(extra_test_package))
     else:
         print('--use extra test package : {}'.format(args.use_extra_test_data))
-    print('*' * 20)
-
 def prepare_params():
     # output directory where the models are saved
     output_dir = get_output_dir(imdb, args.tag,args.package_name)
@@ -178,7 +186,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args=load_setting_cfg(args)
-    print_key_args(args)
+    print_args(args,verbose=1)
 
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 

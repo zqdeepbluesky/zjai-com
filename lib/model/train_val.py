@@ -182,7 +182,7 @@ class SolverWrapper(object):
         np_paths = []
         ss_paths = []
         # Fresh train directly from ImageNet weights
-        print('Loading initial model weights from {:s}'.format(self.pretrained_model))
+        # print('Loading initial model weights from {:s}'.format(self.pretrained_model))
         variables = tf.global_variables()
         # Initialize all variables first
         sess.run(tf.variables_initializer(variables, name='init'))
