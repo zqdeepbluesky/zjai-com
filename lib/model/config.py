@@ -312,6 +312,7 @@ __C.ANCHOR_RATIOS = [0.5,1,2]
 # Number of filters for the RPN layer
 __C.RPN_CHANNELS = 512
 
+__C.CLASSES_FILE= ''
 
 def get_output_dir(imdb, weights_filename,package_name):
     """Return the directory where experimental artifacts are placed.

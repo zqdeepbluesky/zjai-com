@@ -50,7 +50,7 @@ class pascal_voc(imdb):
         if DEBUG:
             # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data2'))
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data"))
-            self._classes = read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', 'com_classes_21.txt'))
+            self._classes = read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', cfg.CLASSES_FILE))
         else:
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
             self._classes = read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', 'voc_classes.txt'))

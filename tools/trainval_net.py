@@ -194,6 +194,7 @@ if __name__ == '__main__':
         cfg_from_file(args.cfg_file)
     if args.set_cfgs is not None:
         cfg_from_list(args.set_cfgs)
+    cfg.CLASSES_FILE = args.com_classes
 
     args=parser.reload_or_save_args(cfg,args)
 

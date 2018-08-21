@@ -30,16 +30,17 @@ def parse_args():
                         default='pascal_voc_0712')
     parser.add_argument('--root_dir', dest='root_dir', help='the path of the file hava stored',
                          default=osp.join(cfg.ROOT_DIR,"data"))
-    parser.add_argument('--set_name', dest='set_name', help='the name of the classes file',
-                        default="com")
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="vgg16_faster_rcnn_iter_460000.ckpt")
+                        default="vgg16_faster_rcnn_iter_580000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
-                        default=osp.join(cfg.ROOT_DIR, "data","train_data"))
+                        default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
-                        default=["random_choice_data_1000","random_choice_data_500"],type=list)
+                        default=["predict_data-2018-08-21"],type=list)
+    parser.add_argument('--com_classes', dest='com_classes',
+                        help='use com_classes file name',
+                        default='com_classes_21.txt', type=str)
     args = parser.parse_args()
 
     return args
@@ -47,7 +48,7 @@ def parse_args():
 
 
 args = parse_args()
-CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs',"{}_classes_169.txt".format(args.set_name)))
+CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs',args.com_classes))
 
 def main():
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
