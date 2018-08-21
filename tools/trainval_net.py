@@ -28,13 +28,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 
-def print_args(args):
-    if args is None:
-        print('args error')
-
-    print('cfg_file:', args.cfg_file)
-    print('set_cfgs:', args.set_cfgs)
-    print('tag:', args.tag)
 
 def parse_args():
     """
@@ -90,6 +83,9 @@ def parse_args():
     parser.add_argument('--package_name', dest='package_name',
                         help='train_data1,train_data2,train_data3',
                         default=['all_train_data_resize2'], type=list)
+    parser.add_argument('--com_classes', dest='com_classes',
+                        help='use com_classes file name',
+                        default='com_classes_21.txt', type=str)
     parser.add_argument('--extra_test_dir', dest='extra_test_dir',
                         help='train_data1,train_data2,train_data3',
                         default='data/predict_data', type=str)
@@ -151,16 +147,18 @@ def print_key_args(args):
 
     print('Called with key args:')
     train_package=[os.path.join(cfg.ROOT_DIR,package) for package in args.package_name]
-    print('--use training package : {}'.format(train_package))
+    print('--input training package : {}'.format(train_package))
     print('--whether use fine tune : {}'.format(args.snapshot))
     if args.snapshot:
         print('--use fine tune model : {}'.format(args.snapshot_dir))
     print('--use net : {}'.format(args.net))
-    test_package=[os.path.join(cfg.ROOT_DIR,package) for package in args.package_name]
+    test_package=[os.path.join(cfg.ROOT_DIR,'data','train_data',package) for package in args.package_name]
+    print('--input test package : {}'.format(test_package))
     if args.use_extra_test_data:
-        for extra_test in args.extra_test_package:
-            test_package.append(os.path.join(cfg.ROOT_DIR,extra_test))
-    print('--use test package : {}'.format(test_package))
+        extra_test_package = [os.path.join(cfg.ROOT_DIR, args.extra_test_dir,package) for package in args.extra_test_package]
+        print('--input extra test package : {}'.format(extra_test_package))
+    else:
+        print('--use extra test package : {}'.format(args.use_extra_test_data))
     print('*' * 20)
 
 def prepare_params():
