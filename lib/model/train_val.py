@@ -21,6 +21,7 @@ import os
 import sys
 import glob
 import time
+import datetime
 
 import tensorflow as tf
 from tensorflow.python import pywrap_tensorflow
@@ -52,14 +53,16 @@ class SolverWrapper(object):
         if not os.path.exists(outputDir):
             os.makedirs(outputDir)
 
+        date = str(datetime.datetime.now())
+        date_prefix = cfg.TRAIN.SNAPSHOT_PREFIX[0:cfg.TRAIN.SNAPSHOT_PREFIX.find("_")] + '_' + date[0:date.find(":")].replace(" ", '-')
         # Store the model snapshot
-        filename = cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_{:d}'.format(iter) + '.ckpt'
+        filename = date_prefix + '_iter_{:d}'.format(iter) + '.ckpt'
         filename = os.path.join(outputDir, filename)
         self.saver.save(sess, filename)
         print('Wrote snapshot to: {:s}'.format(filename))
 
         # Also store some meta information, random state, etc.
-        nfilename = cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_{:d}'.format(iter) + '.pkl'
+        nfilename = date_prefix + '_iter_{:d}'.format(iter) + '.pkl'
         nfilename = os.path.join(outputDir, nfilename)
         # current state of numpy random
         st0 = np.random.get_state()
@@ -157,16 +160,17 @@ class SolverWrapper(object):
         return lr, train_op
 
     def find_previous(self):
-        sfiles = os.path.join(self.output_dir, cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_*.ckpt.meta')
+        sfiles = os.path.join(self.output_dir, '*_iter_*.ckpt.meta')
         sfiles = glob.glob(sfiles)
         sfiles.sort(key=os.path.getmtime)
         # Get the snapshot name in TensorFlow
         redfiles = []
         for stepsize in cfg.TRAIN.STEPSIZE:
-            redfiles.append(os.path.join(self.output_dir, cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_{:d}.ckpt.meta'.format(stepsize+1)))
+            stepfile = glob.glob(os.path.join(self.output_dir,'*_iter_{:d}.ckpt.meta'.format(stepsize+1)))
+            redfiles.append(stepfile[0])
         sfiles = [ss.replace('.meta', '') for ss in sfiles if ss not in redfiles]
 
-        nfiles = os.path.join(self.output_dir, cfg.TRAIN.SNAPSHOT_PREFIX + '_iter_*.pkl')
+        nfiles = os.path.join(self.output_dir,'*_iter_*.pkl')
         nfiles = glob.glob(nfiles)
         nfiles.sort(key=os.path.getmtime)
         redfiles = [redfile.replace('.ckpt.meta', '.pkl') for redfile in redfiles]
@@ -310,7 +314,7 @@ class SolverWrapper(object):
                 print('speed: {:.3f}s / iter'.format(timer.average_time))
 
             # Snapshotting
-            if iter % cfg.TRAIN.SNAPSHOT_ITERS == 0:
+            if iter % cfg.TRAIN.SNAPSHOT_ITERS == 0 :
                 last_snapshot_iter = iter
                 ss_path, np_path = self.snapshot(sess, iter,self.output_dir)
                 np_paths.append(np_path)
