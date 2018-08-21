@@ -21,6 +21,7 @@ import subprocess
 import uuid
 from .voc_eval import voc_eval
 from model.config import cfg
+from lib.extra_utils import io_utils
 
 DEBUG = True
 def read_classes(path):
@@ -49,7 +50,7 @@ class pascal_voc(imdb):
         if DEBUG:
             # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data2'))
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data"))
-            self._classes = read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', 'com_classes_169.txt'))
+            self._classes = read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', 'com_classes_21.txt'))
         else:
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
             self._classes = read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', 'voc_classes.txt'))
@@ -85,16 +86,20 @@ class pascal_voc(imdb):
         """
         Construct an image path from the image's "index" identifier.
         """
-        file_list = load_file_dict(os.path.join(self._devkit_path, "{}_file_dict.log".format("+".join(self.package_name))))
+        file_dict_dir=os.path.join(cfg.ROOT_DIR,'data','file_dict')
+        file_list = load_file_dict(os.path.join(file_dict_dir, "{}_file_dict.txt".format("+".join(self.package_name))))
         image_path = os.path.join(file_list[index], 'JPEGImages', index + self._image_ext)
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
         return image_path
 
     def _wrote_file_dict(self,image_index,image_file_path):
         file_dict={}
+        file_dict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'file_dict')
+        if not os.path.exists(file_dict_dir):
+            io_utils.mkdir(file_dict_dir)
         for i in range(len(image_index)):
             file_dict[image_index[i]]=image_file_path[i]
-        with open(os.path.join(self._devkit_path,'{}_file_dict.log'.format("+".join(self.package_name))), 'wb') as f:
+        with open(os.path.join(file_dict_dir,'{}_file_dict.txt'.format("+".join(self.package_name))), 'wb') as f:
             pickle.dump(file_dict, f, pickle.HIGHEST_PROTOCOL)
 
     def _load_image_set_index(self):
@@ -176,7 +181,8 @@ class pascal_voc(imdb):
         format.
         从XML文件中获取图片信息和gt
         """
-        file_list=load_file_dict(os.path.join(self._devkit_path,"{}_file_dict.log".format("+".join(self.package_name))))
+        file_dict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'file_dict')
+        file_list=load_file_dict(os.path.join(file_dict_dir,"{}_file_dict.txt".format("+".join(self.package_name))))
         filename = os.path.join(file_list[index], 'Annotations', index + '.xml')
         # filename = os.path.join(self._file_dict[index], index + ".xml")
         # filename = filename.replace("JPEGImages", "Annotations")

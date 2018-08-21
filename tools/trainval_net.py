@@ -169,7 +169,7 @@ if __name__ == '__main__':
     print(args)
     args=load_setting_cfg(args)
     print(args)
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu)
 
     if args.cfg_file is not None:
         cfg_from_file(args.cfg_file)
