@@ -255,8 +255,7 @@ class SolverWrapper(object):
         # Construct the computation graph
         lr, train_op = self.construct_graph(sess)
 
-        # Find previous snapshots if there is any to restore from
-        lsf, nfiles, sfiles = self.find_previous()
+        lsf, nfiles, sfiles=0,[],[]
 
         # Initialize the variables or restore them from the last snapshot
         if args.snapshot and os.path.exists(args.snapshot_dir+'.meta'):
@@ -265,6 +264,7 @@ class SolverWrapper(object):
             rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.restore(sess, str(sfiles[-1]),str(nfiles[-1]))
             sess.run(tf.assign(lr, cfg.TRAIN.LEARNING_RATE))
         else:
+            lsf, nfiles, sfiles = self.find_previous()
             if lsf == 0:
                 rate, last_snapshot_iter, stepsizes, np_paths, ss_paths = self.initialize(sess)
             else:

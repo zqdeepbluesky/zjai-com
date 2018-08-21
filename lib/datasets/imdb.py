@@ -211,14 +211,14 @@ class imdb(object):
         for i in range(ori_num_images):
             boxes = self.roidb[i]['boxes'].copy()
             size = [sizes[i][0], sizes[i][1]]
-            boxes = data_augment._shift_boxes(boxes, size, offset)
+            boxes,exist_list = data_augment._shift_boxes(boxes, size, offset)
             if len(boxes)==0:
                 this_image_index.remove(this_image_index[i])
                 continue
 
             entry = {'boxes': boxes,
-                     'gt_overlaps': self.roidb[i]['gt_overlaps'],
-                     'gt_classes': self.roidb[i]['gt_classes'],
+                     'gt_overlaps': self.roidb[i]['gt_overlaps'][exist_list],
+                     'gt_classes': self.roidb[i]['gt_classes'][exist_list],
                      'shift_x':offset[0],
                      'shift_y':offset[1],
                      'width': size[0],
@@ -272,12 +272,12 @@ class imdb(object):
                     position_list = ['lu', 'ld', 'ru', 'rd', 'm']
                     crop_bboxs = data_augment.create_crop_bbox(img_size, crop_size)
                     for j in range(len(crop_bboxs)):
-                        new_boxes = data_augment.cal_random_crop_box(boxes, crop_bboxs[j])
+                        new_boxes,exist_list = data_augment.cal_random_crop_box(boxes, crop_bboxs[j])
                         if len(new_boxes)==0:
                             continue
                         entry = {'boxes': new_boxes,
-                                 'gt_overlaps': self.roidb[i]['gt_overlaps'],
-                                 'gt_classes': self.roidb[i]['gt_classes'],
+                                 'gt_overlaps': self.roidb[i]['gt_overlaps'][exist_list],
+                                 'gt_classes': self.roidb[i]['gt_classes'][exist_list],
                                  'position':position_list[j],
                                  'crop_size_width':crop_size[0],
                                  'crop_size_height':crop_size[1],

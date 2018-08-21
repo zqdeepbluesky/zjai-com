@@ -24,6 +24,7 @@ def _shift_boxes(boxes,size,offset):
         return key
     new_boxes = np.zeros(boxes.shape)
     box_count=0
+    exist_list=[]
     for i in range(len(boxes)):
         xmin, ymin, xmax, ymax=boxes[i][0],boxes[i][1],boxes[i][2],boxes[i][3]
         xmin = fix_new_key(int(int(xmin) + offset[0]), offset[0], size[0])
@@ -33,7 +34,8 @@ def _shift_boxes(boxes,size,offset):
         if xmax - xmin != 0 and ymax - ymin != 0:
             new_boxes[box_count]=[xmin,ymin,xmax,ymax]
             box_count+=1
-    return new_boxes[:box_count]
+            exist_list.append(i)
+    return new_boxes[:box_count],exist_list
 
 def _rotate_boxes(boxes,size,angle):
     def rotate_point(width, height, angle, x, y):
@@ -147,6 +149,7 @@ def random_crop_image(img, crop_size,scale,position):
 def cal_random_crop_box(boxes,crop_box):
     new_boxes = np.zeros(boxes.shape, dtype=int)
     count=0
+    exist_list=[]
     for i in range(len(boxes)):
         xmin,ymin,xmax,ymax = boxes[i][0],boxes[i][1],boxes[i][2],boxes[i][3]
         x1,y1,x2,y2=crop_box[0],crop_box[1],crop_box[2],crop_box[3]
@@ -155,9 +158,10 @@ def cal_random_crop_box(boxes,crop_box):
         max_x = min(max(x1, int(xmax)), x2)-x1
         max_y = min(max(y1, int(ymax)), y2)-y1
         if max_x-min_x>0 and max_y-min_y>0:
-            new_boxes[i]=[min_x,min_y,max_x,max_y]
+            new_boxes[count]=[min_x,min_y,max_x,max_y]
             count += 1
-    return new_boxes[:count]
+            exist_list.append(i)
+    return new_boxes[:count],exist_list
 
 def resize_box(boxes,scala):
     for i in range(len(boxes)):

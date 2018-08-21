@@ -161,6 +161,7 @@ def show_key_args(args):
     if args.snapshot:
         print('--use fine tune model : {}'.format(args.snapshot_dir))
     print('--use net : {}'.format(args.net))
+    print('--use classes file : {}'.format(args.com_classes))
     test_package = [os.path.join(cfg.ROOT_DIR, 'data', 'train_data', package) for package in args.package_name]
     print('--input test package : {}'.format(test_package))
     if args.use_extra_test_data:
