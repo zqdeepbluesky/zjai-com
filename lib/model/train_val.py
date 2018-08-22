@@ -167,7 +167,8 @@ class SolverWrapper(object):
         redfiles = []
         for stepsize in cfg.TRAIN.STEPSIZE:
             stepfile = glob.glob(os.path.join(self.output_dir,'*_iter_{:d}.ckpt.meta'.format(stepsize+1)))
-            redfiles.append(stepfile[0])
+            if len(stepfile)!=0:
+                redfiles.append(stepfile[0])
         sfiles = [ss.replace('.meta', '') for ss in sfiles if ss not in redfiles]
 
         nfiles = os.path.join(self.output_dir,'*_iter_*.pkl')

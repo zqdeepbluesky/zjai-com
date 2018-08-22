@@ -34,9 +34,11 @@ def write_report(f,prec, recall, tp_sum, fp_sum, fn_sum, d_sum, t_sum):
 
 def get_model(batch_model,iter,demo_net,CLASSES):
     cfg.TEST.HAS_RPN = True  # Use RPN for proposals
-
     model_dir = batch_model
-    model_data = "{}_faster_rcnn_iter_{}.ckpt".format(demo_net, iter)
+    import datetime
+    date = str(datetime.datetime.now())
+    date_prefix = cfg.TRAIN.SNAPSHOT_PREFIX[0:cfg.TRAIN.SNAPSHOT_PREFIX.find("_")] + '_' + date[0:date.find(":")].replace(" ", '-')
+    model_data = date_prefix + '_iter_{:d}'.format(iter) + '.ckpt'
     tf_model = predict.get_tf_model(model_dir, model_data)
     print(tf_model)
     # set config
