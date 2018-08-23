@@ -37,7 +37,7 @@ def get_model(batch_model,iter,demo_net,CLASSES):
     model_dir = batch_model
     import datetime
     date = str(datetime.datetime.now())
-    date_prefix = cfg.TRAIN.SNAPSHOT_PREFIX[0:cfg.TRAIN.SNAPSHOT_PREFIX.find("_")] + '_' + date[0:date.find(":")].replace(" ", '-')
+    date_prefix = demo_net + '_' + date[0:date.find(":")].replace(" ", '-')
     model_data = date_prefix + '_iter_{:d}'.format(iter) + '.ckpt'
     tf_model = predict.get_tf_model(model_dir, model_data)
     print(tf_model)
