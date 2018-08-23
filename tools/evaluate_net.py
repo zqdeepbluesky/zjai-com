@@ -90,12 +90,14 @@ def evaluate_model(sess_test, net_test, model_dir,model_data,CLASSES,predict_dir
     cal_acc.save_tb_in_xml(txt_save_path, tb)
 
 
+
 def predict_images(sess,net,jpg_files,xml_path,CLASSES):
     for image in jpg_files:
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         print('Demo for {}'.format(image))
         im = cv2.imread(image)
-        result_data= predict.predict_image(sess, net, im, CLASSES)
+        scores, boxes = predict._detect_image(sess, net, im)
+        result_data= predict.predict_image(scores, boxes,CLASSES)
         save_data_into_xml(image,im,xml_path,result_data)
 # imdb_name='voc_2007_trainval'
 # iter='160020'

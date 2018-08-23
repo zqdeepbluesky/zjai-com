@@ -22,7 +22,6 @@ from model.bbox_transform import bbox_transform_inv
 from model.nms_wrapper import nms
 
 
-
 def _detect_image(sess, net, im):
     blobs, im_scales = _get_blobs(im)
     assert len(im_scales) == 1, "Only single-image batch implemented"
@@ -125,10 +124,10 @@ def cal_time(func):
     return _cal_time
 
 @cal_time
-def predict_image(sess,net,im,CLASSES):
+def predict_image(scores, boxes,CLASSES):
 
     # Detect all object classes and regress object bounds
-    scores, boxes = _detect_image(sess, net, im)
+    print(scores.shape,scores[0])
     CONF_THRESH = 0.8
     NMS_THRESH = 0.3
     result_data=[]

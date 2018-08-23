@@ -48,7 +48,8 @@ def predict_test(sess,net,args):
     image_file=os.path.join(args.predict_dir,args.package_data,args.file_name)
     print(image_file)
     im = cv2.imread(image_file)
-    result_data = predict.predict_image(sess, net, im, CLASSES)
+    scores, boxes = predict._detect_image(sess, net, im)
+    result_data = predict.predict_image(scores, boxes, CLASSES)
     im_info = {"path": image_file}
     im_info["width"] = im.shape[0]
     im_info["height"] = im.shape[1]
