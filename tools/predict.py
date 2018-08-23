@@ -127,7 +127,6 @@ def cal_time(func):
 def predict_image(scores, boxes,CLASSES):
 
     # Detect all object classes and regress object bounds
-    print(scores.shape,scores[0])
     CONF_THRESH = 0.8
     NMS_THRESH = 0.3
     result_data=[]

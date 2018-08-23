@@ -165,12 +165,12 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0.):
             cls_dets = np.hstack((cls_boxes, cls_scores[:, np.newaxis])).astype(np.float32, copy=False)
             keep = nms(cls_dets, cfg.TEST.NMS)
             cls_dets = cls_dets[keep, :]
-            all_boxes[j][i] = cls_dets
+            all_boxes[j][i] = cls_dets  #3维
 
         # Limit to max_per_image detections *over all classes*
         if max_per_image > 0:
             image_scores = np.hstack([all_boxes[j][i][:, -1] for j in range(1, imdb.num_classes)])
-            if len(image_scores) > max_per_image:
+            if len(image_scores) > max_per_image: #若果超过100个，那么就选取置信度top100的
                 image_thresh = np.sort(image_scores)[-max_per_image]
                 for j in range(1, imdb.num_classes):
                     keep = np.where(all_boxes[j][i][:, -1] >= image_thresh)[0]

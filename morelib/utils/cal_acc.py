@@ -44,7 +44,7 @@ def get_xml_label_num(xmlPath):
 
 def get_tabs(test_infos):
     tb = pt.PrettyTable()
-    tb.field_names = ["model_name","test_data",'presion','recall',"detect_num", "actual_num", "tp_num", "fp_num",'fn_num']
+    tb.field_names = ["model_name","test_data",'label','presion','recall',"detect_num", "actual_num", "tp_num", "fp_num",'fn_num','ap']
     for test_info in test_infos:
         info=test_info.split(",")
         tb.add_row(info)
@@ -124,14 +124,14 @@ def summary_tb(tb,test_infos):
         if count == 0:
             model_name = infos[0]
         count+=1
-        d_num+=int(infos[4])
-        t_num+=int(infos[5])
-        tp_num+=int(infos[6])
-        fp_num+=int(infos[7])
-        fn_num+=int(infos[8])
+        d_num+=int(infos[5])
+        t_num+=int(infos[6])
+        tp_num+=int(infos[7])
+        fp_num+=int(infos[8])
+        fn_num+=int(infos[9])
     presion=tp_num/(tp_num+fp_num)
     recall=tp_num/(tp_num+fn_num)
-    tb.add_row([model_name,test_data,presion,recall,d_num,t_num,tp_num,fp_num,fn_num])
+    tb.add_row([model_name,test_data,'total',presion,recall,d_num,t_num,tp_num,fp_num,fn_num,'//'])
     return tb
 
 
@@ -232,8 +232,8 @@ def voc_ap(rec, prec, use_07_metric=False):
                 p = np.max(prec[rec >= t])
             ap = ap + p / 11.
     else:
-        mrec = np.concatenate(([0.], [rec], [1.]))
-        mpre = np.concatenate(([0.], [prec], [0.]))
+        mrec = np.concatenate(([0.], rec, [1.]))
+        mpre = np.concatenate(([0.], prec, [0.]))
 
         for i in range(mpre.size - 1, 0, -1):
             mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
@@ -246,7 +246,6 @@ def cal_label_acc(xmlPath1,xmlPath2,CLASSES):
     classes=list(CLASSES)
     xmlFileList1=[os.path.join(xmlPath1, xmlFile) for xmlFile in os.listdir(xmlPath1)]
     xmlFileList2 = [os.path.join(xmlPath2, xmlFile) for xmlFile in os.listdir(xmlPath1)]
-    print(len(xmlFileList1), len(xmlFileList2))
     tp_arr, fp_arr, fn_arr, d_sum_arr, t_sum_arr,prec_arr,rec_arr = init_ind(len(classes))
     for i in range(len(xmlFileList1)):
         xmlFile1 = xmlFileList1[i]
@@ -260,11 +259,8 @@ def cal_label_acc(xmlPath1,xmlPath2,CLASSES):
             class_index=classes.index(d_label)
             d_sum_arr[class_index]+=1
             if d_label in t_labelList:
-                ovmax,jmax=cal_iou(t_boxes,d_boxes[j])
-                if ovmax>=0.5:
-                    tp_arr[class_index]+=1
-                    t_labelList.remove(t_labelList[jmax])
-                    t_boxes=np.delete(t_boxes,[jmax],axis=0)
+                tp_arr[class_index]+=1
+                t_labelList.remove(d_label)
 
     fp_arr=d_sum_arr-tp_arr
     fn_arr=t_sum_arr-tp_arr
@@ -272,8 +268,6 @@ def cal_label_acc(xmlPath1,xmlPath2,CLASSES):
     prec_arr[np.isnan(prec_arr)]=0
     rec_arr =tp_arr/(tp_arr+fn_arr)
     rec_arr[np.isnan(rec_arr)] = 0
-    aps=[voc_ap(rec_arr[i],prec_arr[i]) for i in range(len(rec_arr))]
-    print(aps)
     return ["{},{},{},{},{},{},{}".format(prec_arr[num], rec_arr[num],d_sum_arr[num], t_sum_arr[num],
                                           tp_arr[num], fp_arr[num], fn_arr[num]) for num in range(len(classes))]
 
