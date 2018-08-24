@@ -308,11 +308,11 @@ class SolverWrapper(object):
 
             # Display training information
             if iter % (cfg.TRAIN.DISPLAY) == 0:
-
-                print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
-                      '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
-                      (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
-                print('speed: {:.3f}s / iter'.format(timer.average_time))
+                sys.stdout.write("\r")
+                sys.stdout.write('iter: %d / %d, total loss: %.6f  >>> rpn_loss_cls: %.6f  '
+                      '>>> rpn_loss_box: %.6f  >>> loss_cls: %.6f  >>> loss_box: %.6f  >>> lr: %f  >>>speed: %.3fs / iter'  % \
+                      (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval(),timer.average_time))
+                sys.stdout.flush()
 
             # Snapshotting
             if iter % cfg.TRAIN.SNAPSHOT_ITERS == 0 :
