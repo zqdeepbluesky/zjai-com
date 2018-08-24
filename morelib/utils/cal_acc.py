@@ -1,3 +1,9 @@
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
 import xml.etree.ElementTree as ET
 import os
 import prettytable as pt

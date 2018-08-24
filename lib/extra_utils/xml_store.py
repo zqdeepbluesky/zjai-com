@@ -1,3 +1,10 @@
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
+
 from lxml.etree import Element, SubElement, tostring
 from xml.dom.minidom import parseString
 import os

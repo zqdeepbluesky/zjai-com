@@ -180,7 +180,7 @@ def zip_dir(file_path,zfile_path):
         zf.write(tar,arcname)
     zf.close()
 
-str_date = '{year}{month}{day}'.format(year='2018', month='08', day='17')  #改这里，日期
+str_date = '{year}{month}{day}'.format(year='2018', month='08', day='22')  #改这里，日期
 parser = argparse.ArgumentParser(description='Get the data info')
 #parser.add_argument('-p', '--parent_dir',help='the parent folder of image', default='C:\\Users\\Administrator\\Desktop\\train_data-2018-04-12\\')  #windows系统下用\\
 parser.add_argument('-p', '--parent_dir',help='the parent folder of image', default='/home/hyl/data/data/predict_data/predict_data-'+str_date[0:4]+'-'+str_date[4:6]+'-'+str_date[6:8])  #windows系统下用\\  改文件目录

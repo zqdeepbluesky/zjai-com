@@ -19,7 +19,7 @@ def parse_args():
     parser.add_argument('--cache_dir', dest='cache_dir', help='Network to use [vgg16 res101]',
                         default=os.path.join(cfg.ROOT_DIR, "data", "cache"))
     parser.add_argument('--roidb_name', dest='roidb_name', help='Trained dataset [pascal_voc pascal_voc_0712]',
-                        default='train_data-2018-08-15_resize_voc_2007_trainval_enhance_roidb_11111110.pkl')
+                        default='train_data-2018-08-21_resize_voc_2007_trainval_enhance_roidb_11111110.pkl')
     parser.add_argument('--root_dir', dest='root_dir', help='Trained dataset [pascal_voc pascal_voc_0712]',
                         default=os.path.join(cfg.ROOT_DIR,"data"))
     args = parser.parse_args()
@@ -68,7 +68,6 @@ def _translateit(image, offset, isseg=False):
 
 def draw_roidb(roidb):
     from lib.datasets import data_augment
-    print(roidb)
     image_path=roidb['image']
     print(image_path)
     boxes=roidb['boxes']
@@ -96,6 +95,7 @@ def draw_roidb(roidb):
         im = data_augment.random_crop_image(im, crop_size, scale, position)
     fig, ax = plt.subplots(figsize=(12, 12))
     ax.imshow(im, aspect='equal')
+    print(boxes)
     for i in range(len(classes)):
         bbox=boxes[i]
         ax.add_patch(
