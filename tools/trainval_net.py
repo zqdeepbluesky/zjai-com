@@ -156,7 +156,7 @@ def print_args(args,verbose=1):
     print('*' * 20)
 
 def show_key_args(args):
-    train_package = [os.path.join(cfg.ROOT_DIR, package) for package in args.package_name]
+    train_package = [os.path.join(cfg.ROOT_DIR,'data','train_data', package) for package in args.package_name]
     print('--input training package : {}'.format(train_package))
     print('--whether use fine tune : {}'.format(args.snapshot))
     if args.snapshot:
