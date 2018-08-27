@@ -126,6 +126,8 @@ def summary_tb(tb,test_infos):
     presion,recall,d_num,t_num,tp_num,fp_num,fn_num,count=0,0,0,0,0,0,0,0
     model_name,test_data='','total'
     for test_info in test_infos:
+        if test_info.find('total')==-1:
+            continue
         infos = test_info.split(",")
         if count == 0:
             model_name = infos[0]
@@ -274,7 +276,7 @@ def cal_label_acc(xmlPath1,xmlPath2,CLASSES):
     prec_arr[np.isnan(prec_arr)]=0
     rec_arr =tp_arr/(tp_arr+fn_arr)
     rec_arr[np.isnan(rec_arr)] = 0
-    return ["{},{},{},{},{},{},{}".format(prec_arr[num], rec_arr[num],d_sum_arr[num], t_sum_arr[num],
+    return ["{},{},{},{},{},{},{}".format(round(prec_arr[num],6), round(rec_arr[num],6),d_sum_arr[num], t_sum_arr[num],
                                           tp_arr[num], fp_arr[num], fn_arr[num]) for num in range(len(classes))]
 
 # from tools import _init_paths

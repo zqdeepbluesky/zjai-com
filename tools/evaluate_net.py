@@ -13,6 +13,7 @@ from lib.extra_utils import io_utils,cal_acc
 from tools import predict
 from lib.model.nms_wrapper import nms
 from lib.datasets import voc_eval
+import sys
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -211,8 +212,9 @@ def predict_images(sess,net,jpg_files,xml_path,CLASSES):
     all_boxes = [[[] for _ in range(len(jpg_files))] for _ in range(len(CLASSES))]
     index=0
     for image in jpg_files:
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print('Demo for {}'.format(image))
+        sys.stdout.write("\r")
+        sys.stdout.write('Demo for {}'.format(image))
+        sys.stdout.flush()
         im = cv2.imread(image)
         scores, boxes = predict._detect_image(sess, net, im)
         result_data= predict.predict_image(scores, boxes,CLASSES)

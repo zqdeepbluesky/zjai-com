@@ -40,14 +40,14 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="vgg16_2018-08-22-21_iter_690000.ckpt")
+                        default="vgg16_2018-08-27-13_iter_635000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
-                        default=["train_data-2018-08-15"],type=list)
+                        default=["test_data-2018-08-27"],type=list)
     parser.add_argument('--com_classes', dest='com_classes',
                         help='use com_classes file name',
-                        default='com_classes_21.txt', type=str)
+                        default='com_classes_170.txt', type=str)
     args = parser.parse_args()
 
     return args
