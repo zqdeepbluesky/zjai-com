@@ -1,3 +1,9 @@
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
 from lib.model.config import cfg
 
 import tensorflow as tf

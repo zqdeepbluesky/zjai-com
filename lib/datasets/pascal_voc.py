@@ -1,9 +1,9 @@
-# --------------------------------------------------------
-# Fast R-CNN
-# Copyright (c) 2015 Microsoft
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Ross Girshick and Xinlei Chen
-# --------------------------------------------------------
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -50,7 +50,7 @@ class pascal_voc(imdb):
         if DEBUG:
             # self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'all_train_data2'))
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data"))
-            self._classes = read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', cfg.CLASSES_FILE))
+            self._classes = read_classes(cfg.CLASSES_FILE)
         else:
             self._devkit_path = os.path.abspath(os.path.join(self._get_default_path(), "train_data", 'VOC2007_origin'))
             self._classes = read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs', 'voc_classes.txt'))

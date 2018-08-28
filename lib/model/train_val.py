@@ -1,8 +1,9 @@
-# --------------------------------------------------------
-# Tensorflow Faster R-CNN
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Xinlei Chen and Zheqi He
-# --------------------------------------------------------
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -308,11 +309,11 @@ class SolverWrapper(object):
 
             # Display training information
             if iter % (cfg.TRAIN.DISPLAY) == 0:
-
-                print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
-                      '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
-                      (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
-                print('speed: {:.3f}s / iter'.format(timer.average_time))
+                sys.stdout.write("\r")
+                sys.stdout.write('iter: %d / %d, total loss: %.6f  >>> rpn_loss_cls: %.6f  '
+                      '>>> rpn_loss_box: %.6f  >>> loss_cls: %.6f  >>> loss_box: %.6f  >>> lr: %f  >>>speed: %.3fs / iter'  % \
+                      (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval(),timer.average_time))
+                sys.stdout.flush()
 
             # Snapshotting
             if iter % cfg.TRAIN.SNAPSHOT_ITERS == 0 :
@@ -325,7 +326,7 @@ class SolverWrapper(object):
                 if len(np_paths) > cfg.TRAIN.SNAPSHOT_KEPT:
                     self.remove_snapshot(np_paths, ss_paths)
 
-            if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0:  # 每100000次就保存一次模型文件
+            if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0 :  # 每100000次就保存一次模型文件
                 last_snapshot_iter = iter
                 ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
                 if args.use_extra_test_data!=1:

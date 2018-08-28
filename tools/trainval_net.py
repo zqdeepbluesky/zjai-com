@@ -1,8 +1,9 @@
-# --------------------------------------------------------
-# Tensorflow Faster R-CNN
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Zheqi He, Xinlei Chen, based on code from Ross Girshick
-# --------------------------------------------------------
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -155,7 +156,7 @@ def print_args(args,verbose=1):
     print('*' * 20)
 
 def show_key_args(args):
-    train_package = [os.path.join(cfg.ROOT_DIR, package) for package in args.package_name]
+    train_package = [os.path.join(cfg.ROOT_DIR,'data','train_data', package) for package in args.package_name]
     print('--input training package : {}'.format(train_package))
     print('--whether use fine tune : {}'.format(args.snapshot))
     if args.snapshot:

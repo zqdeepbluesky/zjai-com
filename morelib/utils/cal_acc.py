@@ -1,6 +1,13 @@
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
 import xml.etree.ElementTree as ET
 import os
 import prettytable as pt
+import numpy as np
 
 def add_label_dict(xmlPath,label_dict):
     '''
@@ -43,7 +50,7 @@ def get_xml_label_num(xmlPath):
 
 def get_tabs(test_infos):
     tb = pt.PrettyTable()
-    tb.field_names = ["model_name","test_data",'presion','recall',"detect_num", "actual_num", "tp_num", "fp_num",'fn_num']
+    tb.field_names = ["model_name","test_data",'label','presion','recall',"detect_num", "actual_num", "tp_num", "fp_num",'fn_num','ap']
     for test_info in test_infos:
         info=test_info.split(",")
         tb.add_row(info)
@@ -119,18 +126,20 @@ def summary_tb(tb,test_infos):
     presion,recall,d_num,t_num,tp_num,fp_num,fn_num,count=0,0,0,0,0,0,0,0
     model_name,test_data='','total'
     for test_info in test_infos:
+        if test_info.find('total')==-1:
+            continue
         infos = test_info.split(",")
         if count == 0:
             model_name = infos[0]
         count+=1
-        d_num+=int(infos[4])
-        t_num+=int(infos[5])
-        tp_num+=int(infos[6])
-        fp_num+=int(infos[7])
-        fn_num+=int(infos[8])
+        d_num+=int(infos[5])
+        t_num+=int(infos[6])
+        tp_num+=int(infos[7])
+        fp_num+=int(infos[8])
+        fn_num+=int(infos[9])
     presion=tp_num/(tp_num+fp_num)
     recall=tp_num/(tp_num+fn_num)
-    tb.add_row([model_name,test_data,presion,recall,d_num,t_num,tp_num,fp_num,fn_num])
+    tb.add_row([model_name,test_data,'total',presion,recall,d_num,t_num,tp_num,fp_num,fn_num,'//'])
     return tb
 
 
@@ -143,7 +152,6 @@ def cal_model_acc(xmlPath1,xmlPath2,cal_label=False):
     for xmlFile in os.listdir(xmlPath1):
         xmlFileList1.append(os.path.join(xmlPath1, xmlFile))
         xmlFileList2.append(os.path.join(xmlPath2, xmlFile))
-
     print(len(xmlFileList1), len(xmlFileList2))
     tp_sum,fp_sum,fn_sum,d_sum,t_sum = 0,0,0,0,0
     for i in range(len(xmlFileList1)):
@@ -163,14 +171,128 @@ def cal_model_acc(xmlPath1,xmlPath2,cal_label=False):
         tp_sum += tp
         fp_sum += fp
         fn_sum += fn
-        # if fp !=0 or fn !=0:
-        #     io_utils.copy(xmlFile1.replace("Annotations","JPEGImages").replace(".xml",".jpg"),save_path)
-        #     io_utils.copy(xmlFile1,save_path)
         d_sum += d_labelNum
         t_sum += t_labelNum
-        # print(xmlFile1,xmlFile2,tp,fp,fn,d_labelNum,t_labelNum)
     prec = tp_sum / (fp_sum + tp_sum)
     recall = tp_sum / (tp_sum + fn_sum)
     print(prec, recall)
     print(tp_sum, fp_sum, fn_sum, d_sum, t_sum)
     return "{},{},{},{},{},{},{}".format(prec, recall,d_sum, t_sum, tp_sum, fp_sum, fn_sum)
+
+def init_ind(class_name):
+    tp_sum = np.zeros(class_name, dtype=int)
+    fp_sum = np.zeros(class_name, dtype=int)
+    fn_sum = np.zeros(class_name, dtype=int)
+    d_sum = np.zeros(class_name, dtype=int)
+    t_sum = np.zeros(class_name, dtype=int)
+    prec = np.zeros(class_name, dtype=float)
+    rec = np.zeros(class_name, dtype=float)
+    return tp_sum, fp_sum, fn_sum, d_sum, t_sum,prec,rec
+
+def get_xml_label_bnd(xmlPath):
+    if os.path.exists(xmlPath)!=1:
+        print(xmlPath)
+    et = ET.parse(xmlPath)
+    element = et.getroot()
+    element_objs = element.findall('object')
+
+    labelList=[]
+    boxes=np.zeros((1,4),dtype=int)
+    for i,element_obj in enumerate(element_objs):
+        node = element_obj.find('name')
+        label=node.text
+        labelList.append(label)
+        bbox = element_obj.find('bndbox')
+        if i==0:
+            boxes[0,:]=np.array([int(bbox.find('xmin').text),int(bbox.find('ymin').text),int(bbox.find('xmax').text),int(bbox.find('ymax').text)])
+        else:
+            box = np.array([int(bbox.find('xmin').text), int(bbox.find('ymin').text), int(bbox.find('xmax').text),
+                             int(bbox.find('ymax').text)])
+            boxes=np.row_stack((boxes,box))
+    return labelList,boxes
+
+def cal_iou(gt_boxes,box):
+    ixmin = np.maximum(gt_boxes[:, 0], box[0])
+    iymin = np.maximum(gt_boxes[:, 1], box[1])
+    ixmax = np.minimum(gt_boxes[:, 2], box[2])
+    iymax = np.minimum(gt_boxes[:, 3], box[3])
+    iw = np.maximum(ixmax - ixmin + 1., 0.)
+    ih = np.maximum(iymax - iymin + 1., 0.)
+    inters = iw * ih
+
+    # union
+    uni = ((box[2] - box[0] + 1.) * (box[3] - box[1] + 1.) +
+           (gt_boxes[:, 2] - gt_boxes[:, 0] + 1.) *
+           (gt_boxes[:, 3] - gt_boxes[:, 1] + 1.) - inters)
+
+    overlaps = inters / uni
+    ovmax = np.max(overlaps)  # 重叠度IOU最大的
+    jmax = np.argmax(overlaps)
+    return ovmax,jmax
+
+def voc_ap(rec, prec, use_07_metric=False):
+    if use_07_metric:
+        ap = 0.
+        for t in np.arange(0., 1.1, 0.1):
+            if np.sum(rec >= t) == 0:
+                p = 0
+            else:
+                p = np.max(prec[rec >= t])
+            ap = ap + p / 11.
+    else:
+        mrec = np.concatenate(([0.], rec, [1.]))
+        mpre = np.concatenate(([0.], prec, [0.]))
+
+        for i in range(mpre.size - 1, 0, -1):
+            mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
+
+            i = np.where(mrec[1:] != mrec[:-1])[0]
+            ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
+    return ap
+
+def cal_label_acc(xmlPath1,xmlPath2,CLASSES):
+    classes=list(CLASSES)
+    xmlFileList1=[os.path.join(xmlPath1, xmlFile) for xmlFile in os.listdir(xmlPath1)]
+    xmlFileList2 = [os.path.join(xmlPath2, xmlFile) for xmlFile in os.listdir(xmlPath1)]
+    tp_arr, fp_arr, fn_arr, d_sum_arr, t_sum_arr,prec_arr,rec_arr = init_ind(len(classes))
+    for i in range(len(xmlFileList1)):
+        xmlFile1 = xmlFileList1[i]
+        xmlFile2 = xmlFileList2[i]
+        d_labelList,d_boxes = get_xml_label_bnd(xmlFile1)
+        t_labelList, t_boxes = get_xml_label_bnd(xmlFile2)
+        for t_label in t_labelList:
+            if t_label not in classes:
+                continue
+            class_index = classes.index(t_label)
+            t_sum_arr[class_index] += 1
+        for j,d_label in enumerate(d_labelList):
+            class_index=classes.index(d_label)
+            d_sum_arr[class_index]+=1
+            if d_label in t_labelList:
+                tp_arr[class_index]+=1
+                t_labelList.remove(d_label)
+
+    fp_arr=d_sum_arr-tp_arr
+    fn_arr=t_sum_arr-tp_arr
+    prec_arr=tp_arr/(tp_arr+fp_arr)
+    prec_arr[np.isnan(prec_arr)]=0
+    rec_arr =tp_arr/(tp_arr+fn_arr)
+    rec_arr[np.isnan(rec_arr)] = 0
+    return ["{},{},{},{},{},{},{}".format(round(prec_arr[num],6), round(rec_arr[num],6),d_sum_arr[num], t_sum_arr[num],
+                                          tp_arr[num], fp_arr[num], fn_arr[num]) for num in range(len(classes))]
+
+# from tools import _init_paths
+# from lib.model.config import  cfg
+# from lib.datasets import pascal_voc
+# xmlPath1="/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data/predict_data-2018-08-22/Annotations_test"
+# xmlPath2="/home/hyl/data/ljk/github-pro/zjai-com/data/predict_data/predict_data-2018-08-22/Annotations_test"
+# CLASSES = pascal_voc.read_classes(os.path.join(cfg.ROOT_DIR,'experiments', 'classes_cfgs','com_classes_21.txt'))
+# cal_label_acc(xmlPath1,xmlPath2,CLASSES)
+
+
+
+
+
+
+
+

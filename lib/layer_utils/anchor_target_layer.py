@@ -1,9 +1,9 @@
-# --------------------------------------------------------
-# Faster R-CNN
-# Copyright (c) 2015 Microsoft
-# Licensed under The MIT License [see LICENSE for details]
-# Written by Ross Girshick and Xinlei Chen
-# --------------------------------------------------------
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -20,7 +20,7 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
     """Same as the anchor target layer in original Fast/er RCNN """
     A = num_anchors  #9
     total_anchors = all_anchors.shape[0] #候选框量,w*h*9/256
-    K = total_anchors / num_anchors
+    K = total_anchors / num_anchors  #特征点
 
     # allow boxes to sit over the edge by a small amount
     _allowed_border = 0
@@ -45,12 +45,13 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
 
     # overlaps between the anchors and the gt boxes
     # overlaps (ex, gt)
-    overlaps = bbox_overlaps( np.ascontiguousarray(anchors, dtype=np.float), np.ascontiguousarray(gt_boxes, dtype=np.float)) #计算候选框与真实框的重合度 --重叠面积/（roi面积+GT面积-重叠面积），[w*h*9/256,len(ge_boxes)]
+    overlaps = bbox_overlaps( np.ascontiguousarray(anchors, dtype=np.float), np.ascontiguousarray(gt_boxes, dtype=np.float))
+    #计算候选框与真实框的重合度 --重叠面积/（roi面积+GT面积-重叠面积），[w*h*9/256,len(ge_boxes)]
     argmax_overlaps = overlaps.argmax(axis=1)  #每行与真实框重合度最大的候选框下标
-    max_overlaps = overlaps[np.arange(len(inds_inside)), argmax_overlaps] #提取 重合度最大的候选框
+    max_overlaps = overlaps[np.arange(len(inds_inside)), argmax_overlaps] #提取 重合度最大的候选框 [9*A,1]
     gt_argmax_overlaps = overlaps.argmax(axis=0)  #每列与真实框重合度最大的候选框下标
-    gt_max_overlaps = overlaps[gt_argmax_overlaps, np.arange(overlaps.shape[1])]  #从全部rois 中提取重合度最高的
-    gt_argmax_overlaps = np.where(overlaps == gt_max_overlaps)[0]
+    gt_max_overlaps = overlaps[gt_argmax_overlaps, np.arange(overlaps.shape[1])]  #从全部rois 中提取重合度最高的 [1,len(gt_boxes)]
+    gt_argmax_overlaps = np.where(overlaps == gt_max_overlaps)[0]  #
 
     if not cfg.TRAIN.RPN_CLOBBER_POSITIVES:  #先按照rpn的阈值挑选bg
         # assign bg labels first so that positive labels can clobber them
@@ -82,21 +83,21 @@ def anchor_target_layer(rpn_cls_score, gt_boxes, im_info, _feat_stride, all_anch
         labels[disable_inds] = -1
     #前景，背景label数目一致
     bbox_targets = np.zeros((len(inds_inside), 4), dtype=np.float32) #初始化label边界
-    bbox_targets = _compute_targets(anchors, gt_boxes[argmax_overlaps, :])   #计算得到目标偏移值
+    bbox_targets = _compute_targets(anchors, gt_boxes[argmax_overlaps, :])   #计算得到目标偏移值,[len(gt_boxes),4]
 
     bbox_inside_weights = np.zeros((len(inds_inside), 4), dtype=np.float32)  #初始化
     # only the positive ones have regression targets
-    bbox_inside_weights[labels == 1, :] = np.array(cfg.TRAIN.RPN_BBOX_INSIDE_WEIGHTS) #设置前景权重
+    bbox_inside_weights[labels == 1, :] = np.array(cfg.TRAIN.RPN_BBOX_INSIDE_WEIGHTS) #设置前景权重 (1,1,1,1)
 
     bbox_outside_weights = np.zeros((len(inds_inside), 4), dtype=np.float32) #初始化
     if cfg.TRAIN.RPN_POSITIVE_WEIGHT < 0:  #正例权重为负
         # uniform weighting of examples (given non-uniform sampling)
         num_examples = np.sum(labels >= 0)  #正例样本总数
-        positive_weights = np.ones((1, 4)) * 1.0 / num_examples #初始化正例样本权重
+        positive_weights = np.ones((1, 4)) * 1.0 / num_examples #初始化正例样本权重,1/正样本数
         negative_weights = np.ones((1, 4)) * 1.0 / num_examples #
     else: #为正,(0,1)范围内
         assert ((cfg.TRAIN.RPN_POSITIVE_WEIGHT > 0) & (cfg.TRAIN.RPN_POSITIVE_WEIGHT < 1))
-        positive_weights = (cfg.TRAIN.RPN_POSITIVE_WEIGHT / np.sum(labels == 1)) #初始化权重
+        positive_weights = (cfg.TRAIN.RPN_POSITIVE_WEIGHT / np.sum(labels == 1)) #初始化权重 x/正样本数
         negative_weights = ((1.0 - cfg.TRAIN.RPN_POSITIVE_WEIGHT) / np.sum(labels == 0))
     bbox_outside_weights[labels == 1, :] = positive_weights #权重赋值
     bbox_outside_weights[labels == 0, :] = negative_weights

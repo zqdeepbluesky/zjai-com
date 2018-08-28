@@ -1,8 +1,9 @@
+# -----------------------------------------------------
 # -*- coding: utf-8 -*-
-# @Time    : 7/13/2018 1:52 PM
+# @Time    : 8/9/2018 4:34 PM
 # @Author  : sunyonghai
-# @File    : predict.py
 # @Software: ZJ_AI
+# -----------------------------------------------------
 
 from __future__ import absolute_import
 from __future__ import division
@@ -20,7 +21,6 @@ from utils.timer import Timer
 from model.config import cfg
 from model.bbox_transform import bbox_transform_inv
 from model.nms_wrapper import nms
-
 
 
 def _detect_image(sess, net, im):
@@ -125,10 +125,9 @@ def cal_time(func):
     return _cal_time
 
 @cal_time
-def predict_image(sess,net,im,CLASSES):
+def predict_image(scores, boxes,CLASSES):
 
     # Detect all object classes and regress object bounds
-    scores, boxes = _detect_image(sess, net, im)
     CONF_THRESH = 0.8
     NMS_THRESH = 0.3
     result_data=[]

@@ -1,3 +1,9 @@
+# -----------------------------------------------------
+# -*- coding: utf-8 -*-
+# @Time    : 8/9/2018 4:34 PM
+# @Author  : sunyonghai
+# @Software: ZJ_AI
+# -----------------------------------------------------
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -48,7 +54,8 @@ def predict_test(sess,net,args):
     image_file=os.path.join(args.predict_dir,args.package_data,args.file_name)
     print(image_file)
     im = cv2.imread(image_file)
-    result_data = predict.predict_image(sess, net, im, CLASSES)
+    scores, boxes = predict._detect_image(sess, net, im)
+    result_data = predict.predict_image(scores, boxes, CLASSES)
     im_info = {"path": image_file}
     im_info["width"] = im.shape[0]
     im_info["height"] = im.shape[1]
