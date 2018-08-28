@@ -112,6 +112,8 @@ logs/
 imgs/
 *.jpg
 *.JPG
+*.PNG
+*.png
 
 /model
 output
