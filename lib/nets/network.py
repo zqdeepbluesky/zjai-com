@@ -211,7 +211,7 @@ class Network(object):
             # 截断的正态分布中输出随机值
             initializer = tf.truncated_normal_initializer(mean=0.0, stddev=0.01)
             initializer_bbox = tf.truncated_normal_initializer(mean=0.0, stddev=0.001)
-        else:
+        else: #标准正态分布的随机数
             initializer = tf.random_normal_initializer(mean=0.0, stddev=0.01)
             initializer_bbox = tf.random_normal_initializer(mean=0.0, stddev=0.001)
 
@@ -296,7 +296,7 @@ class Network(object):
         self._act_summaries.append(rpn)
         rpn_cls_score = slim.conv2d(rpn, self._num_anchors * 2, [1, 1], trainable=is_training,
                                     weights_initializer=initializer,
-                                    padding='VALID', activation_fn=None, scope='rpn_cls_score') #[1,h,w,9*2]
+                                    padding='VALID', activation_fn=None, scope='rpn_cls_score') #[1,h,w,9*2],通过可训练的卷积计算前后景概率
         # change it so that the score has 2 as its channel size
         rpn_cls_score_reshape = self._reshape_layer(rpn_cls_score, 2, 'rpn_cls_score_reshape')  #[1,9*h,w,2]
         rpn_cls_prob_reshape = self._softmax_layer(rpn_cls_score_reshape, "rpn_cls_prob_reshape") #[1,9*h,w,2]
@@ -306,7 +306,7 @@ class Network(object):
                                     weights_initializer=initializer,
                                     padding='VALID', activation_fn=None, scope='rpn_bbox_pred') #[1,h,w,9*4]
         if is_training:
-            rois, roi_scores = self._proposal_layer(rpn_cls_prob, rpn_bbox_pred, "rois") #根据预测偏移值,计算边界，根据nms筛选2k，并重构blob
+            rois, roi_scores = self._proposal_layer(rpn_cls_prob, rpn_bbox_pred, "rois") #根据预测偏移值,计算预测边界，根据nms筛选2k，并重构blob
             rpn_labels = self._anchor_target_layer(rpn_cls_score, "anchor")  #剔除越出边界的roi,计算边界偏移值,选出前后景,初始化权重,self._anchor_targets
             # Try to have a deterministic order for the computing graph, for reproducibility
             with tf.control_dependencies([rpn_labels]):  #控制依赖关系,先运行完rpn_labels,才由下面

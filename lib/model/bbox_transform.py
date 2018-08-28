@@ -83,20 +83,20 @@ def clip_boxes(boxes, im_shape):
 
 def bbox_transform_inv_tf(boxes, deltas):
     boxes = tf.cast(boxes, deltas.dtype)  #[9,4]
-    widths = tf.subtract(boxes[:, 2], boxes[:, 0]) + 1.0  #[w*h*9],宽
-    heights = tf.subtract(boxes[:, 3], boxes[:, 1]) + 1.0 #[w*h*9],高
-    ctr_x = tf.add(boxes[:, 0], widths * 0.5)  #[w*h*9],中心点x
-    ctr_y = tf.add(boxes[:, 1], heights * 0.5) #[w*h*9],中心点y
+    widths = tf.subtract(boxes[:, 2], boxes[:, 0]) + 1.0  #[w*h*9],宽 pw
+    heights = tf.subtract(boxes[:, 3], boxes[:, 1]) + 1.0 #[w*h*9],高 ph
+    ctr_x = tf.add(boxes[:, 0], widths * 0.5)  #[w*h*9],中心点x  px
+    ctr_y = tf.add(boxes[:, 1], heights * 0.5) #[w*h*9],中心点y  py
 
-    dx = deltas[:, 0]
-    dy = deltas[:, 1]
-    dw = deltas[:, 2]
-    dh = deltas[:, 3]
+    dx = deltas[:, 0] #tx
+    dy = deltas[:, 1] #ty
+    dw = deltas[:, 2] #tw
+    dh = deltas[:, 3] #th
 
-    pred_ctr_x = tf.add(tf.multiply(dx, widths), ctr_x) # Gx=Aw*Ax+tx [w*h*9]
-    pred_ctr_y = tf.add(tf.multiply(dy, heights), ctr_y)
-    pred_w = tf.multiply(tf.exp(dw), widths)  #e^tw*Aw
-    pred_h = tf.multiply(tf.exp(dh), heights) #e^th*Ah
+    pred_ctr_x = tf.add(tf.multiply(dx, widths), ctr_x) # Gx=tx*pw+px [w*h*9]
+    pred_ctr_y = tf.add(tf.multiply(dy, heights), ctr_y) #Gy=ty*ph+py
+    pred_w = tf.multiply(tf.exp(dw), widths)  #Gw=e^tw*pw
+    pred_h = tf.multiply(tf.exp(dh), heights) #Gh=e^th*ph
 
     pred_boxes0 = tf.subtract(pred_ctr_x, pred_w * 0.5) #pxmin,pxmax,pymin,pymax  预测结果
     pred_boxes1 = tf.subtract(pred_ctr_y, pred_h * 0.5)

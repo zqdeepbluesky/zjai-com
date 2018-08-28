@@ -67,7 +67,7 @@ def proposal_layer_tf(rpn_cls_prob, rpn_bbox_pred, im_info, cfg_key, _feat_strid
     scores = tf.reshape(scores, shape=(-1,)) #[1,h,w,9] ->[w*h*9,1]
     rpn_bbox_pred = tf.reshape(rpn_bbox_pred, shape=(-1, 4))  #[1,w,h,9*4]->[w*h*9,4]
 
-    proposals = bbox_transform_inv_tf(anchors, rpn_bbox_pred) #根据预测的偏移量计算边界
+    proposals = bbox_transform_inv_tf(anchors, rpn_bbox_pred) #根据预测的偏移量计算预测边界
     proposals = clip_boxes_tf(proposals, im_info[:2])  #调整边界,使得不超过边界
 
     # Non-maximal suppression
