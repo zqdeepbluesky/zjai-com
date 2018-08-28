@@ -91,8 +91,8 @@ def evaluate_model(sess_test, net_test, model_dir,model_data,CLASSES,predict_dir
         test_info = cal_acc.cal_model_acc(test_xml_path, true_xml_path)
         test_info_label = cal_acc.cal_label_acc(test_xml_path, true_xml_path, CLASSES)
         for index in np.argsort(aps):
-            test_infos.append("{},{},{},{},{}".format(model_data.split(".")[0], package, CLASSES[index + 1], test_info_label[index+1],aps[index]))
-        test_infos.append("{},{},total,{},{}".format(model_data.split(".")[0], package, test_info, np.nanmean(aps)))
+            test_infos.append("{},{},{},{},{}".format(model_data.split(".")[0], package, CLASSES[index + 1], test_info_label[index+1],round(aps[index],6)))
+        test_infos.append("{},{},total,{},{}".format(model_data.split(".")[0], package, test_info, round(np.nanmean(aps),6)))
     tb = cal_acc.get_tabs(test_infos)
     tb = cal_acc.summary_tb(tb, test_infos)
     print(tb)

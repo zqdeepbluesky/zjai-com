@@ -261,6 +261,8 @@ def cal_label_acc(xmlPath1,xmlPath2,CLASSES):
         d_labelList,d_boxes = get_xml_label_bnd(xmlFile1)
         t_labelList, t_boxes = get_xml_label_bnd(xmlFile2)
         for t_label in t_labelList:
+            if t_label not in classes:
+                continue
             class_index = classes.index(t_label)
             t_sum_arr[class_index] += 1
         for j,d_label in enumerate(d_labelList):

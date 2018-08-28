@@ -40,14 +40,14 @@ def parse_args():
     parser.add_argument('--model_dir', dest='model_dir', help='the path of  stored the model file',
                         default=osp.join(cfg.ROOT_DIR, "data","model"))
     parser.add_argument('--model_data', dest='model_data', help='the name of  stored the model file',
-                        default="vgg16_2018-08-27-13_iter_635000.ckpt")
+                        default="vgg16_2018-08-28-09_iter_110000.ckpt")
     parser.add_argument('--predict_dir', dest='predict_dir', help='prepare to predict this image',
                         default=osp.join(cfg.ROOT_DIR, "data","predict_data"))
     parser.add_argument('--package_data', dest='package_data', help='the test data file name',
-                        default=["test_data-2018-08-27"],type=list)
+                        default=["random_choice_data_3000"],type=list)
     parser.add_argument('--com_classes', dest='com_classes',
                         help='use com_classes file name',
-                        default='com_classes_170.txt', type=str)
+                        default='com_classes_166.txt', type=str)
     args = parser.parse_args()
 
     return args
@@ -79,8 +79,8 @@ def main():
         test_info_label=cal_acc.cal_label_acc(test_xml_path,true_xml_path,CLASSES)
         print(test_info_label)
         for index in np.argsort(aps):
-            test_infos.append("{},{},{},{},{}".format(args.model_data.split(".")[0],package,CLASSES[index+1],test_info_label[index+1],aps[index]))
-        test_infos.append("{},{},total,{},{}".format(args.model_data.split(".")[0],package,test_info,np.nanmean(aps)))
+            test_infos.append("{},{},{},{},{}".format(args.model_data.split(".")[0],package,CLASSES[index+1],test_info_label[index+1],round(aps[index],6)))
+        test_infos.append("{},{},total,{},{}".format(args.model_data.split(".")[0],package,test_info,round(np.nanmean(aps),6)))
     tb = cal_acc.get_tabs(test_infos)
     tb=cal_acc.summary_tb(tb,test_infos)
     txt_save_path=os.path.join(args.predict_dir,args.model_data.split(".")[0]+"_test_result")
