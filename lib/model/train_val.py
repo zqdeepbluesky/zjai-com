@@ -280,6 +280,7 @@ class SolverWrapper(object):
         stepsizes.append(max_iters)
         stepsizes.reverse()
         next_stepsize = stepsizes.pop()
+        loss_sum=0
         while iter < max_iters + 1:
             # Learning rate
             if iter == next_stepsize + 1:
@@ -305,6 +306,7 @@ class SolverWrapper(object):
             else:
                 # Compute the graph without summary
                 rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, total_loss = self.net.train_step(sess, blobs, train_op)
+            loss_sum += total_loss
             timer.toc()
 
             # Display training information
@@ -326,6 +328,10 @@ class SolverWrapper(object):
                 if len(np_paths) > cfg.TRAIN.SNAPSHOT_KEPT:
                     self.remove_snapshot(np_paths, ss_paths)
 
+                if args.use_early_stop and args.stop_loss != None and loss_sum / cfg.TRAIN.SNAPSHOT_ITERS <= float(args.stop_loss) and loss_sum!=0:
+                    break
+                loss_sum=0
+
             if iter % cfg.TRAIN.SNAPSHOT_BATCH_SIZE_ITERS == 0 and iter !=0 :  # 每100000次就保存一次模型文件
                 last_snapshot_iter = iter
                 ss_path, np_path = self.snapshot(sess, iter, self._save_batch_model)
@@ -339,19 +345,21 @@ class SolverWrapper(object):
                     extra_test_package=args.extra_test_package
                     evaluate_net.eval_net(self._save_batch_model, iter,CLASSES, args.net, predict_dir, test_packages,extra_test_package)
             if args.use_early_stop:
-                if iter==int(args.stop_iter):
+                if iter==int(args.stop_iter) and args.stop_iter!=None:
                     stop_files = os.path.join(self.output_dir, '*_iter_{}.ckpt.meta'.format(iter))
                     stop_files = glob.glob(stop_files)
-                    if len(stop_files)!=0 :
-                        self.snapshot(sess, iter)
-                break
+                    print(stop_files)
+                    if len(stop_files)==0 :
+                        self.snapshot(sess, iter,self.output_dir)
+                    break
+
 
 
 
             iter += 1
 
-        if last_snapshot_iter != iter - 1:
-            self.snapshot(sess, iter - 1)
+        if last_snapshot_iter != iter - 1 and args.use_early_stop==False:
+            self.snapshot(sess, iter - 1,self.output_dir)
 
         self.writer.close()
         self.valwriter.close()
