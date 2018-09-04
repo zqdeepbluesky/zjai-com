@@ -93,6 +93,15 @@ def parse_args():
     parser.add_argument('--extra_test_package', dest='extra_test_package',
                         help='train_data1,train_data2,train_data3',
                         default=['all_train_data_resize2'], type=list)
+    parser.add_argument('--use_early_stop', dest='use_early_stop',
+                        help='whether use early stop',
+                        default=False, type=bool)
+    parser.add_argument('--stop_iter', dest='stop_iter',
+                        help='stop at which iter',
+                        default=4000000, type=str)
+    parser.add_argument('--stop_loss', dest='stop_loss',
+                        help='stop at which loss level',
+                        default=0.001, type=str)
     return parser
 
 def load_base_network():

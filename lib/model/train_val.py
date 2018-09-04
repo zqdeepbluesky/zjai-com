@@ -338,6 +338,14 @@ class SolverWrapper(object):
                     test_packages = args.package_name
                     extra_test_package=args.extra_test_package
                     evaluate_net.eval_net(self._save_batch_model, iter,CLASSES, args.net, predict_dir, test_packages,extra_test_package)
+            if args.use_early_stop:
+                if iter==int(args.stop_iter):
+                    stop_files = os.path.join(self.output_dir, '*_iter_{}.ckpt.meta'.format(iter))
+                    stop_files = glob.glob(stop_files)
+                    if len(stop_files)!=0 :
+                        self.snapshot(sess, iter)
+                break
+
 
 
             iter += 1
