@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from nets.resnet_v1 import resnetv1
 from nets.vgg16 import vgg16
+from lib.model.config import cfg
 
 def get_tf_model(model_dir,model_data):
     tf_model = os.path.join(model_dir, model_data)
@@ -24,7 +25,7 @@ def load_model(sess,demonet,tf_model,classes_num):
         net = resnetv1(num_layers=101)
     else:
         raise NotImplementedError
-    net.create_architecture("TEST", classes_num, tag='default', anchor_scales=[8, 16, 32])
+    net.create_architecture("TEST", classes_num, tag='default', anchor_scales=cfg.ANCHOR_SCALES,anchor_ratios=cfg.ANCHOR_RATIOS)
     saver = tf.train.Saver()
     saver.restore(sess, tf_model)   #加载模型权重
 
