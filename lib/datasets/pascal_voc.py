@@ -187,6 +187,9 @@ class pascal_voc(imdb):
         # filename = os.path.join(self._file_dict[index], index + ".xml")
         # filename = filename.replace("JPEGImages", "Annotations")
         tree = ET.parse(filename)
+        width=tree.find('size').find('width').text
+        height=tree.find('size').find('height').text
+
         objs = tree.findall('object')
         non_diff_objs = [ obj for obj in objs if int(obj.find('difficult').text) == 0]
         objs = non_diff_objs
@@ -217,7 +220,9 @@ class pascal_voc(imdb):
         return {'boxes': boxes,
                 'gt_classes': gt_classes,
                 'gt_overlaps': overlaps,
-                'seg_areas': seg_areas}
+                'seg_areas': seg_areas,
+                'width':int(width),
+                'height':int(height)}
 
     def _get_comp_id(self):
         comp_id = (self._comp_id + '_' + self._salt if self.config['use_salt']

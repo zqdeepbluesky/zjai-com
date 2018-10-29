@@ -108,23 +108,21 @@ class imdb(object):
         return [PIL.Image.open(self.image_path_at(i)).size[0] for i in range(self.num_images)]
 
     def append_hor_flipped_images(self,ori_num_images):  #水平翻转
-        sizes =[PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
+        #sizes =[PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         print("finish get_widths")
         for i in range(ori_num_images):
             boxes = self.roidb[i]['boxes'].copy()   #如果roidb还未加载时，会先加载，并保存,图片的object
             oldx1 = boxes[:, 0].copy()  #xmin
             oldx2 = boxes[:, 2].copy()  #xmax
-            boxes[:, 0] = sizes[i][0] - oldx2
-            boxes[:, 2] = sizes[i][0] - oldx1
+            boxes[:, 0] = self.roidb[i]['width'] - oldx2
+            boxes[:, 2] = self.roidb[i]['width'] - oldx1
             index=np.where(boxes[:, 2]< boxes[:, 0])
             boxes[index,0]=0
             assert (boxes[:, 2] >= boxes[:, 0]).all()
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
                      'gt_classes': self.roidb[i]['gt_classes'],
-                     'hor_flipped': True,
-                     'width':sizes[i][0],
-                     'height':sizes[i][1]}
+                     'hor_flipped': True}
 
             for key in self.roidb[i].keys():
                 if key not in entry.keys():
@@ -133,22 +131,20 @@ class imdb(object):
         self._image_index +=  self._image_index[:ori_num_images]
 
     def append_ver_flipped_images(self,ori_num_images):  #竖直翻转
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
+        #sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         for i in range(ori_num_images):
             boxes = self.roidb[i]['boxes'].copy()   #如果roidb还未加载时，会先加载，并保存,图片的object
             oldx1 = boxes[:, 1].copy()  #ymin
             oldx2 = boxes[:, 3].copy()  #ymax
-            boxes[:, 1] = sizes[i][1] - oldx2
-            boxes[:, 3] = sizes[i][1] - oldx1
+            boxes[:, 1] = self.roidb[i]['height'] - oldx2
+            boxes[:, 3] = self.roidb[i]['height'] - oldx1
             index = np.where(boxes[:, 3] < boxes[:, 1])
             boxes[index, 1] = 0
             assert (boxes[:, 3] >= boxes[:, 1]).all()
             entry = {'boxes': boxes,
                      'gt_overlaps': self.roidb[i]['gt_overlaps'],
                      'gt_classes': self.roidb[i]['gt_classes'],
-                     'ver_flipped': True,
-                     'width': sizes[i][0],
-                     'height': sizes[i][1]
+                     'ver_flipped': True
                      }
 
             for key in self.roidb[i].keys():
@@ -158,7 +154,7 @@ class imdb(object):
         self._image_index += self._image_index[:ori_num_images]
 
     def append_bright_adjuest_images(self,ori_num_images):
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
+        #sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         error_num=0
         for gamma in cfg.TRAIN.BRIGHT_ADJUEST_SCALE:
             if gamma==1 or gamma<=0:
@@ -169,9 +165,7 @@ class imdb(object):
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
                          'gt_classes': self.roidb[i]['gt_classes'],
-                         'bright_scale': gamma,
-                         'width': sizes[i][0],
-                         'height': sizes[i][1]
+                         'bright_scale': gamma
                          }
 
                 for key in self.roidb[i].keys():
@@ -182,14 +176,14 @@ class imdb(object):
 
     def append_rotate_adjuest_images(self,ori_num_images):
         error_num=0
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
+        #sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         for angle in cfg.TRAIN.ROTATE_ADJUEST_ANGLE:
             if angle==0 or angle==360:
                 error_num+=1
                 continue
             for i in range(ori_num_images):
                 boxes = self.roidb[i]['boxes'].copy()
-                size=[sizes[i][0],sizes[i][1]]
+                size=[self.roidb[i]['width'],self.roidb[i]['height']]
                 boxes,widthNew,heightNew=data_augment._rotate_boxes(boxes, size, angle)
                 entry = {'boxes': boxes,
                          'gt_overlaps': self.roidb[i]['gt_overlaps'],
@@ -197,7 +191,6 @@ class imdb(object):
                          'rotate_angle':angle,
                          'width': int(widthNew),
                          'height': int(heightNew)}
-
                 for key in self.roidb[i].keys():
                     if key not in entry.keys():
                         entry[key] = self.roidb[i][key]
@@ -206,11 +199,11 @@ class imdb(object):
 
     def append_shift_adjuest_images(self,ori_num_images):
         this_image_index=self._image_index[:ori_num_images]
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
+        #sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         offset=(cfg.TRAIN.SHIFT_ADJUEST_X,cfg.TRAIN.SHIFT_ADJUEST_Y)
         for i in range(ori_num_images):
             boxes = self.roidb[i]['boxes'].copy()
-            size = [sizes[i][0], sizes[i][1]]
+            size = [self.roidb[i]['width'],self.roidb[i]['height']]
             boxes,exist_list = data_augment._shift_boxes(boxes, size, offset)
             if len(boxes)==0:
                 this_image_index.remove(this_image_index[i])
@@ -220,9 +213,7 @@ class imdb(object):
                      'gt_overlaps': self.roidb[i]['gt_overlaps'][exist_list],
                      'gt_classes': self.roidb[i]['gt_classes'][exist_list],
                      'shift_x':offset[0],
-                     'shift_y':offset[1],
-                     'width': size[0],
-                     'height': size[1]}
+                     'shift_y':offset[1]}
 
             for key in self.roidb[i].keys():
                 if key not in entry.keys():
@@ -231,7 +222,7 @@ class imdb(object):
         self._image_index += this_image_index
 
     def append_zoom_adjuest_images(self,ori_num_images):
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
+        #sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         scales=cfg.TRAIN.ZOOM_ADJUEST_SCALE
         error_num=0
         for scale in scales:
@@ -240,7 +231,7 @@ class imdb(object):
                 continue
             for i in range(ori_num_images):
                 boxes = self.roidb[i]['boxes'].copy()
-                size = [sizes[i][0], sizes[i][1]]
+                size = [self.roidb[i]['width'],self.roidb[i]['height']]
                 boxes = data_augment._zoom_boxes(boxes, scale)
 
                 entry = {'boxes': boxes,
@@ -258,15 +249,16 @@ class imdb(object):
         self._image_index += self._image_index[:ori_num_images] * (len(cfg.TRAIN.ZOOM_ADJUEST_SCALE) - error_num)
 
     def append_random_crop_images(self,ori_num_images):
-        sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
+        #sizes = [PIL.Image.open(self.image_path_at(i)).size for i in range(ori_num_images)]
         crop_sizes=cfg.TRAIN.CROP_SIZE
         scale=cfg.TRAIN.RESIZE_SCALE
         this_image_index=[]
         for crop_size in crop_sizes:
             for i in range(ori_num_images):
+                size=[self.roidb[i]['width'],self.roidb[i]['height']]
                 boxes = self.roidb[i]['boxes'].copy()
-                resize_scale = data_augment.cal_scale(sizes[i], scale)
-                img_size = (int(sizes[i][0] / resize_scale), int(sizes[i][1] / resize_scale))
+                resize_scale = data_augment.cal_scale(size, scale)
+                img_size = (int(size[0] / resize_scale), int(size[1] / resize_scale))
                 boxes = data_augment.resize_box(boxes, resize_scale)
                 if img_size[0] >= crop_size[0] and img_size[1] >= crop_size[1] and resize_scale>=1:
                     position_list = ['lu', 'ld', 'ru', 'rd', 'm']
