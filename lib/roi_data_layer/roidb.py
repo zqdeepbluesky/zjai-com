@@ -32,6 +32,9 @@ def prepare_roidb(imdb): #详细说明riodb的属性  利用imdb传递数据，�
         roidb[i]['image'] = imdb.image_path_at(i)
         if not (imdb.name.startswith('coco')):
             if 'width' not in roidb[i] or 'height' not in roidb[i]:
+                print(roidb)
+                import time
+                time.sleep(1000)
                 sizes=PIL.Image.open(imdb.image_path_at(i)).size
                 roidb[i]['width'] = sizes[0]
                 roidb[i]['height'] = sizes[1]

@@ -61,6 +61,7 @@ class pascal_voc(imdb):
         self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))  #弄成序号
         self._image_ext = '.jpg'
         self._image_index = self._load_image_set_index()
+        self.file_list=load_file_dict(os.path.join(os.path.join(cfg.ROOT_DIR,'data','file_dict'), "{}_file_dict.txt".format("+".join(self.package_name))))
         # Default to roidb handler
         self._roidb_handler = self.gt_roidb    #返回基础的roidb
         # self._file_dict = self._load_file_dict()
@@ -86,9 +87,9 @@ class pascal_voc(imdb):
         """
         Construct an image path from the image's "index" identifier.
         """
-        file_dict_dir=os.path.join(cfg.ROOT_DIR,'data','file_dict')
-        file_list = load_file_dict(os.path.join(file_dict_dir, "{}_file_dict.txt".format("+".join(self.package_name))))
-        image_path = os.path.join(file_list[index], 'JPEGImages', index + self._image_ext)
+        #file_dict_dir=os.path.join(cfg.ROOT_DIR,'data','file_dict')
+        #file_list = load_file_dict(os.path.join(file_dict_dir, "{}_file_dict.txt".format("+".join(self.package_name))))
+        image_path = os.path.join(self.file_list[index], 'JPEGImages', index + self._image_ext)
         assert os.path.exists(image_path), 'Path does not exist: {}'.format(image_path)
         return image_path
 
@@ -181,9 +182,9 @@ class pascal_voc(imdb):
         format.
         从XML文件中获取图片信息和gt
         """
-        file_dict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'file_dict')
-        file_list=load_file_dict(os.path.join(file_dict_dir,"{}_file_dict.txt".format("+".join(self.package_name))))
-        filename = os.path.join(file_list[index], 'Annotations', index + '.xml')
+        #file_dict_dir = os.path.join(cfg.ROOT_DIR, 'data', 'file_dict')
+        #file_list=load_file_dict(os.path.join(file_dict_dir,"{}_file_dict.txt".format("+".join(self.package_name))))
+        filename = os.path.join(self.file_list[index], 'Annotations', index + '.xml')
         # filename = os.path.join(self._file_dict[index], index + ".xml")
         # filename = filename.replace("JPEGImages", "Annotations")
         tree = ET.parse(filename)
@@ -216,13 +217,13 @@ class pascal_voc(imdb):
             seg_areas[ix] = (x2 - x1 + 1) * (y2 - y1 + 1)
 
         overlaps = scipy.sparse.csr_matrix(overlaps)
-
         return {'boxes': boxes,
                 'gt_classes': gt_classes,
                 'gt_overlaps': overlaps,
                 'seg_areas': seg_areas,
                 'width':int(width),
-                'height':int(height)}
+                'height':int(height),
+                'image':filename}
 
     def _get_comp_id(self):
         comp_id = (self._comp_id + '_' + self._salt if self.config['use_salt']
